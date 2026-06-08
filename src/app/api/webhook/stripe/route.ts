@@ -49,7 +49,8 @@ export async function POST(request: NextRequest) {
         }
         case "invoice.payment_succeeded": {
             const invoice = event.data.object as Stripe.Invoice;
-            const subId = invoice.subscription as string | null;
+            // Stripe SDK v22 moved subscription to parent; keep runtime compat via cast
+            const subId = (invoice as unknown as { subscription?: string | null }).subscription ?? null;
             if (!subId) break; // initial checkout invoice — already handled by checkout.session.completed
             const sub = await stripe.subscriptions.retrieve(subId);
             const uid = getUserId(sub);
@@ -59,7 +60,8 @@ export async function POST(request: NextRequest) {
         case "customer.subscription.deleted":
         case "invoice.payment_failed": {
             const obj = event.data.object as Stripe.Subscription | Stripe.Invoice;
-            const subId = ("subscription" in obj ? obj.subscription as string | null : obj.id);
+            const invoiceSub = (obj as unknown as { subscription?: string | null }).subscription;
+            const subId = obj.object === "invoice" ? (invoiceSub ?? null) : (obj as Stripe.Subscription).id;
             if (!subId) break;
             const sub = await stripe.subscriptions.retrieve(subId);
             const uid = getUserId(sub);

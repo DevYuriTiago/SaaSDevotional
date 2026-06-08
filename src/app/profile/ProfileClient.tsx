@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import BottomNav from "@/components/BottomNav";
+import { useUIStore } from "@/store";
 
 interface Props {
     profile: Record<string, unknown> | null;
@@ -32,6 +33,7 @@ function getLevel(xp: number) {
 
 export default function ProfileClient({ profile, userEmail }: Props) {
     const router = useRouter();
+    const { nightMode, toggleNightMode } = useUIStore();
     const name = (profile?.name as string) ?? "Amigo";
     const streak = (profile?.streak_days as number) ?? 0;
     const totalDevotionals = (profile?.total_devotionals as number) ?? 0;
@@ -274,6 +276,33 @@ export default function ProfileClient({ profile, userEmail }: Props) {
                         <p className="text-sm font-semibold flex-1" style={{ color: "var(--text-primary)" }}>Jornadas de 21 dias</p>
                         <span style={{ color: "var(--text-muted)" }}>→</span>
                     </Link>
+                    <button
+                        onClick={toggleNightMode}
+                        className="card-base p-4 flex items-center gap-3 w-full text-left"
+                    >
+                        <span className="text-xl">{nightMode ? "🌙" : "☀️"}</span>
+                        <div className="flex-1">
+                            <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Modo Madrugada</p>
+                            <p className="text-xs" style={{ color: "var(--text-muted)" }}>
+                                {nightMode ? "Ativo — visual contemplativo escuro" : "Desativado — visual padrão"}
+                            </p>
+                        </div>
+                        <div
+                            className="w-11 h-6 rounded-full relative transition-all duration-300 flex-shrink-0"
+                            style={{
+                                background: nightMode ? "var(--gradient-button)" : "rgba(255,255,255,0.1)",
+                                border: `1px solid ${nightMode ? "transparent" : "rgba(255,255,255,0.12)"}`,
+                            }}
+                        >
+                            <div
+                                className="absolute top-0.5 w-5 h-5 rounded-full bg-white transition-all duration-300"
+                                style={{
+                                    left: nightMode ? "calc(100% - 22px)" : "2px",
+                                    boxShadow: "0 1px 4px rgba(0,0,0,0.3)",
+                                }}
+                            />
+                        </div>
+                    </button>
                 </motion.div>
 
                 {/* Logout */}

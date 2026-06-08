@@ -33,7 +33,7 @@ export default function JourneyPage() {
 
             setIsPremium(profile?.subscription_tier === "premium");
             setPlans(
-                (rawPlans ?? []).map((p) => ({
+                (rawPlans ?? []).map((p: { slug: string; journey_days: unknown }) => ({
                     slug: p.slug,
                     completedDays: (p.journey_days as { count: number }[])[0]?.count ?? 0,
                 }))

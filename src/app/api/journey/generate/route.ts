@@ -111,6 +111,8 @@ Retorne SOMENTE JSON válido:
             responseMimeType: "application/json",
             temperature: 0.72,
             maxOutputTokens: 8192,
+            // @ts-expect-error thinkingConfig não está nos tipos do SDK ainda
+            thinkingConfig: { thinkingBudget: 0 },
         },
     });
 

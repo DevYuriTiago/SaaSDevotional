@@ -483,3 +483,33 @@ body {
     width: 100%;
   }
 }
+
+/* ─── Modo Madrugada ─────────────────────────────── */
+.night-mode {
+  --bg-base: #010208;
+  --bg-surface: #030512;
+  --bg-elevated: #050818;
+  --glass: rgba(255, 255, 255, 0.03);
+  --glass-hover: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.05);
+  --glass-strong: rgba(255, 255, 255, 0.06);
+  --text-primary: #DDE3EF;
+  --text-secondary: #8896B0;
+  --text-muted: #4E5C78;
+  --text-highlight: #B8B0F0;
+  --brand-purple: #7C3AED;
+  --brand-indigo: #4338CA;
+  --gradient-primary: linear-gradient(135deg, #5B21B6 0%, #3730A3 100%);
+  --gradient-button: linear-gradient(135deg, #5B21B6 0%, #4C1D95 100%);
+  --gradient-aurora: linear-gradient(160deg, #010208 0%, #030512 40%, #010208 100%);
+  --shadow-ambient: 0 0 80px rgba(76, 29, 149, 0.08);
+  --shadow-button: 0 10px 30px rgba(76, 29, 149, 0.20);
+  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.65);
+}
+
+.night-mode .aurora-bg::before {
+  background:
+    radial-gradient(ellipse at 15% 15%, rgba(55, 48, 163, 0.08) 0%, transparent 55%),
+    radial-gradient(ellipse at 85% 80%, rgba(49, 46, 129, 0.06) 0%, transparent 55%),
+    radial-gradient(ellipse at 50% 50%, rgba(30, 27, 75, 0.04) 0%, transparent 60%);
+}

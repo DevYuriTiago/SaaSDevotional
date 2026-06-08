@@ -8,6 +8,7 @@ import { useDevotionalStore } from "@/store";
 import { createClient } from "@/lib/supabase/client";
 import BottomNav from "@/components/BottomNav";
 import ShareModal from "@/components/ShareModal";
+import DevotionalAudio from "@/components/DevotionalAudio";
 import type { ShareData } from "@/components/ShareModal";
 
 const sectionVariants = {
@@ -28,13 +29,23 @@ export default function ReadDevotionalPage() {
     const [journalText, setJournalText] = useState("");
     const [journalSaved, setJournalSaved] = useState(false);
     const [showShare, setShowShare] = useState(false);
+    const [isPremium, setIsPremium] = useState(false);
 
     const supabase = createClient();
 
     useEffect(() => {
         if (!currentDevotional) {
             router.replace("/emotion");
+            return;
         }
+        supabase
+            .from("profiles")
+            .select("subscription_tier")
+            .single()
+            .then(({ data }: { data: { subscription_tier: string } | null }) => {
+                if (data?.subscription_tier === "premium") setIsPremium(true);
+            });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentDevotional, router]);
 
     if (!currentDevotional) return null;
@@ -171,6 +182,16 @@ export default function ReadDevotionalPage() {
                         <polygon points="22 2 15 22 11 13 2 9 22 2" />
                     </svg>
                 </button>
+            </motion.div>
+
+            {/* ── Player de áudio ── */}
+            <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.35 }}
+                className="max-w-lg lg:max-w-3xl mx-auto px-5 pt-4 pb-1"
+            >
+                <DevotionalAudio devotional={d} isPremium={isPremium} />
             </motion.div>
 
             <div className="relative z-10 max-w-lg lg:max-w-3xl mx-auto px-5 pt-6">

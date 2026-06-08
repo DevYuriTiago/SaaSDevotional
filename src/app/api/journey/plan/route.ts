@@ -94,6 +94,8 @@ export async function POST(request: NextRequest) {
                 responseMimeType: "application/json",
                 temperature: 0.6,
                 maxOutputTokens: 4096,
+                // @ts-expect-error thinkingConfig não está nos tipos do SDK ainda
+                thinkingConfig: { thinkingBudget: 0 },
             },
         });
 

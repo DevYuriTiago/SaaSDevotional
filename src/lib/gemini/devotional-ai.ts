@@ -18,6 +18,8 @@ Retorne SOMENTE um JSON válido com esta estrutura:
         generationConfig: {
             responseMimeType: "application/json",
             temperature: 0.3,
+            // @ts-expect-error thinkingConfig não está nos tipos do SDK ainda
+            thinkingConfig: { thinkingBudget: 0 },
         },
     });
 
@@ -81,6 +83,8 @@ Crie um devocional profundamente personalizado e único para este momento.`;
             responseMimeType: "application/json",
             temperature: 0.85,
             maxOutputTokens: 8192,
+            // @ts-expect-error thinkingConfig não está nos tipos do SDK ainda
+            thinkingConfig: { thinkingBudget: 0 },
         },
     });
 
