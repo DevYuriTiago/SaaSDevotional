@@ -7,8 +7,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { motion } from "framer-motion";
-import { KeyRound } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { BrandMark, Icon } from "@/components/icons";
 
 const schema = z
     .object({
@@ -53,15 +53,15 @@ export default function ResetPasswordPage() {
                 className="relative z-10 w-full max-w-md"
             >
                 <div className="text-center mb-10">
-                    <Link href="/" className="inline-flex items-center gap-2 mb-6">
-                        <span className="text-3xl">✨</span>
-                        <span className="font-semibold text-lg" style={{ color: "var(--text-primary)" }}>Sentindo Hoje</span>
+                    <Link href="/" className="inline-flex flex-col items-center gap-3 mb-6">
+                        <BrandMark size={48} />
+                        <span className="font-display text-lg" style={{ color: "var(--cream)", fontWeight: 500 }}>Sentindo Hoje</span>
                     </Link>
                     <div className="w-16 h-16 rounded-2xl mx-auto mb-6 flex items-center justify-center"
-                        style={{ background: "rgba(168,85,247,0.15)", border: "1px solid rgba(168,85,247,0.25)" }}>
-                        <KeyRound size={28} style={{ color: "var(--brand-purple)" }} />
+                        style={{ background: "rgba(247,201,122,0.12)", border: "1px solid var(--glass-border)" }}>
+                        <Icon name="lock" size={28} style={{ color: "var(--gold)" }} />
                     </div>
-                    <h1 className="text-2xl font-bold mb-2" style={{ color: "var(--text-primary)" }}>
+                    <h1 className="font-display mb-2" style={{ color: "var(--cream)", fontSize: "1.6rem", fontWeight: 400, letterSpacing: "-0.01em" }}>
                         Nova senha
                     </h1>
                     <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
@@ -115,7 +115,7 @@ export default function ResetPasswordPage() {
                                 </p>
                                 <p className="text-xs text-center" style={{ color: "var(--text-muted)" }}>
                                     Solicite um{" "}
-                                    <Link href="/forgot-password" style={{ color: "var(--brand-purple)" }}>
+                                    <Link href="/forgot-password" style={{ color: "var(--gold)" }}>
                                         novo link de recuperação
                                     </Link>
                                 </p>
@@ -129,7 +129,7 @@ export default function ResetPasswordPage() {
                         >
                             {isSubmitting ? (
                                 <span className="flex items-center gap-2">
-                                    <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                    <span className="w-4 h-4 border-2 border-black/20 border-t-black/70 rounded-full animate-spin" />
                                     Salvando...
                                 </span>
                             ) : (

@@ -3,62 +3,65 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
+import { Icon, BrandMark, type IconName } from "@/components/icons";
 
-const NAV_ITEMS = [
-    { href: "/dashboard", icon: "⊞", label: "Início" },
-    { href: "/devotional/read", icon: "📖", label: "Devocional" },
-    { href: "/journey", icon: "🧭", label: "Jornadas" },
-    { href: "/journal", icon: "📝", label: "Diário" },
-    { href: "/profile", icon: "👤", label: "Perfil" },
+const NAV_ITEMS: { href: string; icon: IconName; label: string }[] = [
+    { href: "/dashboard", icon: "dawn", label: "Início" },
+    { href: "/devotional/read", icon: "book", label: "Devocional" },
+    { href: "/journey", icon: "compass", label: "Jornadas" },
+    { href: "/journal", icon: "pen", label: "Diário" },
+    { href: "/profile", icon: "user", label: "Perfil" },
 ];
 
 export default function DesktopSidebar() {
     const pathname = usePathname();
 
     return (
-        <aside className="hidden lg:flex fixed left-0 top-0 bottom-0 w-64 flex-col z-50"
+        <aside
+            className="hidden lg:flex fixed left-0 top-0 bottom-0 w-64 flex-col z-50"
             style={{
-                background: "rgba(6, 8, 22, 0.92)",
+                background: "rgba(8, 7, 15, 0.94)",
                 backdropFilter: "blur(32px)",
                 borderRight: "1px solid var(--glass-border)",
             }}
         >
-            {/* Aurora glow inside sidebar */}
-            <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-none">
-                <div className="absolute -top-20 -left-10 w-48 h-48 rounded-full" style={{
-                    background: "radial-gradient(circle, rgba(168,85,247,0.12) 0%, transparent 70%)",
-                    filter: "blur(30px)",
-                }} />
-            </div>
+            {/* Brilho dourado tênue no topo */}
+            <div className="absolute inset-x-0 top-0 h-40 pointer-events-none" style={{
+                background: "radial-gradient(120% 80% at 50% 0%, rgba(247,201,122,0.10) 0%, transparent 65%)",
+            }} />
 
-            {/* Brand */}
-            <div className="relative px-6 pt-8 pb-5">
-                <Link href="/dashboard" className="block group">
-                    <p className="text-[11px] font-medium mb-1 uppercase tracking-widest" style={{ color: "var(--text-muted)" }}>IA Espiritual</p>
-                    <h2 className="text-sm font-bold leading-snug transition-colors group-hover:text-purple-300" style={{ color: "var(--text-primary)" }}>
-                        O Que Você Está<br />Sentindo Hoje?
-                    </h2>
+            {/* Marca */}
+            <div className="relative px-5 pt-7 pb-5">
+                <Link href="/dashboard" className="flex items-center gap-3 group">
+                    <BrandMark size={34} />
+                    <div>
+                        <p className="text-[10px] font-medium uppercase tracking-[0.22em]" style={{ color: "var(--text-muted)" }}>Sua vigília</p>
+                        <h2 className="text-sm leading-snug font-display" style={{ color: "var(--cream)" }}>
+                            Sentindo Hoje
+                        </h2>
+                    </div>
                 </Link>
             </div>
 
-            {/* New devotional CTA */}
+            {/* Novo devocional */}
             <div className="relative px-4 mb-5">
                 <Link
                     href="/emotion"
-                    className="flex items-center justify-center gap-2 w-full h-11 rounded-2xl text-sm font-semibold text-white transition-all hover:-translate-y-0.5"
+                    className="flex items-center justify-center gap-2 w-full h-11 rounded-full text-sm font-semibold transition-all hover:-translate-y-0.5"
                     style={{
-                        background: "var(--gradient-button)",
-                        boxShadow: "0 8px 24px rgba(168,85,247,0.35)",
+                        background: "var(--gradient-gold)",
+                        color: "#2A1E08",
+                        boxShadow: "var(--shadow-button), inset 0 1px 0 rgba(255,255,255,0.4)",
                     }}
                 >
-                    ✨ Novo devocional
+                    <Icon name="sunrise" size={17} strokeWidth={1.8} />
+                    Novo devocional
                 </Link>
             </div>
 
-            {/* Divider */}
             <div className="mx-4 mb-3" style={{ height: 1, background: "var(--glass-border)" }} />
 
-            {/* Nav */}
+            {/* Navegação */}
             <nav className="relative flex-1 px-3 overflow-y-auto">
                 {NAV_ITEMS.map((item) => {
                     const active =
@@ -70,22 +73,22 @@ export default function DesktopSidebar() {
                             href={item.href}
                             className="flex items-center gap-3 px-3 py-2.5 rounded-xl mb-0.5 transition-all duration-200 relative"
                             style={{
-                                background: active
-                                    ? "rgba(168,85,247,0.14)"
-                                    : "transparent",
-                                color: active ? "var(--text-primary)" : "var(--text-secondary)",
+                                background: active ? "rgba(247,201,122,0.10)" : "transparent",
+                                color: active ? "var(--cream)" : "var(--text-secondary)",
                             }}
                         >
-                            <span className="text-base w-5 text-center leading-none flex-shrink-0"
-                                style={{ opacity: active ? 1 : 0.5 }}>
-                                {item.icon}
-                            </span>
+                            <Icon
+                                name={item.icon}
+                                size={19}
+                                strokeWidth={active ? 1.8 : 1.5}
+                                style={{ color: active ? "var(--gold)" : "var(--text-muted)", flexShrink: 0 }}
+                            />
                             <span className="text-sm font-medium flex-1">{item.label}</span>
                             {active && (
                                 <motion.div
                                     layoutId="sidebar-dot"
                                     className="w-1.5 h-5 rounded-full flex-shrink-0"
-                                    style={{ background: "var(--gradient-button)" }}
+                                    style={{ background: "var(--gradient-gold)" }}
                                     transition={{ type: "spring", bounce: 0.2, duration: 0.4 }}
                                 />
                             )}
@@ -94,23 +97,23 @@ export default function DesktopSidebar() {
                 })}
             </nav>
 
-            {/* Bottom: premium upsell */}
+            {/* Premium */}
             <div className="relative px-4 pb-6 pt-3">
-                <div className="mx-0 mb-2" style={{ height: 1, background: "var(--glass-border)" }} />
+                <div className="mb-3" style={{ height: 1, background: "var(--glass-border)" }} />
                 <Link
                     href="/subscription"
-                    className="block rounded-2xl p-4 mt-3 transition-all hover:border-purple-500/40"
+                    className="block rounded-2xl p-4 transition-all hover:-translate-y-0.5"
                     style={{
-                        background: "rgba(168,85,247,0.07)",
-                        border: "1px solid rgba(168,85,247,0.18)",
+                        background: "rgba(247,201,122,0.06)",
+                        border: "1px solid rgba(247,201,122,0.20)",
                     }}
                 >
                     <div className="flex items-center gap-2 mb-1">
-                        <span className="text-base">👑</span>
-                        <p className="text-xs font-semibold" style={{ color: "var(--text-primary)" }}>Plano Premium</p>
+                        <Icon name="crown" size={16} style={{ color: "var(--gold)" }} />
+                        <p className="text-xs font-semibold" style={{ color: "var(--cream)" }}>Plano Premium</p>
                     </div>
                     <p className="text-xs" style={{ color: "var(--text-muted)" }}>Devocionais ilimitados</p>
-                    <p className="text-xs font-bold mt-1" style={{ color: "var(--brand-purple)" }}>R$ 24,90/mês →</p>
+                    <p className="text-xs font-bold mt-1" style={{ color: "var(--gold)" }}>R$ 24,90/mês →</p>
                 </Link>
             </div>
         </aside>

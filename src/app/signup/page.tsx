@@ -9,6 +9,7 @@ import { z } from "zod";
 import { motion } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
 import { GoogleButton } from "@/components/auth/GoogleButton";
+import { BrandMark, Icon } from "@/components/icons";
 
 const schema = z.object({
     name: z.string().min(2, "Nome muito curto"),
@@ -63,8 +64,11 @@ export default function SignupPage() {
                     animate={{ opacity: 1, scale: 1 }}
                     className="relative z-10 w-full max-w-md text-center glass-strong rounded-3xl p-10"
                 >
-                    <span className="text-5xl mb-6 block">📧</span>
-                    <h2 className="text-2xl font-bold mb-3" style={{ color: "var(--text-primary)" }}>
+                    <span className="mx-auto mb-6 flex items-center justify-center w-16 h-16 rounded-2xl"
+                        style={{ background: "rgba(247,201,122,0.12)", border: "1px solid var(--glass-border)" }}>
+                        <Icon name="bell" size={28} style={{ color: "var(--gold)" }} />
+                    </span>
+                    <h2 className="font-display mb-3" style={{ color: "var(--cream)", fontSize: "1.5rem", fontWeight: 400 }}>
                         Verifique seu e-mail
                     </h2>
                     <p className="text-sm mb-6" style={{ color: "var(--text-secondary)" }}>
@@ -75,7 +79,7 @@ export default function SignupPage() {
                         <button
                             onClick={() => setEmailSent(false)}
                             className="underline"
-                            style={{ color: "var(--brand-violet)" }}
+                            style={{ color: "var(--gold)" }}
                         >
                             Tentar novamente
                         </button>
@@ -90,11 +94,11 @@ export default function SignupPage() {
                     className="relative z-10 w-full max-w-md"
                 >
                     <div className="text-center mb-10">
-                        <Link href="/" className="inline-flex items-center gap-2 mb-6">
-                            <span className="text-3xl">✨</span>
-                            <span className="font-semibold text-lg" style={{ color: "var(--text-primary)" }}>Sentindo Hoje</span>
+                        <Link href="/" className="inline-flex flex-col items-center gap-3 mb-6">
+                            <BrandMark size={48} />
+                            <span className="font-display text-lg" style={{ color: "var(--cream)", fontWeight: 500 }}>Sentindo Hoje</span>
                         </Link>
-                        <h1 className="text-2xl font-bold mb-2" style={{ color: "var(--text-primary)" }}>Comece sua jornada</h1>
+                        <h1 className="font-display mb-2" style={{ color: "var(--cream)", fontSize: "1.6rem", fontWeight: 400, letterSpacing: "-0.01em" }}>Comece sua jornada</h1>
                         <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
                             Seu primeiro devocional é gratuito
                         </p>
@@ -104,9 +108,9 @@ export default function SignupPage() {
                         <GoogleButton next="/onboarding" label="Continuar com Google" />
 
                         <div className="flex items-center gap-3 my-5">
-                            <div className="flex-1 h-px" style={{ background: "rgba(255,255,255,0.08)" }} />
+                            <div className="flex-1 h-px" style={{ background: "var(--glass-border)" }} />
                             <span className="text-xs" style={{ color: "var(--text-muted)" }}>ou</span>
-                            <div className="flex-1 h-px" style={{ background: "rgba(255,255,255,0.08)" }} />
+                            <div className="flex-1 h-px" style={{ background: "var(--glass-border)" }} />
                         </div>
 
                         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
@@ -175,11 +179,14 @@ export default function SignupPage() {
                             >
                                 {isSubmitting ? (
                                     <span className="flex items-center gap-2">
-                                        <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                        <span className="w-4 h-4 border-2 border-black/20 border-t-black/70 rounded-full animate-spin" />
                                         Criando conta...
                                     </span>
                                 ) : (
-                                    "✨ Criar conta gratuita"
+                                    <span className="flex items-center gap-2">
+                                        <Icon name="sparkle" size={18} />
+                                        Criar conta gratuita
+                                    </span>
                                 )}
                             </button>
                         </form>
@@ -191,7 +198,7 @@ export default function SignupPage() {
                         <div className="mt-6 text-center">
                             <p className="text-sm" style={{ color: "var(--text-muted)" }}>
                                 Já tem conta?{" "}
-                                <Link href="/login" className="font-medium" style={{ color: "var(--brand-violet)" }}>
+                                <Link href="/login" className="font-medium" style={{ color: "var(--gold)" }}>
                                     Entrar
                                 </Link>
                             </p>

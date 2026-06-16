@@ -6,8 +6,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Mail } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { Icon } from "@/components/icons";
 
 const schema = z.object({
     email: z.string().email("E-mail inválido"),
@@ -50,14 +50,14 @@ export default function ForgotPasswordPage() {
             >
                 <div className="text-center mb-10">
                     <Link href="/login" className="inline-flex items-center gap-2 mb-6 text-sm" style={{ color: "var(--text-muted)" }}>
-                        <ArrowLeft size={16} />
+                        <Icon name="arrow-left" size={16} style={{ color: "var(--gold)" }} />
                         Voltar ao login
                     </Link>
                     <div className="w-16 h-16 rounded-2xl mx-auto mb-6 flex items-center justify-center"
-                        style={{ background: "rgba(168,85,247,0.15)", border: "1px solid rgba(168,85,247,0.25)" }}>
-                        <Mail size={28} style={{ color: "var(--brand-purple)" }} />
+                        style={{ background: "rgba(247,201,122,0.12)", border: "1px solid var(--glass-border)" }}>
+                        <Icon name="bell" size={28} style={{ color: "var(--gold)" }} />
                     </div>
-                    <h1 className="text-2xl font-bold mb-2" style={{ color: "var(--text-primary)" }}>
+                    <h1 className="font-display mb-2" style={{ color: "var(--cream)", fontSize: "1.6rem", fontWeight: 400, letterSpacing: "-0.01em" }}>
                         Recuperar senha
                     </h1>
                     <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
@@ -74,13 +74,16 @@ export default function ForgotPasswordPage() {
                                 animate={{ opacity: 1, scale: 1 }}
                                 className="text-center space-y-4"
                             >
-                                <div className="text-5xl mb-4">📬</div>
-                                <h2 className="text-lg font-semibold" style={{ color: "var(--text-primary)" }}>
+                                <div className="mx-auto mb-4 flex items-center justify-center w-14 h-14 rounded-2xl"
+                                    style={{ background: "rgba(247,201,122,0.12)", border: "1px solid var(--glass-border)" }}>
+                                    <Icon name="check" size={26} style={{ color: "var(--gold)" }} />
+                                </div>
+                                <h2 className="font-display" style={{ color: "var(--cream)", fontSize: "1.15rem", fontWeight: 400 }}>
                                     E-mail enviado!
                                 </h2>
                                 <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
                                     Enviamos um link para{" "}
-                                    <span className="font-medium" style={{ color: "var(--text-primary)" }}>
+                                    <span className="font-medium" style={{ color: "var(--cream)" }}>
                                         {getValues("email")}
                                     </span>
                                     . Verifique também a caixa de spam.
@@ -131,7 +134,7 @@ export default function ForgotPasswordPage() {
                                 >
                                     {isSubmitting ? (
                                         <span className="flex items-center gap-2">
-                                            <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                            <span className="w-4 h-4 border-2 border-black/20 border-t-black/70 rounded-full animate-spin" />
                                             Enviando...
                                         </span>
                                     ) : (

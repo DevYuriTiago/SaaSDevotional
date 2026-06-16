@@ -19,16 +19,20 @@ export default async function DashboardPage() {
         profileData = created;
     }
 
-    const [devResult, journalResult] = await Promise.all([
+    const [devResult, journalResult, datesResult] = await Promise.all([
         supabase.from("devotionals").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).limit(10),
         supabase.from("journal_entries").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).limit(5),
+        supabase.from("devotionals").select("created_at").eq("user_id", user.id),
     ]);
+
+    const activeDates = (datesResult.data ?? []).map((r: { created_at: string }) => r.created_at);
 
     return (
         <DashboardClient
             profile={profileData}
             devotionals={devResult.data ?? []}
             journalEntries={journalResult.data ?? []}
+            activeDates={activeDates}
         />
     );
 }

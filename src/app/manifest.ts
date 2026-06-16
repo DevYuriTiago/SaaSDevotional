@@ -8,8 +8,8 @@ export default function manifest(): MetadataRoute.Manifest {
       "Devocional personalizado por IA baseado no que você está sentindo agora.",
     start_url: "/",
     display: "standalone",
-    background_color: "#060816",
-    theme_color: "#A855F7",
+    background_color: "#0B0B12",
+    theme_color: "#0B0B12",
     orientation: "portrait",
     categories: ["lifestyle", "health"],
     icons: [

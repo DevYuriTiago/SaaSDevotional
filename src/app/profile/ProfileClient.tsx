@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import BottomNav from "@/components/BottomNav";
 import { useUIStore } from "@/store";
+import { Icon, type IconName } from "@/components/icons";
 
 interface Props {
     profile: Record<string, unknown> | null;
@@ -70,14 +71,14 @@ export default function ProfileClient({ profile, userEmail }: Props) {
     const xp = Math.round(baseXp * streakMult);
     const level = getLevel(xp);
 
-    const achievements = [
-        { icon: "📖", label: "Primeiro Passo", desc: "1º devocional", unlocked: totalDevotionals >= 1 },
-        { icon: "✨", label: "Fiel", desc: "7 devocionais", unlocked: totalDevotionals >= 7 },
-        { icon: "💫", label: "Perseverante", desc: "30 devocionais", unlocked: totalDevotionals >= 30 },
-        { icon: "🔥", label: "Em Chamas", desc: "Streak de 7 dias", unlocked: streak >= 7 },
-        { icon: "🌱", label: "Fundamentos", desc: "7 dias em jornada", unlocked: maxJourneyDays >= 7 },
-        { icon: "🔥", label: "Aprofundamento", desc: "14 dias em jornada", unlocked: maxJourneyDays >= 14 },
-        { icon: "🕊️", label: "Maturidade", desc: "21 dias em jornada", unlocked: maxJourneyDays >= 21 },
+    const achievements: { icon: IconName; label: string; desc: string; unlocked: boolean }[] = [
+        { icon: "book", label: "Primeiro Passo", desc: "1º devocional", unlocked: totalDevotionals >= 1 },
+        { icon: "sparkle", label: "Fiel", desc: "7 devocionais", unlocked: totalDevotionals >= 7 },
+        { icon: "star", label: "Perseverante", desc: "30 devocionais", unlocked: totalDevotionals >= 30 },
+        { icon: "flame", label: "Em Chamas", desc: "Streak de 7 dias", unlocked: streak >= 7 },
+        { icon: "sparkle", label: "Fundamentos", desc: "7 dias em jornada", unlocked: maxJourneyDays >= 7 },
+        { icon: "flame", label: "Aprofundamento", desc: "14 dias em jornada", unlocked: maxJourneyDays >= 14 },
+        { icon: "dove", label: "Maturidade", desc: "21 dias em jornada", unlocked: maxJourneyDays >= 21 },
     ];
     const unlockedCount = achievements.filter((a) => a.unlocked).length;
 
@@ -87,13 +88,13 @@ export default function ProfileClient({ profile, userEmail }: Props) {
         router.push("/login");
     }
 
-    const stats = [
-        { label: "Streak", value: streak, unit: "dias", emoji: "🔥" },
-        { label: "Devocionais", value: totalDevotionals, unit: "total", emoji: "📖" },
+    const stats: { label: string; value: number; unit: string; icon: IconName }[] = [
+        { label: "Streak", value: streak, unit: "dias", icon: "flame" },
+        { label: "Devocionais", value: totalDevotionals, unit: "total", icon: "book" },
     ];
 
     return (
-        <main className="relative min-h-dvh pb-24 lg:pb-10">
+        <main className="aurora-bg relative min-h-dvh pb-24 lg:pb-10">
             <div className="relative z-10 max-w-md lg:max-w-xl mx-auto px-5 pt-10">
                 {/* Avatar */}
                 <motion.div
@@ -102,22 +103,24 @@ export default function ProfileClient({ profile, userEmail }: Props) {
                     className="flex flex-col items-center mb-8"
                 >
                     <div
-                        className="w-20 h-20 rounded-full flex items-center justify-center text-3xl font-bold mb-4"
+                        className="font-display w-20 h-20 rounded-full flex items-center justify-center text-3xl mb-4"
                         style={{
-                            background: "var(--gradient-primary)",
-                            boxShadow: "0 0 40px rgba(168,85,247,0.35)",
+                            background: "var(--gradient-gold)",
+                            color: "var(--night)",
+                            fontWeight: 500,
+                            boxShadow: "0 0 40px rgba(247,201,122,0.3)",
                         }}
                     >
                         {name[0]}
                     </div>
-                    <h1 className="text-xl font-bold mb-1" style={{ color: "var(--text-primary)" }}>{name}</h1>
+                    <h1 className="font-display text-xl mb-1" style={{ color: "var(--cream)", fontWeight: 500 }}>{name}</h1>
                     <p className="text-sm" style={{ color: "var(--text-muted)" }}>{userEmail}</p>
                     {isPremium && (
                         <span
-                            className="mt-3 text-xs px-3 py-1 rounded-full font-semibold"
-                            style={{ background: "rgba(168,85,247,0.15)", color: "var(--brand-purple)", border: "1px solid rgba(168,85,247,0.3)" }}
+                            className="mt-3 text-xs px-3 py-1 rounded-full font-semibold inline-flex items-center gap-1.5"
+                            style={{ background: "rgba(247,201,122,0.15)", color: "var(--gold)", border: "1px solid rgba(247,201,122,0.3)" }}
                         >
-                            👑 Premium
+                            <Icon name="crown" size={13} style={{ color: "var(--gold)" }} /> Premium
                         </span>
                     )}
                 </motion.div>
@@ -131,11 +134,8 @@ export default function ProfileClient({ profile, userEmail }: Props) {
                 >
                     {stats.map((s, i) => (
                         <div key={i} className="card-base p-4 text-center">
-                            <span className="text-2xl mb-1 block">{s.emoji}</span>
-                            <p
-                                className="text-2xl font-bold mb-0.5"
-                                style={{ background: "var(--gradient-primary)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}
-                            >{s.value}</p>
+                            <Icon name={s.icon} size={24} style={{ color: "var(--text-secondary)" }} className="mx-auto mb-1.5" />
+                            <p className="font-display text-2xl mb-0.5" style={{ color: "var(--cream)", fontWeight: 500 }}>{s.value}</p>
                             <p className="text-xs" style={{ color: "var(--text-muted)" }}>{s.unit}</p>
                         </div>
                     ))}
@@ -150,7 +150,7 @@ export default function ProfileClient({ profile, userEmail }: Props) {
                 >
                     <div className="flex items-center justify-between mb-2">
                         <div>
-                            <p className="text-xs uppercase tracking-widest mb-0.5" style={{ color: "var(--text-muted)" }}>Nível</p>
+                            <p className="eyebrow mb-0.5" style={{ color: "var(--text-muted)" }}>Nível</p>
                             <p className="text-sm font-bold" style={{ color: "var(--text-primary)" }}>
                                 {level.idx + 1} · {level.label}
                             </p>
@@ -160,21 +160,21 @@ export default function ProfileClient({ profile, userEmail }: Props) {
                                 <span
                                     className="text-xs font-semibold px-1.5 py-0.5 rounded-full"
                                     style={{
-                                        background: streakMult >= 1 ? "rgba(168,85,247,0.15)" : "rgba(255,100,50,0.15)",
-                                        color: streakMult >= 1 ? "var(--brand-purple)" : "#f97316",
+                                        background: "rgba(255,252,245,0.05)",
+                                        color: streakMult >= 1 ? "var(--text-secondary)" : "var(--amber)",
                                     }}
                                 >
                                     {streakMult >= 1 ? "+" : ""}{Math.round((streakMult - 1) * 100)}%
                                 </span>
                                 <p className="text-xs" style={{ color: "var(--text-muted)" }}>streak</p>
                             </div>
-                            <p className="text-sm font-bold" style={{ color: "var(--brand-purple)" }}>{xp} XP</p>
+                            <p className="font-display text-sm" style={{ color: "var(--cream)", fontWeight: 500 }}>{xp} XP</p>
                         </div>
                     </div>
-                    <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(168,85,247,0.12)" }}>
+                    <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,252,245,0.05)" }}>
                         <motion.div
                             className="h-full rounded-full"
-                            style={{ background: "var(--gradient-button)" }}
+                            style={{ background: "var(--gradient-gold)" }}
                             initial={{ width: 0 }}
                             animate={{ width: `${level.pct}%` }}
                             transition={{ duration: 0.8, ease: "easeOut" }}
@@ -195,8 +195,8 @@ export default function ProfileClient({ profile, userEmail }: Props) {
                     className="mb-6"
                 >
                     <div className="flex items-center justify-between mb-3">
-                        <p className="text-xs uppercase tracking-widest" style={{ color: "var(--text-muted)" }}>Conquistas</p>
-                        <p className="text-xs" style={{ color: "var(--brand-purple)" }}>{unlockedCount}/{achievements.length}</p>
+                        <p className="eyebrow" style={{ color: "var(--text-muted)" }}>Conquistas</p>
+                        <p className="text-xs" style={{ color: "var(--text-muted)" }}>{unlockedCount}/{achievements.length}</p>
                     </div>
                     <div className="flex flex-col gap-2">
                         {achievements.map((a, i) => (
@@ -207,22 +207,24 @@ export default function ProfileClient({ profile, userEmail }: Props) {
                                 transition={{ delay: 0.2 + i * 0.05 }}
                                 className="flex items-center gap-4 rounded-2xl px-4 py-3"
                                 style={{
-                                    background: a.unlocked ? "rgba(168,85,247,0.10)" : "rgba(255,255,255,0.03)",
-                                    border: `1px solid ${a.unlocked ? "rgba(168,85,247,0.25)" : "rgba(255,255,255,0.06)"}`,
+                                    background: a.unlocked ? "rgba(255,252,245,0.05)" : "rgba(255,255,255,0.03)",
+                                    border: `1px solid ${a.unlocked ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.06)"}`,
                                     opacity: a.unlocked ? 1 : 0.5,
                                 }}
                             >
                                 {/* Medalha */}
                                 <div
-                                    className="w-11 h-11 rounded-full flex items-center justify-center text-xl shrink-0"
+                                    className="w-11 h-11 rounded-full flex items-center justify-center shrink-0"
                                     style={{
-                                        background: a.unlocked
-                                            ? "radial-gradient(circle, rgba(168,85,247,0.3) 0%, rgba(168,85,247,0.08) 100%)"
-                                            : "rgba(255,255,255,0.05)",
-                                        border: `1.5px solid ${a.unlocked ? "rgba(168,85,247,0.4)" : "rgba(255,255,255,0.08)"}`,
+                                        background: "rgba(255,252,245,0.05)",
+                                        border: `1.5px solid ${a.unlocked ? "rgba(255,255,255,0.10)" : "rgba(255,255,255,0.08)"}`,
                                     }}
                                 >
-                                    {a.unlocked ? a.icon : "🔒"}
+                                    <Icon
+                                        name={a.unlocked ? a.icon : "lock"}
+                                        size={20}
+                                        style={{ color: a.unlocked ? "var(--text-secondary)" : "var(--text-muted)" }}
+                                    />
                                 </div>
                                 {/* Texto */}
                                 <div className="flex-1 min-w-0">
@@ -235,7 +237,7 @@ export default function ProfileClient({ profile, userEmail }: Props) {
                                 </div>
                                 {/* Check */}
                                 {a.unlocked && (
-                                    <span className="text-xs font-bold shrink-0" style={{ color: "var(--brand-purple)" }}>✓</span>
+                                    <Icon name="check" size={16} strokeWidth={2} style={{ color: "var(--text-secondary)", flexShrink: 0 }} />
                                 )}
                             </motion.div>
                         ))}
@@ -251,36 +253,36 @@ export default function ProfileClient({ profile, userEmail }: Props) {
                 >
                     {!isPremium && (
                         <Link href="/subscription" className="card-base p-4 flex items-center gap-3 block"
-                            style={{ borderColor: "rgba(168,85,247,0.25)" }}
+                            style={{ borderColor: "rgba(247,201,122,0.25)" }}
                         >
-                            <span className="text-xl">👑</span>
+                            <Icon name="crown" size={20} style={{ color: "var(--gold)" }} />
                             <div className="flex-1">
                                 <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Assinar Premium</p>
                                 <p className="text-xs" style={{ color: "var(--text-muted)" }}>R$ 24,90/mês · Devocionais ilimitados</p>
                             </div>
-                            <span style={{ color: "var(--brand-purple)" }}>→</span>
+                            <Icon name="arrow-right" size={16} style={{ color: "var(--text-muted)" }} />
                         </Link>
                     )}
                     <Link href="/journal" className="card-base p-4 flex items-center gap-3 block">
-                        <span className="text-xl">📝</span>
+                        <Icon name="pen" size={20} style={{ color: "var(--text-secondary)" }} />
                         <p className="text-sm font-semibold flex-1" style={{ color: "var(--text-primary)" }}>Meu diário espiritual</p>
-                        <span style={{ color: "var(--text-muted)" }}>→</span>
+                        <Icon name="arrow-right" size={16} style={{ color: "var(--text-muted)" }} />
                     </Link>
                     <Link href="/devotional/history" className="card-base p-4 flex items-center gap-3 block">
-                        <span className="text-xl">📖</span>
+                        <Icon name="book" size={20} style={{ color: "var(--text-secondary)" }} />
                         <p className="text-sm font-semibold flex-1" style={{ color: "var(--text-primary)" }}>Histórico de devocionais</p>
-                        <span style={{ color: "var(--text-muted)" }}>→</span>
+                        <Icon name="arrow-right" size={16} style={{ color: "var(--text-muted)" }} />
                     </Link>
                     <Link href="/journey" className="card-base p-4 flex items-center gap-3 block">
-                        <span className="text-xl">🔥</span>
+                        <Icon name="flame" size={20} style={{ color: "var(--text-secondary)" }} />
                         <p className="text-sm font-semibold flex-1" style={{ color: "var(--text-primary)" }}>Jornadas de 21 dias</p>
-                        <span style={{ color: "var(--text-muted)" }}>→</span>
+                        <Icon name="arrow-right" size={16} style={{ color: "var(--text-muted)" }} />
                     </Link>
                     <button
                         onClick={toggleNightMode}
                         className="card-base p-4 flex items-center gap-3 w-full text-left"
                     >
-                        <span className="text-xl">{nightMode ? "🌙" : "☀️"}</span>
+                        <Icon name={nightMode ? "moon" : "sunrise"} size={20} style={{ color: "var(--text-secondary)" }} />
                         <div className="flex-1">
                             <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Modo Madrugada</p>
                             <p className="text-xs" style={{ color: "var(--text-muted)" }}>
@@ -290,7 +292,7 @@ export default function ProfileClient({ profile, userEmail }: Props) {
                         <div
                             className="w-11 h-6 rounded-full relative transition-all duration-300 flex-shrink-0"
                             style={{
-                                background: nightMode ? "var(--gradient-button)" : "rgba(255,255,255,0.1)",
+                                background: nightMode ? "var(--gradient-gold)" : "rgba(255,255,255,0.1)",
                                 border: `1px solid ${nightMode ? "transparent" : "rgba(255,255,255,0.12)"}`,
                             }}
                         >
@@ -316,7 +318,7 @@ export default function ProfileClient({ profile, userEmail }: Props) {
                         className="btn-ghost w-full"
                         style={{ color: "var(--text-muted)" }}
                     >
-                        Sair da conta
+                        <Icon name="logout" size={16} /> Sair da conta
                     </button>
                 </motion.div>
             </div>

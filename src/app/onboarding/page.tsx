@@ -4,11 +4,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
+import { Icon, type IconName } from "@/components/icons";
 
 const steps = [
     {
         id: "welcome",
-        title: (name: string) => `${name}, que bom ter você aqui ✨`,
+        title: (name: string) => `${name}, que bom ter você aqui`,
         subtitle: "Este é um espaço seguro. Sem julgamento. Só você, Deus e a Palavra.",
         content: null,
     },
@@ -26,10 +27,10 @@ const steps = [
     },
 ];
 
-const frequencies = [
-    { id: "daily", label: "Todo dia", emoji: "🔥", desc: "Conexão diária com Deus" },
-    { id: "weekly", label: "Algumas vezes por semana", emoji: "⭐", desc: "Consistência equilibrada" },
-    { id: "whenever", label: "Quando precisar", emoji: "🕊️", desc: "No meu próprio ritmo" },
+const frequencies: { id: string; label: string; icon: IconName; desc: string }[] = [
+    { id: "daily", label: "Todo dia", icon: "flame", desc: "Conexão diária com Deus" },
+    { id: "weekly", label: "Algumas vezes por semana", icon: "star", desc: "Consistência equilibrada" },
+    { id: "whenever", label: "Quando precisar", icon: "dove", desc: "No meu próprio ritmo" },
 ];
 
 export default function OnboardingPage() {
@@ -58,8 +59,8 @@ export default function OnboardingPage() {
     return (
         <main className="relative min-h-screen flex items-center justify-center px-6 overflow-hidden">
             <div className="absolute inset-0 pointer-events-none">
-                <div className="absolute rounded-full blur-[120px]" style={{ width: 600, height: 600, left: "15%", top: "-10%", background: "rgba(124,58,237,0.10)" }} />
-                <div className="absolute rounded-full blur-[80px]" style={{ width: 400, height: 400, right: "5%", bottom: "5%", background: "rgba(79,70,229,0.08)" }} />
+                <div className="absolute rounded-full blur-[120px]" style={{ width: 600, height: 600, left: "15%", top: "-10%", background: "rgba(255,252,245,0.05)" }} />
+                <div className="absolute rounded-full blur-[80px]" style={{ width: 400, height: 400, right: "5%", bottom: "5%", background: "rgba(224,151,90,0.06)" }} />
             </div>
 
             <div className="relative z-10 w-full max-w-lg">
@@ -71,7 +72,7 @@ export default function OnboardingPage() {
                             className="h-1 rounded-full transition-all duration-500"
                             style={{
                                 width: i === step ? 32 : 8,
-                                background: i <= step ? "var(--brand-violet)" : "var(--border-subtle)",
+                                background: i <= step ? "var(--text-secondary)" : "var(--glass-border)",
                             }}
                         />
                     ))}
@@ -86,7 +87,7 @@ export default function OnboardingPage() {
                         transition={{ duration: 0.4 }}
                         className="text-center"
                     >
-                        <h1 className="text-3xl sm:text-4xl font-bold mb-4" style={{ color: "var(--text-primary)" }}>
+                        <h1 className="font-display mb-4" style={{ color: "var(--cream)", fontSize: "clamp(1.9rem, 7vw, 2.4rem)", fontWeight: 400, letterSpacing: "-0.01em" }}>
                             {steps[step].title(name)}
                         </h1>
                         <p className="text-lg mb-12" style={{ color: "var(--text-secondary)" }}>
@@ -103,14 +104,14 @@ export default function OnboardingPage() {
                                         whileTap={{ scale: 0.98 }}
                                         className="flex items-center gap-4 p-5 rounded-2xl text-left transition-all duration-200"
                                         style={{
-                                            background: frequency === f.id ? "rgba(124,58,237,0.15)" : "var(--bg-glass)",
-                                            border: `1px solid ${frequency === f.id ? "var(--brand-violet)" : "var(--border-subtle)"}`,
+                                            background: frequency === f.id ? "rgba(255,252,245,0.05)" : "var(--glass)",
+                                            border: `1px solid ${frequency === f.id ? "rgba(255,252,245,0.25)" : "var(--glass-border)"}`,
                                             backdropFilter: "blur(12px)",
                                         }}
                                     >
-                                        <span className="text-2xl">{f.emoji}</span>
+                                        <Icon name={f.icon} size={24} style={{ color: frequency === f.id ? "var(--text-secondary)" : "var(--text-secondary)" }} />
                                         <div>
-                                            <p className="font-semibold text-base" style={{ color: "var(--text-primary)" }}>{f.label}</p>
+                                            <p className="font-semibold text-base" style={{ color: "var(--cream)" }}>{f.label}</p>
                                             <p className="text-sm" style={{ color: "var(--text-secondary)" }}>{f.desc}</p>
                                         </div>
                                         {frequency === f.id && (
@@ -118,9 +119,9 @@ export default function OnboardingPage() {
                                                 initial={{ scale: 0 }}
                                                 animate={{ scale: 1 }}
                                                 className="ml-auto w-5 h-5 rounded-full flex items-center justify-center"
-                                                style={{ background: "var(--brand-violet)" }}
+                                                style={{ background: "var(--gold)" }}
                                             >
-                                                <span className="text-white text-xs">✓</span>
+                                                <Icon name="check" size={13} style={{ color: "var(--night)" }} />
                                             </motion.div>
                                         )}
                                     </motion.button>
@@ -139,16 +140,20 @@ export default function OnboardingPage() {
                         >
                             {loading ? (
                                 <span className="flex items-center gap-2">
-                                    <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                    <span className="w-4 h-4 border-2 border-black/20 border-t-black/70 rounded-full animate-spin" />
                                     Preparando...
                                 </span>
                             ) : (
-                                "Começar minha jornada ✨"
+                                <>
+                                    Começar minha jornada
+                                    <Icon name="sparkle" size={18} strokeWidth={1.8} />
+                                </>
                             )}
                         </button>
                     ) : (
                         <button onClick={() => setStep((s) => s + 1)} className="btn-primary text-base px-10 py-4">
-                            Continuar →
+                            Continuar
+                            <Icon name="arrow-right" size={18} strokeWidth={1.8} />
                         </button>
                     )}
                 </div>

@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import type { Devotional } from "@/types";
+import { Icon } from "@/components/icons";
 
 interface Props {
     devotional: Devotional;
@@ -131,14 +132,15 @@ export default function DevotionalAudio({ devotional, isPremium }: Props) {
         return (
             <div
                 className="flex items-center gap-3 px-4 py-3 rounded-2xl"
-                style={{ background: "rgba(168,85,247,0.05)", border: "1px solid rgba(168,85,247,0.12)" }}
+                style={{ background: "rgba(247,201,122,0.05)", border: "1px solid var(--glass-border)" }}
             >
-                <span className="text-base">🔒</span>
+                <Icon name="lock" size={16} style={{ color: "var(--gold)" }} />
                 <span className="text-xs flex-1" style={{ color: "var(--text-muted)" }}>
                     Áudio disponível no Premium
                 </span>
-                <Link href="/subscription" className="text-xs font-semibold" style={{ color: "var(--brand-purple)" }}>
-                    Assinar →
+                <Link href="/subscription" className="text-xs font-semibold flex items-center gap-1" style={{ color: "var(--gold)" }}>
+                    Assinar
+                    <Icon name="arrow-right" size={13} style={{ color: "var(--gold)" }} />
                 </Link>
             </div>
         );
@@ -150,24 +152,24 @@ export default function DevotionalAudio({ devotional, isPremium }: Props) {
                 onClick={handleTTS}
                 className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-2xl text-xs font-medium transition-all"
                 style={{
-                    background: speaking ? "rgba(168,85,247,0.18)" : "rgba(168,85,247,0.07)",
-                    border: `1px solid ${speaking ? "rgba(168,85,247,0.4)" : "rgba(168,85,247,0.14)"}`,
-                    color: speaking ? "var(--brand-purple)" : "var(--text-secondary)",
+                    background: speaking ? "rgba(247,201,122,0.18)" : "rgba(247,201,122,0.07)",
+                    border: `1px solid ${speaking ? "rgba(247,201,122,0.4)" : "var(--glass-border)"}`,
+                    color: speaking ? "var(--gold)" : "var(--text-secondary)",
                 }}
             >
-                <span>{speaking ? "⏹" : "▶"}</span>
+                <Icon name={speaking ? "pause" : "play"} size={15} style={{ color: speaking ? "var(--gold)" : "var(--text-secondary)" }} />
                 <span>{speaking ? "Parar leitura" : "Ouvir devocional"}</span>
             </button>
             <button
                 onClick={handleAmbient}
                 className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-2xl text-xs font-medium transition-all"
                 style={{
-                    background: ambient ? "rgba(99,102,241,0.18)" : "rgba(99,102,241,0.07)",
-                    border: `1px solid ${ambient ? "rgba(99,102,241,0.4)" : "rgba(99,102,241,0.14)"}`,
-                    color: ambient ? "#818CF8" : "var(--text-secondary)",
+                    background: ambient ? "rgba(247,201,122,0.18)" : "rgba(247,201,122,0.07)",
+                    border: `1px solid ${ambient ? "rgba(247,201,122,0.4)" : "var(--glass-border)"}`,
+                    color: ambient ? "var(--gold)" : "var(--text-secondary)",
                 }}
             >
-                <span>{ambient ? "🔇" : "🎵"}</span>
+                <Icon name="waves" size={15} style={{ color: ambient ? "var(--gold)" : "var(--text-secondary)" }} />
                 <span>{ambient ? "Som ligado" : "Música ambiente"}</span>
             </button>
         </div>

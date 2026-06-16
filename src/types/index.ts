@@ -20,6 +20,8 @@ export interface EmotionCategory {
     id: string;
     label: string;
     emoji: string;
+    /** Glifo ex-voto autoral (chave do set em components/icons) */
+    glyph?: string;
     color: string;
     description: string;
     sub_emotions?: string[];

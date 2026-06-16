@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Icon } from "@/components/icons";
 
 export interface ShareData {
     type: "devotional" | "journey";
@@ -50,20 +51,20 @@ function drawCard(canvas: HTMLCanvasElement, data: ShareData) {
 
     // ── Background ──────────────────────────────────────────────
     const bg = ctx.createLinearGradient(0, 0, W, H);
-    bg.addColorStop(0, "#070012");
-    bg.addColorStop(0.48, "#130330");
-    bg.addColorStop(1, "#0b0220");
+    bg.addColorStop(0, "#07070D");
+    bg.addColorStop(0.48, "#0B0B12");
+    bg.addColorStop(1, "#07070D");
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, W, H);
 
     const g1 = ctx.createRadialGradient(W * 0.78, H * 0.32, 0, W * 0.78, H * 0.32, 780);
-    g1.addColorStop(0, "rgba(168,85,247,0.22)");
+    g1.addColorStop(0, "rgba(247,201,122,0.18)");
     g1.addColorStop(1, "rgba(0,0,0,0)");
     ctx.fillStyle = g1;
     ctx.fillRect(0, 0, W, H);
 
     const g2 = ctx.createRadialGradient(W * 0.18, H * 0.72, 0, W * 0.18, H * 0.72, 520);
-    g2.addColorStop(0, "rgba(88,28,135,0.16)");
+    g2.addColorStop(0, "rgba(224,151,90,0.14)");
     g2.addColorStop(1, "rgba(0,0,0,0)");
     ctx.fillStyle = g2;
     ctx.fillRect(0, 0, W, H);
@@ -81,14 +82,14 @@ function drawCard(canvas: HTMLCanvasElement, data: ShareData) {
 
     // ── App name ─────────────────────────────────────────────────
     ctx.textAlign = "center";
-    ctx.font = "300 40px system-ui, -apple-system, sans-serif";
-    ctx.fillStyle = "rgba(168,85,247,0.72)";
+    ctx.font = "300 40px 'Fraunces', Georgia, serif";
+    ctx.fillStyle = "rgba(247,201,122,0.8)";
     ctx.fillText("O Que Você Está Sentindo Hoje", W / 2, 142);
 
     const lg = ctx.createLinearGradient(W * 0.25, 0, W * 0.75, 0);
-    lg.addColorStop(0, "rgba(168,85,247,0)");
-    lg.addColorStop(0.5, "rgba(168,85,247,0.35)");
-    lg.addColorStop(1, "rgba(168,85,247,0)");
+    lg.addColorStop(0, "rgba(247,201,122,0)");
+    lg.addColorStop(0.5, "rgba(247,201,122,0.4)");
+    lg.addColorStop(1, "rgba(247,201,122,0)");
     ctx.strokeStyle = lg;
     ctx.lineWidth = 1.5;
     ctx.beginPath();
@@ -99,21 +100,21 @@ function drawCard(canvas: HTMLCanvasElement, data: ShareData) {
     // ── Milestone badge (opcional) ───────────────────────────────
     let contentY = 255;
     if (data.milestone) {
-        ctx.font = "500 44px system-ui, sans-serif";
-        ctx.fillStyle = "rgba(196,162,253,0.9)";
+        ctx.font = "500 44px 'Fraunces', Georgia, serif";
+        ctx.fillStyle = "rgba(251,227,176,0.92)";
         ctx.fillText(data.milestone, W / 2, contentY);
         contentY += 85;
     }
 
     // ── Aspas decorativas ────────────────────────────────────────
     ctx.font = "300 260px Georgia, serif";
-    ctx.fillStyle = "rgba(168,85,247,0.09)";
+    ctx.fillStyle = "rgba(247,201,122,0.10)";
     ctx.textAlign = "left";
     ctx.fillText("\u201C", 36, contentY + 240);
 
     // ── Declaração (texto principal) ─────────────────────────────
     ctx.font = "italic 700 78px Georgia, 'Times New Roman', serif";
-    ctx.fillStyle = "rgba(255,255,255,0.94)";
+    ctx.fillStyle = "rgba(251,247,230,0.95)";
     ctx.textAlign = "center";
     const declLines = wrapText(ctx, data.declaration, W - 200, 5);
     const declLineH = 108;
@@ -123,9 +124,9 @@ function drawCard(canvas: HTMLCanvasElement, data: ShareData) {
 
     // ── Divisor ──────────────────────────────────────────────────
     const dg = ctx.createLinearGradient(W * 0.3, 0, W * 0.7, 0);
-    dg.addColorStop(0, "rgba(168,85,247,0)");
-    dg.addColorStop(0.5, "rgba(168,85,247,0.48)");
-    dg.addColorStop(1, "rgba(168,85,247,0)");
+    dg.addColorStop(0, "rgba(247,201,122,0)");
+    dg.addColorStop(0.5, "rgba(247,201,122,0.5)");
+    dg.addColorStop(1, "rgba(247,201,122,0)");
     ctx.strokeStyle = dg;
     ctx.lineWidth = 2;
     ctx.beginPath();
@@ -136,7 +137,7 @@ function drawCard(canvas: HTMLCanvasElement, data: ShareData) {
     // ── Versículo ─────────────────────────────────────────────────
     const verseY = afterDecl + 85;
     ctx.font = "italic 400 52px Georgia, serif";
-    ctx.fillStyle = "rgba(255,255,255,0.58)";
+    ctx.fillStyle = "rgba(251,247,230,0.6)";
     const verseLines = wrapText(ctx, `\u201C${data.verse}\u201D`, W - 240, 5);
     const verseLineH = 72;
     verseLines.forEach((l, i) => ctx.fillText(l, W / 2, verseY + i * verseLineH));
@@ -144,14 +145,14 @@ function drawCard(canvas: HTMLCanvasElement, data: ShareData) {
 
     // ── Referência ────────────────────────────────────────────────
     ctx.font = "600 46px system-ui, sans-serif";
-    ctx.fillStyle = "rgba(168,85,247,0.85)";
+    ctx.fillStyle = "rgba(247,201,122,0.9)";
     ctx.fillText(`\u2014 ${data.verseRef}`, W / 2, afterVerse);
 
     // ── Atribuição ────────────────────────────────────────────────
     ctx.font = "400 38px system-ui, sans-serif";
-    ctx.fillStyle = "rgba(255,255,255,0.42)";
+    ctx.fillStyle = "rgba(251,247,230,0.42)";
     if (data.journeyLabel) {
-        const parts = [data.journeyEmoji, data.dayLabel, data.journeyLabel].filter(Boolean);
+        const parts = [data.dayLabel, data.journeyLabel].filter(Boolean);
         ctx.fillText(parts.join(" · "), W / 2, H - 248);
     } else if (data.date) {
         ctx.fillText(`Devocional Diário · ${data.date}`, W / 2, H - 248);
@@ -159,7 +160,7 @@ function drawCard(canvas: HTMLCanvasElement, data: ShareData) {
 
     // ── Watermark ─────────────────────────────────────────────────
     ctx.font = "300 36px system-ui, sans-serif";
-    ctx.fillStyle = "rgba(168,85,247,0.38)";
+    ctx.fillStyle = "rgba(247,201,122,0.4)";
     ctx.fillText("oquevoceestasentindohoje.app", W / 2, H - 148);
 }
 
@@ -230,11 +231,21 @@ export default function ShareModal({ open, onClose, data }: Props) {
                         exit={{ y: 80, opacity: 0 }}
                         transition={{ type: "spring", damping: 26 }}
                         className="w-full max-w-sm rounded-t-3xl p-6 pb-10"
-                        style={{ background: "#100a24", border: "1px solid rgba(168,85,247,0.22)" }}
+                        style={{ background: "var(--surface)", border: "1px solid var(--glass-border)" }}
                     >
-                        <div className="w-10 h-1 rounded-full mx-auto mb-5" style={{ background: "rgba(168,85,247,0.3)" }} />
+                        <div className="flex items-center justify-center relative mb-5">
+                            <div className="w-10 h-1 rounded-full" style={{ background: "rgba(247,201,122,0.3)" }} />
+                            <button
+                                onClick={onClose}
+                                aria-label="Fechar"
+                                className="absolute right-0 -top-1 flex items-center justify-center w-8 h-8 rounded-full transition-colors"
+                                style={{ color: "var(--text-muted)", border: "1px solid var(--glass-border)" }}
+                            >
+                                <Icon name="close" size={16} />
+                            </button>
+                        </div>
 
-                        <p className="text-xs uppercase tracking-widest mb-5 text-center" style={{ color: "rgba(168,85,247,0.7)" }}>
+                        <p className="eyebrow mb-5 text-center" style={{ color: "var(--gold)" }}>
                             Compartilhar
                         </p>
 
@@ -244,8 +255,8 @@ export default function ShareModal({ open, onClose, data }: Props) {
                                 className="relative rounded-2xl overflow-hidden"
                                 style={{
                                     width: 162, height: 288,
-                                    background: "#070012",
-                                    boxShadow: "0 0 40px rgba(168,85,247,0.25), 0 8px 32px rgba(0,0,0,0.6)",
+                                    background: "#07070D",
+                                    boxShadow: "0 0 40px rgba(247,201,122,0.22), 0 8px 32px rgba(0,0,0,0.6)",
                                     flexShrink: 0,
                                 }}
                             >
@@ -253,7 +264,7 @@ export default function ShareModal({ open, onClose, data }: Props) {
                                     <div className="absolute inset-0 flex items-center justify-center">
                                         <motion.div
                                             className="w-7 h-7 rounded-full"
-                                            style={{ border: "2px solid transparent", borderTopColor: "#a855f7" }}
+                                            style={{ border: "2px solid transparent", borderTopColor: "var(--gold)" }}
                                             animate={{ rotate: 360 }}
                                             transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                                         />
@@ -278,30 +289,30 @@ export default function ShareModal({ open, onClose, data }: Props) {
                                 disabled={!drawn}
                                 className="flex items-center justify-center gap-2 rounded-2xl py-4"
                                 style={{
-                                    background: drawn ? "linear-gradient(135deg,#9333ea,#7c3aed)" : "rgba(168,85,247,0.18)",
+                                    background: drawn ? "var(--gradient-gold)" : "rgba(247,201,122,0.18)",
                                     opacity: drawn ? 1 : 0.55,
-                                    boxShadow: drawn ? "0 4px 20px rgba(147,51,234,0.4)" : "none",
+                                    boxShadow: drawn ? "0 4px 20px rgba(247,201,122,0.35)" : "none",
                                     transition: "all 0.3s",
                                 }}
                             >
-                                <span className="text-lg">📤</span>
-                                <span className="text-sm font-semibold text-white">Compartilhar</span>
+                                <Icon name="share" size={18} style={{ color: drawn ? "var(--night)" : "var(--gold)" }} />
+                                <span className="text-sm font-semibold" style={{ color: drawn ? "var(--night)" : "var(--gold)" }}>Compartilhar</span>
                             </button>
 
                             <button
                                 onClick={handleCopy}
                                 disabled={!data}
                                 className="flex items-center justify-center gap-2 rounded-2xl py-4"
-                                style={{ background: "rgba(168,85,247,0.10)", border: "1px solid rgba(168,85,247,0.22)" }}
+                                style={{ background: "rgba(247,201,122,0.10)", border: "1px solid var(--glass-border)" }}
                             >
-                                <span className="text-lg">{copied ? "✅" : "📋"}</span>
-                                <span className="text-sm font-medium" style={{ color: copied ? "#4ade80" : "var(--text-secondary)" }}>
+                                <Icon name={copied ? "check" : "scroll"} size={18} style={{ color: copied ? "var(--gold)" : "var(--text-secondary)" }} />
+                                <span className="text-sm font-medium" style={{ color: copied ? "var(--gold)" : "var(--text-secondary)" }}>
                                     {copied ? "Copiado!" : "Copiar texto"}
                                 </span>
                             </button>
                         </div>
 
-                        <p className="text-xs text-center" style={{ color: "rgba(168,85,247,0.42)" }}>
+                        <p className="text-xs text-center" style={{ color: "rgba(247,201,122,0.45)" }}>
                             Salve e compartilhe no Instagram Stories ou Feed
                         </p>
                     </motion.div>

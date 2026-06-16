@@ -1,12 +1,16 @@
 
 import type { EmotionCategory } from "@/types";
 
+// Cores recoloridas para o mundo "Vigília → Alvorada": tons-joia
+// contidos (à luz de vela), usados só como leve tingimento ao
+// selecionar. Sem rosa #ec4899, sem vermelho/azul genéricos.
 export const EMOTION_CATEGORIES: EmotionCategory[] = [
     {
         id: "ansioso",
         label: "Ansioso",
         emoji: "😰",
-        color: "#6366f1",
+        glyph: "storm",
+        color: "#6C7BD6",
         description: "Preocupado com o futuro, inquieto, agitado",
         sub_emotions: ["preocupado", "inquieto", "nervoso", "com medo"],
     },
@@ -14,7 +18,8 @@ export const EMOTION_CATEGORIES: EmotionCategory[] = [
         id: "triste",
         label: "Triste",
         emoji: "😔",
-        color: "#3b82f6",
+        glyph: "rain",
+        color: "#4E7CB5",
         description: "Melancólico, com peso no coração",
         sub_emotions: ["melancólico", "desanimado", "deprimido", "solitário"],
     },
@@ -22,7 +27,8 @@ export const EMOTION_CATEGORIES: EmotionCategory[] = [
         id: "com-raiva",
         label: "Com Raiva",
         emoji: "😤",
-        color: "#ef4444",
+        glyph: "flame",
+        color: "#C2453E",
         description: "Frustrado, irritado, magoado",
         sub_emotions: ["frustrado", "irritado", "magoado", "injustiçado"],
     },
@@ -30,7 +36,8 @@ export const EMOTION_CATEGORIES: EmotionCategory[] = [
         id: "perdido",
         label: "Perdido",
         emoji: "🌫️",
-        color: "#8b5cf6",
+        glyph: "compass",
+        color: "#8A7DC8",
         description: "Sem direção, confuso, sem propósito",
         sub_emotions: ["confuso", "sem direção", "sem propósito", "vazio"],
     },
@@ -38,7 +45,8 @@ export const EMOTION_CATEGORIES: EmotionCategory[] = [
         id: "grato",
         label: "Grato",
         emoji: "🙏",
-        color: "#f59e0b",
+        glyph: "hands",
+        color: "#E0975A",
         description: "Cheio de gratidão, reconhecido",
         sub_emotions: ["agradecido", "alegre", "abençoado", "realizado"],
     },
@@ -46,7 +54,8 @@ export const EMOTION_CATEGORIES: EmotionCategory[] = [
         id: "esperancoso",
         label: "Esperançoso",
         emoji: "🌅",
-        color: "#10b981",
+        glyph: "sunrise",
+        color: "#E6B450",
         description: "Com fé no amanhã, renovado",
         sub_emotions: ["confiante", "animado", "renovado", "em paz"],
     },
@@ -54,7 +63,8 @@ export const EMOTION_CATEGORIES: EmotionCategory[] = [
         id: "cansado",
         label: "Cansado",
         emoji: "😮‍💨",
-        color: "#64748b",
+        glyph: "rest",
+        color: "#7C748F",
         description: "Esgotado, sem forças, sobrecarregado",
         sub_emotions: ["esgotado", "sobrecarregado", "sem energia", "exausto"],
     },
@@ -62,7 +72,8 @@ export const EMOTION_CATEGORIES: EmotionCategory[] = [
         id: "com-fe",
         label: "Com Fé",
         emoji: "✨",
-        color: "#d97706",
+        glyph: "anchor",
+        color: "#C9962E",
         description: "Firme, crente, confiando em Deus",
         sub_emotions: ["firme", "crente", "confiante em Deus", "seguro"],
     },
@@ -70,7 +81,8 @@ export const EMOTION_CATEGORIES: EmotionCategory[] = [
         id: "arrependido",
         label: "Arrependido",
         emoji: "💔",
-        color: "#ec4899",
+        glyph: "heart",
+        color: "#B05A6E",
         description: "Sentindo remorso, buscando perdão",
         sub_emotions: ["arrependido", "com remorso", "buscando perdão", "culpado"],
     },
@@ -78,10 +90,23 @@ export const EMOTION_CATEGORIES: EmotionCategory[] = [
         id: "solitario",
         label: "Solitário",
         emoji: "🌙",
-        color: "#0ea5e9",
+        glyph: "moon",
+        color: "#3E5AC8",
         description: "Sentindo-se só, esquecido, abandonado",
         sub_emotions: ["só", "esquecido", "abandonado", "isolado"],
     },
+];
+
+// Marcos de constância (streak) — metas curtas que puxam o retorno diário
+export const STREAK_MILESTONES: { days: number; label: string }[] = [
+    { days: 3, label: "Três dias" },
+    { days: 7, label: "Uma semana fiel" },
+    { days: 14, label: "Duas semanas" },
+    { days: 21, label: "Hábito formado · 21 dias" },
+    { days: 30, label: "Um mês de vigília" },
+    { days: 60, label: "Dois meses" },
+    { days: 100, label: "Cem dias com Deus" },
+    { days: 365, label: "Um ano inteiro" },
 ];
 
 export const FREE_DEVOTIONAL_LIMIT = 1;

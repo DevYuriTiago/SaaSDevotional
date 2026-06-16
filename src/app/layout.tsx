@@ -1,29 +1,34 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Cormorant_Garamond, Plus_Jakarta_Sans } from "next/font/google";
+import { Fraunces, Cormorant_Garamond, Sora } from "next/font/google";
 import ClientLayout from "@/components/ClientLayout";
 import "./globals.css";
 
-const inter = Inter({
-  variable: "--font-inter",
+// Voz SAGRADA — serifa de alto contraste para títulos e a pergunta ("Lumina Sacra")
+const fraunces = Fraunces({
+  variable: "--font-fraunces",
   subsets: ["latin"],
+  style: ["normal", "italic"],
   display: "swap",
 });
 
+// Voz da ESCRITURA — leitura do devocional, versículos (lê como uma página impressa)
 const cormorant = Cormorant_Garamond({
   variable: "--font-cormorant",
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["300", "400", "500", "600"],
+  style: ["normal", "italic"],
   display: "swap",
 });
 
-const jakarta = Plus_Jakarta_Sans({
-  variable: "--font-jakarta",
+// Voz da ESTRUTURA — toda a UI, botões, navegação, metadados
+const sora = Sora({
+  variable: "--font-sora",
   subsets: ["latin"],
   display: "swap",
 });
 
 export const viewport: Viewport = {
-  themeColor: "#A855F7",
+  themeColor: "#0B0B12",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -85,7 +90,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-BR" data-scroll-behavior="smooth" className={`${inter.variable} ${cormorant.variable} ${jakarta.variable} h-full`}>
+    <html lang="pt-BR" data-scroll-behavior="smooth" className={`${fraunces.variable} ${cormorant.variable} ${sora.variable} h-full`}>
       <body className="aurora-bg antialiased"><ClientLayout>{children}</ClientLayout></body>
     </html>
   );

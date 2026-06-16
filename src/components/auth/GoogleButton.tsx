@@ -29,13 +29,13 @@ export function GoogleButton({ next = "/dashboard", label = "Continuar com Googl
             disabled={loading}
             className="w-full flex items-center justify-center gap-3 rounded-2xl px-4 py-3.5 text-sm font-medium transition-all hover:opacity-80 disabled:opacity-50"
             style={{
-                background: "rgba(255,255,255,0.06)",
-                border: "1px solid rgba(255,255,255,0.12)",
-                color: "var(--text-primary)",
+                background: "var(--glass)",
+                border: "1px solid var(--glass-border)",
+                color: "var(--cream)",
             }}
         >
             {loading ? (
-                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <span className="w-4 h-4 border-2 rounded-full animate-spin" style={{ borderColor: "var(--glass-border)", borderTopColor: "var(--gold)" }} />
             ) : (
                 <GoogleIcon />
             )}

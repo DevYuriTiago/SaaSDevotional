@@ -8,7 +8,7 @@ import { JOURNEY_THEMES } from "@/lib/constants";
 import { createClient } from "@/lib/supabase/client";
 import type { Devotional } from "@/types";
 import ShareModal from "@/components/ShareModal";
-import type { ShareData } from "@/components/ShareModal";
+import { Icon, journeyGlyph, type IconName } from "@/components/icons";
 
 interface Props {
     slug: string;
@@ -24,6 +24,21 @@ interface DayInfo {
     generated_at?: string;
 }
 
+// Mapeia o emoji de fase (constants JourneyPhase.icon) para um ícone de linha.
+function phaseGlyph(emoji: string): IconName {
+    switch (emoji) {
+        case "🌱": return "sparkle";
+        case "🔥": return "flame";
+        case "🕊️": return "dove";
+        case "🌅": return "sunrise";
+        case "👑": return "crown";
+        case "🧭": return "compass";
+        case "⚡": return "flame";
+        case "🌟": return "star";
+        default: return "sparkle";
+    }
+}
+
 const sectionVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: (i: number) => ({
@@ -33,10 +48,10 @@ const sectionVariants = {
 };
 
 function DayButton({ d, selected, onClick }: { d: DayInfo; selected: boolean; onClick: () => void }) {
-    const icon =
-        d.status === "completed" ? "✓" :
-            d.status === "available_tomorrow" ? "🌙" :
-                d.status === "locked" ? "🔒" :
+    const statusIcon: IconName | null =
+        d.status === "completed" ? "check" :
+            d.status === "available_tomorrow" ? "moon" :
+                d.status === "locked" ? "lock" :
                     null;
 
     return (
@@ -46,25 +61,25 @@ function DayButton({ d, selected, onClick }: { d: DayInfo; selected: boolean; on
             className="flex-shrink-0 w-10 h-10 rounded-full font-semibold transition-all flex items-center justify-center"
             style={{
                 background: selected
-                    ? "var(--gradient-button)"
+                    ? "var(--gradient-gold)"
                     : d.status === "completed"
-                        ? "rgba(168,85,247,0.2)"
+                        ? "rgba(255,252,245,0.06)"
                         : "var(--glass)",
                 border: selected
                     ? "none"
                     : d.status === "available"
-                        ? "2px solid var(--brand-purple)"
+                        ? "1px solid var(--glass-border)"
                         : "1px solid var(--glass-border)",
                 color: selected
-                    ? "#fff"
+                    ? "#2A1E08"
                     : d.status === "completed" || d.status === "available"
-                        ? "var(--brand-purple)"
+                        ? "var(--text-secondary)"
                         : "var(--text-muted)",
                 boxShadow: selected ? "var(--shadow-button)" : "none",
-                fontSize: icon ? "11px" : "14px",
+                fontSize: "14px",
             }}
         >
-            {icon ?? d.day}
+            {statusIcon ? <Icon name={statusIcon} size={15} /> : d.day}
         </button>
     );
 }
@@ -173,7 +188,7 @@ export default function JourneySlugClient({ slug }: Props) {
             return;
         }
         if (dayInfo.status === "available_tomorrow") {
-            setLockedMessage("Você já fez o devocional de hoje! Volte amanhã para continuar sua jornada. 🌙");
+            setLockedMessage("Você já fez o devocional de hoje! Volte amanhã para continuar sua jornada.");
             setDevotional(null);
             return;
         }
@@ -232,7 +247,7 @@ export default function JourneySlugClient({ slug }: Props) {
             return;
         }
         if (dayInfo.status === "available_tomorrow") {
-            setLockedMessage("Você já fez o devocional de hoje! Volte amanhã para continuar. 🌙");
+            setLockedMessage("Você já fez o devocional de hoje! Volte amanhã para continuar.");
             setSelectedDay(dayInfo.day);
             return;
         }
@@ -244,10 +259,10 @@ export default function JourneySlugClient({ slug }: Props) {
     // ── Verificando plano ────────────────────────────────────────────────────
     if (showIntro === null) {
         return (
-            <main className="min-h-dvh flex flex-col items-center justify-center" style={{ background: "var(--bg-base)" }}>
+            <main className="aurora-bg min-h-dvh flex flex-col items-center justify-center">
                 <motion.div
                     className="w-10 h-10 rounded-full"
-                    style={{ border: "2px solid transparent", borderTopColor: "#A855F7" }}
+                    style={{ border: "2px solid transparent", borderTopColor: "var(--gold)" }}
                     animate={{ rotate: 360 }}
                     transition={{ duration: 1.2, repeat: Infinity, ease: "linear" }}
                 />
@@ -259,12 +274,12 @@ export default function JourneySlugClient({ slug }: Props) {
     if (activeJourneySlug && activeJourneySlug !== slug) {
         const activeTheme = JOURNEY_THEMES.find((t) => t.slug === activeJourneySlug);
         return (
-            <main className="min-h-dvh flex items-center justify-center px-6" style={{ background: "var(--bg-base)" }}>
+            <main className="aurora-bg min-h-dvh flex items-center justify-center px-6">
                 <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="text-center max-w-sm">
-                    <span className="text-5xl mb-5 block">{activeTheme?.emoji ?? "🧭"}</span>
-                    <h2 className="text-lg font-bold mb-3" style={{ color: "var(--text-primary)" }}>Você já tem uma jornada ativa</h2>
+                    <Icon name={activeTheme ? journeyGlyph(activeTheme.slug) : "compass"} size={48} style={{ color: "var(--text-secondary)" }} className="mx-auto mb-5" />
+                    <h2 className="font-display text-xl mb-3" style={{ color: "var(--cream)" }}>Você já tem uma jornada ativa</h2>
                     <p className="text-sm mb-6" style={{ color: "var(--text-secondary)" }}>
-                        Complete <strong>{activeTheme?.label ?? activeJourneySlug}</strong> antes de começar uma nova jornada.
+                        Complete <strong style={{ color: "var(--cream)" }}>{activeTheme?.label ?? activeJourneySlug}</strong> antes de começar uma nova jornada.
                         Cada jornada merece sua atenção completa para transformar sua vida de verdade.
                     </p>
                     <Link href={`/journey/${activeJourneySlug}`} className="btn-primary block mb-3">Continuar minha jornada</Link>
@@ -277,23 +292,24 @@ export default function JourneySlugClient({ slug }: Props) {
     // ── Tela de introdução (nova jornada) ────────────────────────────────────
     if (showIntro) {
         return (
-            <main className="relative min-h-dvh pb-12" style={{ background: "var(--bg-base)" }}>
-                {/* Header com gradiente */}
-                <div className="relative overflow-hidden" style={{ minHeight: 220 }}>
-                    <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, #0f0520 0%, #1e0a4a 50%, #3b0764 100%)" }} />
-                    <div className="absolute inset-0" style={{ background: "radial-gradient(circle at 70% 40%, rgba(168,85,247,0.3) 0%, transparent 60%)" }} />
+            <main className="aurora-bg relative min-h-dvh pb-12">
+                {/* Header cerimônia */}
+                <div className="relative overflow-hidden surface-wood" style={{ minHeight: 220, borderRadius: 0 }}>
+                    <div className="absolute left-0 right-0 bottom-0 h-px" style={{ background: "linear-gradient(90deg, transparent, var(--gold), transparent)", opacity: 0.6 }} />
                     <div className="absolute inset-0 flex flex-col justify-end px-5 pb-6 z-10">
-                        <Link href="/journey" className="text-xs mb-4" style={{ color: "rgba(255,255,255,0.55)" }}>← Jornadas</Link>
-                        <span className="text-5xl mb-3 block">{theme.emoji}</span>
-                        <h1 className="text-2xl font-bold text-white mb-1">{theme.label}</h1>
-                        <p className="text-sm" style={{ color: "rgba(196,162,253,0.9)" }}>Jornada de 21 dias</p>
+                        <Link href="/journey" className="text-xs mb-4 inline-flex items-center gap-1" style={{ color: "var(--text-muted)" }}>
+                            <Icon name="arrow-left" size={14} /> Jornadas
+                        </Link>
+                        <Icon name={journeyGlyph(theme.slug)} size={44} style={{ color: "var(--text-secondary)" }} className="mb-3" />
+                        <h1 className="font-display text-2xl mb-1" style={{ color: "var(--cream)" }}>{theme.label}</h1>
+                        <p className="eyebrow">Jornada de 21 dias</p>
                     </div>
                 </div>
 
                 <div className="max-w-lg mx-auto px-5 pt-7 pb-8">
                     {/* Pitch */}
                     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-                        <p className="text-sm leading-relaxed mb-2" style={{ color: "var(--text-primary)", fontSize: "1.05rem" }}>
+                        <p className="font-serif-devotional leading-relaxed mb-2" style={{ color: "var(--cream)", fontSize: "1.15rem" }}>
                             {theme.pitch}
                         </p>
                         <p className="text-xs mt-3 mb-7" style={{ color: "var(--text-muted)" }}>{theme.solves}</p>
@@ -301,7 +317,7 @@ export default function JourneySlugClient({ slug }: Props) {
 
                     {/* Progresso espiritual */}
                     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-                        <p className="text-xs uppercase tracking-widest mb-4" style={{ color: "var(--text-muted)" }}>Progressão espiritual</p>
+                        <p className="eyebrow mb-4" style={{ color: "var(--text-muted)" }}>Progressão espiritual</p>
                         <div className="space-y-3 mb-8">
                             {theme.phases.map((phase, i) => (
                                 <motion.div
@@ -309,17 +325,16 @@ export default function JourneySlugClient({ slug }: Props) {
                                     initial={{ opacity: 0, x: -12 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: 0.25 + i * 0.1 }}
-                                    className="flex items-start gap-4 rounded-2xl p-4"
-                                    style={{ background: "var(--glass)", border: "1px solid var(--glass-border)" }}
+                                    className="flex items-start gap-4 card-base p-4"
                                 >
-                                    <div className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center text-xl"
-                                        style={{ background: "rgba(168,85,247,0.12)" }}>
-                                        {phase.icon}
+                                    <div className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center"
+                                        style={{ background: "rgba(255,252,245,0.05)" }}>
+                                        <Icon name={phaseGlyph(phase.icon)} size={20} style={{ color: "var(--text-secondary)" }} />
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-2 mb-0.5">
-                                            <span className="text-xs font-bold" style={{ color: "var(--brand-purple)" }}>{phase.days}</span>
-                                            <span className="text-xs font-semibold" style={{ color: "var(--text-primary)" }}>{phase.label}</span>
+                                            <span className="text-xs font-semibold" style={{ color: "var(--text-muted)" }}>{phase.days}</span>
+                                            <span className="text-xs font-semibold" style={{ color: "var(--cream)" }}>{phase.label}</span>
                                         </div>
                                         <p className="text-xs leading-relaxed" style={{ color: "var(--text-secondary)" }}>{phase.description}</p>
                                     </div>
@@ -328,7 +343,7 @@ export default function JourneySlugClient({ slug }: Props) {
                         </div>
                     </motion.div>
 
-                    {/* Linha de seta conectando fases */}
+                    {/* Nota conectando fases */}
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }}
                         className="text-center mb-8"
                     >
@@ -341,13 +356,13 @@ export default function JourneySlugClient({ slug }: Props) {
                     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }}>
                         {planLoading ? (
                             <div className="flex items-center justify-center gap-3 py-4">
-                                <motion.div className="w-5 h-5 rounded-full" style={{ border: "2px solid transparent", borderTopColor: "#A855F7" }}
+                                <motion.div className="w-5 h-5 rounded-full" style={{ border: "2px solid transparent", borderTopColor: "var(--gold)" }}
                                     animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }} />
                                 <span className="text-sm" style={{ color: "var(--text-muted)" }}>Criando seu plano de 21 dias...</span>
                             </div>
                         ) : planError ? (
                             <div className="text-center">
-                                <p className="text-sm mb-4" style={{ color: "#f87171" }}>{planError}</p>
+                                <p className="text-sm mb-4" style={{ color: "var(--amber)" }}>{planError}</p>
                                 <button onClick={() => { setPlanError(null); setShowIntro(false); loadPlan(false); }} className="btn-primary w-full">
                                     Tentar novamente
                                 </button>
@@ -358,7 +373,8 @@ export default function JourneySlugClient({ slug }: Props) {
                                 className="btn-primary w-full"
                                 style={{ fontSize: "1rem", padding: "14px 0" }}
                             >
-                                Começar minha jornada →
+                                Começar minha jornada
+                                <Icon name="arrow-right" size={18} strokeWidth={1.8} />
                             </button>
                         )}
                         <Link href="/journey" className="btn-ghost w-full mt-3 block text-center">Escolher outra jornada</Link>
@@ -369,10 +385,10 @@ export default function JourneySlugClient({ slug }: Props) {
     }
     if (needsPremium) {
         return (
-            <main className="min-h-dvh flex items-center justify-center px-6" style={{ background: "var(--bg-base)" }}>
-                <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="text-center max-w-md glass rounded-3xl p-10">
-                    <span className="text-5xl mb-6 block">👑</span>
-                    <h2 className="text-xl font-bold mb-3" style={{ color: "var(--text-primary)" }}>Jornadas são Premium</h2>
+            <main className="aurora-bg min-h-dvh flex items-center justify-center px-6">
+                <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="text-center max-w-md glass-strong rounded-3xl p-10">
+                    <Icon name="crown" size={48} style={{ color: "var(--gold)" }} className="mx-auto mb-6" />
+                    <h2 className="font-display text-xl mb-3" style={{ color: "var(--cream)" }}>Jornadas são Premium</h2>
                     <p className="text-sm mb-8" style={{ color: "var(--text-secondary)" }}>
                         Acesse 21 dias de devocionais guiados sobre {theme.label} com o plano Premium.
                     </p>
@@ -386,15 +402,15 @@ export default function JourneySlugClient({ slug }: Props) {
     // ── Carregando plano ──────────────────────────────────────────────────────
     if (planLoading) {
         return (
-            <main className="min-h-dvh flex flex-col items-center justify-center gap-5 px-6" style={{ background: "var(--bg-base)" }}>
+            <main className="aurora-bg min-h-dvh flex flex-col items-center justify-center gap-5 px-6">
                 <motion.div
                     className="w-14 h-14 rounded-full"
-                    style={{ border: "2px solid transparent", borderTopColor: "#A855F7" }}
+                    style={{ border: "2px solid transparent", borderTopColor: "var(--gold)" }}
                     animate={{ rotate: 360 }}
                     transition={{ duration: 1.2, repeat: Infinity, ease: "linear" }}
                 />
                 <div className="text-center">
-                    <p className="font-semibold mb-1" style={{ color: "var(--text-primary)" }}>Preparando sua jornada</p>
+                    <p className="font-display text-lg mb-1" style={{ color: "var(--cream)" }}>Preparando sua jornada</p>
                     <p className="text-sm" style={{ color: "var(--text-muted)" }}>Criando seu plano de 21 dias com a IA...</p>
                 </div>
             </main>
@@ -404,10 +420,10 @@ export default function JourneySlugClient({ slug }: Props) {
     // ── Erro no plano ─────────────────────────────────────────────────────────
     if (planError) {
         return (
-            <main className="min-h-dvh flex items-center justify-center px-6" style={{ background: "var(--bg-base)" }}>
+            <main className="aurora-bg min-h-dvh flex items-center justify-center px-6">
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center max-w-sm">
-                    <span className="text-4xl mb-5 block">⚠️</span>
-                    <h2 className="text-lg font-bold mb-3" style={{ color: "var(--text-primary)" }}>Erro ao carregar</h2>
+                    <Icon name="storm" size={42} style={{ color: "var(--amber)" }} className="mx-auto mb-5" />
+                    <h2 className="font-display text-xl mb-3" style={{ color: "var(--cream)" }}>Erro ao carregar</h2>
                     <p className="text-sm mb-6" style={{ color: "var(--text-secondary)" }}>{planError}</p>
                     <button onClick={() => loadPlan(false)} className="btn-primary w-full">Tentar novamente</button>
                     <Link href="/journey" className="btn-ghost w-full mt-3 block">Voltar às jornadas</Link>
@@ -420,18 +436,19 @@ export default function JourneySlugClient({ slug }: Props) {
 
     // ── Página principal ──────────────────────────────────────────────────────
     return (
-        <main className="relative min-h-dvh pb-12 lg:pb-10" style={{ background: "var(--bg-base)" }}>
+        <main className="aurora-bg relative min-h-dvh pb-12 lg:pb-10">
             {/* Header */}
-            <div className="relative overflow-hidden" style={{ height: 180 }}>
-                <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, #0f0520 0%, #1e0a4a 50%, #3b0764 100%)" }} />
-                <div className="absolute inset-0" style={{ background: "radial-gradient(circle at 70% 50%, rgba(168,85,247,0.25) 0%, transparent 60%)" }} />
+            <div className="relative overflow-hidden surface-wood" style={{ height: 180, borderRadius: 0 }}>
+                <div className="absolute left-0 right-0 bottom-0 h-px" style={{ background: "linear-gradient(90deg, transparent, var(--gold), transparent)", opacity: 0.6 }} />
                 <div className="absolute inset-0 flex flex-col justify-end px-5 pb-5 z-10">
-                    <Link href="/journey" className="text-xs mb-3" style={{ color: "rgba(255,255,255,0.6)" }}>← Jornadas</Link>
+                    <Link href="/journey" className="text-xs mb-3 inline-flex items-center gap-1" style={{ color: "var(--text-muted)" }}>
+                        <Icon name="arrow-left" size={14} /> Jornadas
+                    </Link>
                     <div className="flex items-center gap-3">
-                        <span className="text-4xl">{theme.emoji}</span>
+                        <Icon name={journeyGlyph(theme.slug)} size={36} style={{ color: "var(--text-secondary)" }} />
                         <div>
-                            <h1 className="text-lg font-bold text-white">{theme.label}</h1>
-                            <p className="text-xs" style={{ color: "rgba(196,162,253,0.85)" }}>
+                            <h1 className="font-display text-lg" style={{ color: "var(--cream)" }}>{theme.label}</h1>
+                            <p className="text-xs" style={{ color: "var(--text-secondary)" }}>
                                 {days.filter((d) => d.status === "completed").length} / 21 dias concluídos
                             </p>
                         </div>
@@ -441,10 +458,10 @@ export default function JourneySlugClient({ slug }: Props) {
 
             {/* Marcos de progressão espiritual */}
             {days.length > 0 && (() => {
-                const PHASES = [
-                    { icon: "🌱", label: "Fundamentos",    range: "1–7",   start: 1, end: 7  },
-                    { icon: "🔥", label: "Aprofundamento", range: "8–14",  start: 8, end: 14 },
-                    { icon: "🕊️", label: "Maturidade",     range: "15–21", start: 15, end: 21 },
+                const PHASES: { icon: IconName; label: string; range: string; start: number; end: number }[] = [
+                    { icon: "sparkle", label: "Fundamentos",    range: "1–7",   start: 1, end: 7  },
+                    { icon: "flame",   label: "Aprofundamento", range: "8–14",  start: 8, end: 14 },
+                    { icon: "dove",    label: "Maturidade",     range: "15–21", start: 15, end: 21 },
                 ];
                 const activeDay = selectedDay ?? 1;
                 const activePhaseIdx = activeDay <= 7 ? 0 : activeDay <= 14 ? 1 : 2;
@@ -464,10 +481,10 @@ export default function JourneySlugClient({ slug }: Props) {
                                     <div key={ph.label} className="flex-1 flex flex-col gap-1.5" style={{ opacity: isFuture ? 0.45 : 1 }}>
                                         {/* barra de progresso do segmento */}
                                         <div className="h-1.5 rounded-full overflow-hidden mx-1"
-                                            style={{ background: "rgba(168,85,247,0.12)", outline: isActive ? "1px solid rgba(168,85,247,0.4)" : "none", outlineOffset: 1 }}>
+                                            style={{ background: "rgba(247,201,122,0.12)", outline: isActive ? "1px solid rgba(247,201,122,0.4)" : "none", outlineOffset: 1 }}>
                                             <motion.div
                                                 className="h-full rounded-full"
-                                                style={{ background: isDone ? "var(--gradient-button)" : isActive ? "var(--gradient-button)" : "rgba(168,85,247,0.3)" }}
+                                                style={{ background: isDone ? "var(--gradient-gold)" : isActive ? "var(--gradient-gold)" : "rgba(247,201,122,0.3)" }}
                                                 initial={{ width: 0 }}
                                                 animate={{ width: `${Math.max(pct, pct > 0 ? 6 : 0)}%` }}
                                                 transition={{ duration: 0.6, ease: "easeOut" }}
@@ -475,10 +492,10 @@ export default function JourneySlugClient({ slug }: Props) {
                                         </div>
                                         {/* rótulo */}
                                         <div className="flex items-center gap-1 px-1">
-                                            <span className="text-xs leading-none">{ph.icon}</span>
+                                            <Icon name={ph.icon} size={13} style={{ color: isActive ? "var(--text-secondary)" : isDone ? "var(--text-secondary)" : "var(--text-muted)" }} />
                                             <div className="min-w-0">
                                                 <p className="text-[10px] font-semibold leading-tight truncate"
-                                                    style={{ color: isActive ? "var(--brand-purple)" : isDone ? "rgba(168,85,247,0.7)" : "var(--text-muted)" }}>
+                                                    style={{ color: isActive ? "var(--cream)" : isDone ? "var(--text-secondary)" : "var(--text-muted)" }}>
                                                     {ph.label}
                                                 </p>
                                                 <p className="text-[9px] leading-tight" style={{ color: "var(--text-muted)" }}>
@@ -507,7 +524,7 @@ export default function JourneySlugClient({ slug }: Props) {
             {currentDayInfo && (
                 <div className="px-5 mb-3">
                     <p className="text-xs" style={{ color: "var(--text-muted)" }}>
-                        <span style={{ color: "var(--brand-purple)" }}>{currentDayInfo.reference}</span>
+                        <span style={{ color: "var(--gold)" }}>{currentDayInfo.reference}</span>
                         &nbsp;·&nbsp;{currentDayInfo.theme}
                     </p>
                 </div>
@@ -519,10 +536,8 @@ export default function JourneySlugClient({ slug }: Props) {
                 {/* Mensagem de bloqueio */}
                 {lockedMessage && !dayLoading && !devotional && (
                     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="text-center py-16 px-4">
-                        <span className="text-5xl mb-6 block">
-                            {lockedMessage.includes("amanhã") ? "🌙" : "🔒"}
-                        </span>
-                        <p className="text-base font-semibold mb-2" style={{ color: "var(--text-primary)" }}>
+                        <Icon name={lockedMessage.includes("amanhã") ? "moon" : "lock"} size={44} style={{ color: "var(--text-secondary)" }} className="mx-auto mb-6" />
+                        <p className="font-display text-lg mb-2" style={{ color: "var(--cream)" }}>
                             {lockedMessage.includes("amanhã") ? "Até amanhã!" : "Dia bloqueado"}
                         </p>
                         <p className="text-sm" style={{ color: "var(--text-secondary)" }}>{lockedMessage}</p>
@@ -534,7 +549,7 @@ export default function JourneySlugClient({ slug }: Props) {
                     <div className="flex flex-col items-center py-20 gap-4">
                         <motion.div
                             className="w-12 h-12 rounded-full"
-                            style={{ border: "2px solid transparent", borderTopColor: "#A855F7" }}
+                            style={{ border: "2px solid transparent", borderTopColor: "var(--gold)" }}
                             animate={{ rotate: 360 }}
                             transition={{ duration: 1.2, repeat: Infinity, ease: "linear" }}
                         />
@@ -545,7 +560,7 @@ export default function JourneySlugClient({ slug }: Props) {
                 {/* Erro do dia */}
                 {dayError && !dayLoading && (
                     <div className="text-center py-16">
-                        <span className="text-4xl mb-4 block">⚠️</span>
+                        <Icon name="storm" size={36} style={{ color: "var(--amber)" }} className="mx-auto mb-4" />
                         <p className="text-sm mb-4" style={{ color: "var(--text-muted)" }}>{dayError}</p>
                         <button onClick={() => { contentForDayRef.current = null; selectedDay && fetchDayContent(selectedDay); }} className="btn-primary">
                             Tentar novamente
@@ -556,27 +571,27 @@ export default function JourneySlugClient({ slug }: Props) {
                 <AnimatePresence mode="wait">
                     {devotional && !dayLoading && (
                         <motion.div key={selectedDay} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                            <p className="text-xs uppercase tracking-widest mb-5" style={{ color: "var(--text-muted)" }}>Dia {selectedDay} de 21</p>
-                            <h2 className="gradient-text mb-6" style={{ fontFamily: "var(--font-cormorant)", fontSize: "1.5rem", fontWeight: 700, lineHeight: 1.3 }}>
+                            <p className="eyebrow mb-5" style={{ color: "var(--text-muted)" }}>Dia {selectedDay} de 21</p>
+                            <h2 className="font-display gradient-text mb-6" style={{ fontSize: "1.6rem", fontWeight: 500, lineHeight: 1.25 }}>
                                 {devotional.title}
                             </h2>
 
                             {/* Versículo */}
                             <motion.div custom={0} variants={sectionVariants} initial="hidden" animate="visible"
                                 className="card-base p-5 mb-6 relative overflow-hidden"
-                                style={{ borderColor: "rgba(168,85,247,0.2)" }}
+                                style={{ borderColor: "rgba(247,201,122,0.2)" }}
                             >
-                                <div className="absolute left-0 top-0 bottom-0 w-0.5 rounded-l-full" style={{ background: "var(--gradient-button)" }} />
-                                <blockquote className="italic pl-3 mb-2 leading-relaxed"
-                                    style={{ color: "var(--text-primary)", fontFamily: "var(--font-cormorant)", fontWeight: 300, fontSize: "1.1rem" }}>
+                                <div className="absolute left-0 top-0 bottom-0 w-0.5 rounded-l-full" style={{ background: "var(--gradient-gold)" }} />
+                                <blockquote className="font-serif-devotional pl-3 mb-2 leading-relaxed"
+                                    style={{ color: "var(--cream)", fontWeight: 400, fontSize: "1.2rem" }}>
                                     &quot;{devotional.verse}&quot;
                                 </blockquote>
-                                <cite className="not-italic text-xs font-semibold pl-3" style={{ color: "var(--brand-purple)" }}>— {devotional.verse_reference}</cite>
+                                <cite className="not-italic text-xs font-semibold pl-3" style={{ color: "var(--gold)" }}>— {devotional.verse_reference}</cite>
                             </motion.div>
 
                             {/* Reflexão */}
                             <motion.div custom={1} variants={sectionVariants} initial="hidden" animate="visible" className="mb-6">
-                                <p className="text-xs uppercase tracking-widest mb-3" style={{ color: "var(--text-muted)" }}>Reflexão</p>
+                                <p className="eyebrow mb-3" style={{ color: "var(--text-muted)" }}>Reflexão</p>
                                 <div className="space-y-3">
                                     {devotional.reflection.split("\n\n").map((p, i) => (
                                         <p key={i} className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>{p}</p>
@@ -586,12 +601,12 @@ export default function JourneySlugClient({ slug }: Props) {
 
                             {/* Aplicação prática */}
                             <motion.div custom={2} variants={sectionVariants} initial="hidden" animate="visible" className="mb-6">
-                                <p className="text-xs uppercase tracking-widest mb-3" style={{ color: "var(--text-muted)" }}>Aplicação prática</p>
+                                <p className="eyebrow mb-3" style={{ color: "var(--text-muted)" }}>Aplicação prática</p>
                                 <div className="space-y-3">
                                     {devotional.practical_application.split("\n\n").map((p, i) => (
                                         <div key={i} className="flex gap-3">
                                             <div className="w-5 h-5 rounded-full flex-shrink-0 mt-0.5 flex items-center justify-center"
-                                                style={{ background: "rgba(168,85,247,0.15)", color: "var(--brand-purple)", fontSize: 10, fontWeight: 700 }}>
+                                                style={{ background: "rgba(255,252,245,0.05)", color: "var(--text-secondary)", fontSize: 10, fontWeight: 700 }}>
                                                 {i + 1}
                                             </div>
                                             <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>{p}</p>
@@ -603,11 +618,13 @@ export default function JourneySlugClient({ slug }: Props) {
                             {/* Oração */}
                             <motion.div custom={3} variants={sectionVariants} initial="hidden" animate="visible"
                                 className="rounded-2xl p-5 mb-6"
-                                style={{ background: "rgba(168,85,247,0.07)", border: "1px solid rgba(168,85,247,0.15)" }}
+                                style={{ background: "rgba(255,252,245,0.04)", border: "1px solid var(--glass-border)" }}
                             >
-                                <p className="text-xs uppercase tracking-widest mb-3" style={{ color: "var(--brand-purple)" }}>🙏 Oração</p>
+                                <p className="eyebrow mb-3 inline-flex items-center gap-1.5">
+                                    <Icon name="hands" size={14} style={{ color: "var(--text-secondary)" }} /> Oração
+                                </p>
                                 {devotional.prayer.split("\n\n").map((p, i) => (
-                                    <p key={i} className="text-sm leading-relaxed italic mb-2" style={{ color: "var(--text-secondary)" }}>{p}</p>
+                                    <p key={i} className="font-serif-devotional leading-relaxed mb-2" style={{ color: "var(--text-secondary)", fontSize: "1.05rem" }}>{p}</p>
                                 ))}
                             </motion.div>
 
@@ -616,11 +633,11 @@ export default function JourneySlugClient({ slug }: Props) {
                                 className="rounded-2xl p-5 mb-6 flex items-start gap-4"
                                 style={{ background: "var(--glass)", border: "1px solid var(--glass-border)" }}
                             >
-                                <span className="text-2xl flex-shrink-0">❤️</span>
+                                <Icon name="heart" size={24} style={{ color: "var(--text-secondary)", flexShrink: 0 }} />
                                 <div>
-                                    <p className="text-xs uppercase tracking-widest mb-2" style={{ color: "var(--text-muted)" }}>Declaração de fé</p>
-                                    <p className="leading-relaxed font-semibold gradient-text"
-                                        style={{ fontFamily: "var(--font-cormorant)", fontSize: "1.1rem" }}>
+                                    <p className="eyebrow mb-2" style={{ color: "var(--text-muted)" }}>Declaração de fé</p>
+                                    <p className="font-display leading-relaxed gradient-text"
+                                        style={{ fontSize: "1.15rem", fontWeight: 500 }}>
                                         {devotional.declaration}
                                     </p>
                                 </div>
@@ -628,8 +645,8 @@ export default function JourneySlugClient({ slug }: Props) {
 
                             {/* Pergunta reflexiva */}
                             <motion.div custom={5} variants={sectionVariants} initial="hidden" animate="visible" className="card-base p-5 mb-8">
-                                <p className="text-xs uppercase tracking-widest mb-3" style={{ color: "var(--text-muted)" }}>Pergunta reflexiva</p>
-                                <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>{devotional.reflective_question}</p>
+                                <p className="eyebrow mb-3" style={{ color: "var(--text-muted)" }}>Pergunta reflexiva</p>
+                                <p className="text-sm font-medium" style={{ color: "var(--cream)" }}>{devotional.reflective_question}</p>
                             </motion.div>
 
                             {/* Navegação */}
@@ -638,30 +655,30 @@ export default function JourneySlugClient({ slug }: Props) {
                                 <button
                                     onClick={() => setShowShare(true)}
                                     className="w-full flex items-center justify-center gap-2 rounded-2xl py-3.5"
-                                    style={{ background: "rgba(168,85,247,0.10)", border: "1px solid rgba(168,85,247,0.22)" }}
+                                    style={{ background: "rgba(255,252,245,0.05)", border: "1px solid var(--glass-border)" }}
                                 >
-                                    <span className="text-base">📤</span>
+                                    <Icon name="share" size={17} style={{ color: "var(--text-secondary)" }} />
                                     <span className="text-sm font-medium" style={{ color: "var(--text-secondary)" }}>Compartilhar este devocional</span>
                                 </button>
                                 <div className="flex gap-3">
                                 {selectedDay && selectedDay > 1 && (
                                     <button onClick={() => handleDayClick(days[selectedDay - 2])} className="btn-ghost flex-1">
-                                        ← Dia {selectedDay - 1}
+                                        <Icon name="arrow-left" size={16} /> Dia {selectedDay - 1}
                                     </button>
                                 )}
                                 {selectedDay && selectedDay < 21 && (() => {
                                     const next = days.find((d) => d.day === selectedDay + 1);
                                     if (!next) return null;
                                     if (next.status === "completed" || next.status === "available") {
-                                        return <button onClick={() => handleDayClick(next)} className="btn-primary flex-1">Dia {selectedDay + 1} →</button>;
+                                        return <button onClick={() => handleDayClick(next)} className="btn-primary flex-1">Dia {selectedDay + 1} <Icon name="arrow-right" size={16} /></button>;
                                     }
                                     if (next.status === "available_tomorrow") {
-                                        return <button disabled className="btn-ghost flex-1 opacity-50 cursor-not-allowed">🌙 Disponível amanhã</button>;
+                                        return <button disabled className="btn-ghost flex-1 opacity-50 cursor-not-allowed"><Icon name="moon" size={16} /> Disponível amanhã</button>;
                                     }
-                                    return <button disabled className="btn-ghost flex-1 opacity-40 cursor-not-allowed">🔒 Bloqueado</button>;
+                                    return <button disabled className="btn-ghost flex-1 opacity-40 cursor-not-allowed"><Icon name="lock" size={16} /> Bloqueado</button>;
                                 })()}
                                 {selectedDay === 21 && (
-                                    <Link href="/journey" className="btn-primary flex-1 text-center">🏆 Jornada concluída!</Link>
+                                    <Link href="/journey" className="btn-primary flex-1 text-center"><Icon name="crown" size={16} /> Jornada concluída!</Link>
                                 )}
                             </div>
                             </motion.div>
@@ -678,10 +695,10 @@ export default function JourneySlugClient({ slug }: Props) {
                     if (!devotional || !theme) return null;
                     const completedCount = days.filter((d) => d.status === "completed").length;
                     const milestone =
-                        completedCount >= 21 ? "🏆 Jornada Completa!"
-                        : completedCount >= 14 ? `🕊️ Fase Maturidade · Dia ${completedCount}`
-                        : completedCount >= 7 ? `🔥 Fase Aprofundamento · Dia ${completedCount}`
-                        : completedCount >= 1 ? `🌱 Fase Fundamentos · Dia ${completedCount}`
+                        completedCount >= 21 ? "Jornada Completa!"
+                        : completedCount >= 14 ? `Fase Maturidade · Dia ${completedCount}`
+                        : completedCount >= 7 ? `Fase Aprofundamento · Dia ${completedCount}`
+                        : completedCount >= 1 ? `Fase Fundamentos · Dia ${completedCount}`
                         : undefined;
                     return {
                         type: "journey" as const,
@@ -691,7 +708,6 @@ export default function JourneySlugClient({ slug }: Props) {
                         verseRef: devotional.verse_reference,
                         dayLabel: `Dia ${selectedDay} de 21`,
                         journeyLabel: theme.label,
-                        journeyEmoji: theme.emoji,
                         milestone,
                     };
                 })()}
@@ -699,4 +715,3 @@ export default function JourneySlugClient({ slug }: Props) {
         </main>
     );
 }
-

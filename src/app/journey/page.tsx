@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { JOURNEY_THEMES } from "@/lib/constants";
 import BottomNav from "@/components/BottomNav";
 import { createClient } from "@/lib/supabase/client";
+import { Icon, journeyGlyph } from "@/components/icons";
 
 interface PlanProgress {
     slug: string;
@@ -52,11 +53,11 @@ export default function JourneyPage() {
     }
 
     return (
-        <main className="relative min-h-dvh overflow-x-hidden pb-24 lg:pb-10">
+        <main className="aurora-bg relative min-h-dvh overflow-x-hidden pb-24 lg:pb-10">
             <div className="relative z-10 max-w-md lg:max-w-2xl mx-auto px-5 pt-10">
                 <div className="mb-2">
-                    <p className="text-xs mb-0.5" style={{ color: "var(--text-muted)" }}>Aprofundamento</p>
-                    <h1 className="text-xl font-bold" style={{ color: "var(--text-primary)" }}>Jornadas de 21 dias</h1>
+                    <p className="eyebrow mb-1.5" style={{ color: "var(--text-muted)" }}><span className="gold-rule" /> Aprofundamento</p>
+                    <h1 className="font-display text-2xl" style={{ color: "var(--cream)" }}>Jornadas de 21 dias</h1>
                 </div>
 
                 <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-sm mb-6 mt-1" style={{ color: "var(--text-secondary)" }}>
@@ -69,23 +70,24 @@ export default function JourneyPage() {
                     const pct = Math.round((activeJourney!.completedDays / 21) * 100);
                     return (
                         <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
-                            <p className="text-xs uppercase tracking-widest mb-2" style={{ color: "var(--text-muted)" }}>Em andamento</p>
-                            <Link href={`/journey/${t.slug}`} className="block rounded-2xl p-5 relative overflow-hidden"
-                                style={{ background: "linear-gradient(135deg, rgba(88,28,135,0.4) 0%, rgba(124,58,237,0.25) 100%)", border: "1px solid rgba(168,85,247,0.35)" }}>
-                                <div className="absolute inset-0" style={{ background: "radial-gradient(circle at 80% 50%, rgba(168,85,247,0.15) 0%, transparent 60%)" }} />
+                            <p className="eyebrow mb-2">Em andamento</p>
+                            <Link href={`/journey/${t.slug}`} className="block rounded-2xl p-5 relative overflow-hidden surface-wood transition-all hover:-translate-y-0.5">
+                                <div className="absolute left-0 right-0 bottom-0 h-px" style={{ background: "linear-gradient(90deg, transparent, var(--gold), transparent)", opacity: 0.6 }} />
                                 <div className="relative z-10">
                                     <div className="flex items-center gap-3 mb-3">
-                                        <span className="text-3xl">{t.emoji}</span>
+                                        <span className="w-11 h-11 rounded-xl flex-shrink-0 flex items-center justify-center" style={{ background: "rgba(255,252,245,0.05)" }}>
+                                            <Icon name={journeyGlyph(t.slug)} size={24} style={{ color: "var(--text-secondary)" }} />
+                                        </span>
                                         <div className="flex-1 min-w-0">
-                                            <p className="font-bold text-sm" style={{ color: "var(--text-primary)" }}>{t.label}</p>
-                                            <p className="text-xs" style={{ color: "rgba(196,162,253,0.8)" }}>{activeJourney!.completedDays} de 21 dias concluídos</p>
+                                            <p className="font-display text-base" style={{ color: "var(--cream)" }}>{t.label}</p>
+                                            <p className="text-xs" style={{ color: "var(--text-secondary)" }}>{activeJourney!.completedDays} de 21 dias concluídos</p>
                                         </div>
-                                        <span className="text-sm font-bold" style={{ color: "var(--brand-purple)" }}>{pct}%</span>
+                                        <span className="text-sm font-semibold" style={{ color: "var(--text-muted)" }}>{pct}%</span>
                                     </div>
-                                    <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(168,85,247,0.15)" }}>
+                                    <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(247,201,122,0.15)" }}>
                                         <motion.div
                                             className="h-full rounded-full"
-                                            style={{ background: "var(--gradient-button)" }}
+                                            style={{ background: "var(--gradient-gold)" }}
                                             initial={{ width: 0 }}
                                             animate={{ width: `${Math.max(pct, 3)}%` }}
                                             transition={{ duration: 0.8, ease: "easeOut" }}
@@ -109,31 +111,31 @@ export default function JourneyPage() {
                             <motion.div key={journey.slug} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 }}>
                                 <Link
                                     href={getJourneyHref(journey.slug)}
-                                    className="card-base p-4 flex items-start gap-3"
-                                    style={isActive ? { borderColor: "rgba(168,85,247,0.4)" } : undefined}
+                                    className="card-base card-hover p-4 flex items-start gap-3"
+                                    style={isActive ? { borderColor: "rgba(247,201,122,0.4)" } : undefined}
                                 >
                                     <div
-                                        className="w-11 h-11 rounded-xl flex-shrink-0 flex items-center justify-center text-2xl mt-0.5"
-                                        style={{ background: isOtherActive ? "rgba(100,100,100,0.1)" : "rgba(168,85,247,0.12)", opacity: isOtherActive ? 0.5 : 1 }}
+                                        className="w-11 h-11 rounded-xl flex-shrink-0 flex items-center justify-center mt-0.5"
+                                        style={{ background: isOtherActive ? "rgba(120,110,90,0.10)" : "rgba(255,252,245,0.05)", opacity: isOtherActive ? 0.5 : 1 }}
                                     >
-                                        {journey.emoji}
+                                        <Icon name={journeyGlyph(journey.slug)} size={22} style={{ color: isOtherActive ? "var(--text-muted)" : "var(--text-secondary)" }} />
                                     </div>
 
                                     <div className="flex-1 min-w-0">
                                         {/* Linha título + badge */}
                                         <div className="flex items-center gap-2 mb-1">
-                                            <h3 className="font-semibold text-sm leading-snug truncate" style={{ color: isOtherActive ? "var(--text-muted)" : "var(--text-primary)" }}>
+                                            <h3 className="font-display text-base leading-snug truncate" style={{ color: isOtherActive ? "var(--text-muted)" : "var(--cream)" }}>
                                                 {journey.label}
                                             </h3>
                                             {isCompleted && (
-                                                <span className="flex-shrink-0 text-xs px-2 py-0.5 rounded-full whitespace-nowrap"
-                                                    style={{ background: "rgba(34,197,94,0.15)", color: "#4ade80" }}>
-                                                    ✓ Concluída
+                                                <span className="flex-shrink-0 text-xs px-2 py-0.5 rounded-full whitespace-nowrap inline-flex items-center gap-1"
+                                                    style={{ background: "rgba(255,252,245,0.05)", color: "var(--text-secondary)" }}>
+                                                    <Icon name="check" size={11} /> Concluída
                                                 </span>
                                             )}
                                             {isActive && (
                                                 <span className="flex-shrink-0 text-xs px-2 py-0.5 rounded-full whitespace-nowrap"
-                                                    style={{ background: "rgba(168,85,247,0.15)", color: "var(--brand-purple)" }}>
+                                                    style={{ background: "rgba(255,252,245,0.05)", color: "var(--text-secondary)" }}>
                                                     Em andamento
                                                 </span>
                                             )}
@@ -144,18 +146,18 @@ export default function JourneyPage() {
                                         {plan && !isCompleted ? (
                                             <div>
                                                 <span className="text-xs" style={{ color: "var(--text-muted)" }}>{plan.completedDays} / 21 dias</span>
-                                                <div className="h-1 rounded-full overflow-hidden mt-1" style={{ background: "rgba(168,85,247,0.12)" }}>
-                                                    <div className="h-full rounded-full" style={{ width: `${Math.max(pct, 3)}%`, background: "var(--gradient-button)" }} />
+                                                <div className="h-1 rounded-full overflow-hidden mt-1" style={{ background: "rgba(255,252,245,0.06)" }}>
+                                                    <div className="h-full rounded-full" style={{ width: `${Math.max(pct, 3)}%`, background: "var(--gradient-gold)" }} />
                                                 </div>
                                             </div>
                                         ) : (
                                             <div className="flex flex-wrap items-center gap-2">
                                                 <span className="text-xs px-2 py-0.5 rounded-full whitespace-nowrap"
-                                                    style={{ background: "rgba(168,85,247,0.10)", color: "var(--brand-purple)" }}>
+                                                    style={{ background: "rgba(255,252,245,0.05)", color: "var(--text-secondary)" }}>
                                                     21 dias
                                                 </span>
                                                 {!isPremium && (
-                                                    <span className="text-xs whitespace-nowrap" style={{ color: "var(--text-muted)" }}>👑 Premium</span>
+                                                    <span className="text-xs whitespace-nowrap inline-flex items-center gap-1" style={{ color: "var(--text-muted)" }}><Icon name="lock" size={11} /> Premium</span>
                                                 )}
                                                 {isOtherActive && isPremium && (
                                                     <span className="text-xs whitespace-nowrap" style={{ color: "var(--text-muted)" }}>Complete a ativa primeiro</span>
@@ -172,10 +174,10 @@ export default function JourneyPage() {
                 {!isPremium && (
                     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
                         className="mt-6 rounded-2xl p-6 text-center"
-                        style={{ background: "rgba(168,85,247,0.08)", border: "1px solid rgba(168,85,247,0.2)" }}
+                        style={{ background: "rgba(247,201,122,0.08)", border: "1px solid rgba(247,201,122,0.22)" }}
                     >
-                        <span className="text-3xl mb-3 block">👑</span>
-                        <h3 className="font-bold text-base mb-2" style={{ color: "var(--text-primary)" }}>Jornadas no Premium</h3>
+                        <Icon name="crown" size={32} style={{ color: "var(--gold)" }} className="mx-auto mb-3" />
+                        <h3 className="font-display text-lg mb-2" style={{ color: "var(--cream)" }}>Jornadas no Premium</h3>
                         <p className="text-xs mb-5" style={{ color: "var(--text-secondary)" }}>R$ 24,90/mês — todas as jornadas + devocionais ilimitados.</p>
                         <Link href="/subscription" className="btn-primary">Assinar Premium</Link>
                     </motion.div>

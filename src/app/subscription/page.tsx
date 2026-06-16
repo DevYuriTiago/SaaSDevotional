@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import AmbientSphere from "@/components/AmbientSphere";
+import { Icon } from "@/components/icons";
 
 const features = [
     "Devocionais ilimitados",
@@ -36,13 +37,14 @@ export default function SubscriptionPage() {
     }
 
     return (
-        <main className="relative min-h-dvh px-5 py-10 lg:pb-10" style={{ background: "var(--bg-base)" }}>
+        <main className="relative min-h-dvh px-5 py-10 lg:pb-10 overflow-hidden" style={{ background: "var(--night)" }}>
+            <AmbientSphere />
             <div className="relative z-10 w-full max-w-md lg:max-w-xl mx-auto">
                 {/* Close button */}
                 <div className="flex justify-end mb-6">
-                    <Link href="/dashboard" className="w-9 h-9 rounded-full flex items-center justify-center text-lg"
+                    <Link href="/dashboard" className="w-9 h-9 rounded-full flex items-center justify-center"
                         style={{ background: "var(--glass)", border: "1px solid var(--glass-border)", color: "var(--text-muted)" }}>
-                        ×
+                        <Icon name="close" size={18} />
                     </Link>
                 </div>
 
@@ -53,9 +55,14 @@ export default function SubscriptionPage() {
                     transition={{ duration: 0.7 }}
                     className="text-center mb-8"
                 >
-                    <div className="text-6xl mb-4">👑</div>
-                    <h1 className="text-2xl font-bold mb-2" style={{ color: "var(--text-primary)" }}>
-                        Assinatura <span className="gradient-text">Premium</span>
+                    <div
+                        className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center"
+                        style={{ background: "var(--glass)", border: "1px solid var(--glass-border)" }}
+                    >
+                        <Icon name="crown" size={32} style={{ color: "var(--gold)" }} />
+                    </div>
+                    <h1 className="font-display mb-2" style={{ color: "var(--cream)", fontSize: "clamp(1.6rem, 6vw, 2.1rem)", fontWeight: 400 }}>
+                        Assinatura <span style={{ fontStyle: "italic", color: "var(--gold)" }}>Premium</span>
                     </h1>
                     <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
                         Sua jornada espiritual, sem limites.
@@ -80,9 +87,11 @@ export default function SubscriptionPage() {
                                 style={{ color: "var(--text-secondary)" }}
                             >
                                 <span
-                                    className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
-                                    style={{ background: "rgba(168,85,247,0.15)", color: "var(--brand-purple)" }}
-                                >✓</span>
+                                    className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
+                                    style={{ background: "rgba(255,252,245,0.05)" }}
+                                >
+                                    <Icon name="check" size={13} style={{ color: "var(--text-secondary)" }} />
+                                </span>
                                 {f}
                             </motion.li>
                         ))}
@@ -97,7 +106,7 @@ export default function SubscriptionPage() {
                     className="text-center mb-6"
                 >
                     <div className="flex items-baseline justify-center gap-1 mb-1">
-                        <span className="text-5xl font-bold gradient-text">R$ 24,90</span>
+                        <span className="font-display" style={{ color: "var(--cream)", fontSize: "clamp(2.5rem, 11vw, 3rem)", fontWeight: 500 }}>R$ 24,90</span>
                         <span className="text-sm" style={{ color: "var(--text-muted)" }}>/mês</span>
                     </div>
                 </motion.div>
@@ -107,7 +116,7 @@ export default function SubscriptionPage() {
                     <button onClick={handleSubscribe} disabled={loading} className="btn-primary">
                         {loading ? (
                             <span className="flex items-center gap-2">
-                                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                <span className="w-4 h-4 border-2 border-black/20 border-t-black/70 rounded-full animate-spin" />
                                 Redirecionando...
                             </span>
                         ) : (

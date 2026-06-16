@@ -1,17 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { useDevotionalStore } from "@/store";
 import type { Devotional } from "@/types";
+import Horizon from "@/components/Horizon";
+import { Icon, BrandMark } from "@/components/icons";
 
 const loadingPhrases = [
-    "Interpretando sua emoção...",
+    "Interpretando o seu coração...",
     "Buscando na Palavra...",
     "Preparando sua reflexão...",
-    "Tecendo sua oração...",
-    "Quase pronto...",
+    "Tecendo a sua oração...",
+    "A luz está chegando...",
 ];
 
 export default function GenerateDevotionalPage() {
@@ -21,22 +24,26 @@ export default function GenerateDevotionalPage() {
     const [error, setError] = useState<string | null>(null);
     const [limitReached, setLimitReached] = useState(false);
     const [generating, setGenerating] = useState(true);
+    // Garante UMA única geração (evita a dupla chamada do StrictMode em dev
+    // e qualquer duplo-disparo por remount → impede devocional duplicado)
+    const startedRef = useRef(false);
 
     useEffect(() => {
         if (!currentEmotionRaw) {
             router.replace("/emotion");
             return;
         }
+        if (startedRef.current) return;
+        startedRef.current = true;
         generate();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    // Cycle loading phrases — para quando não está gerando
     useEffect(() => {
         if (!generating) return;
         const interval = setInterval(() => {
             setPhraseIndex((i) => (i + 1) % loadingPhrases.length);
-        }, 2200);
+        }, 2400);
         return () => clearInterval(interval);
     }, [generating]);
 
@@ -49,31 +56,12 @@ export default function GenerateDevotionalPage() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ emotion_raw: currentEmotionRaw }),
             });
-
             const data = await res.json();
 
-            if (res.status === 402) {
-                setLimitReached(true);
-                setGenerating(false);
-                return;
-            }
-
-            if (res.status === 429) {
-                setGenerating(false);
-                setError("A IA está sobrecarregada agora. Aguarde 1 minuto e tente novamente.");
-                return;
-            }
-
-            if (res.status === 503) {
-                setGenerating(false);
-                setError("Serviço de IA temporariamente indisponível. Tente novamente em instantes.");
-                return;
-            }
-
-            if (!res.ok) {
-                setGenerating(false);
-                throw new Error(data.error ?? "Erro desconhecido");
-            }
+            if (res.status === 402) { setLimitReached(true); setGenerating(false); return; }
+            if (res.status === 429) { setGenerating(false); setError("A IA está sobrecarregada agora. Aguarde 1 minuto e tente novamente."); return; }
+            if (res.status === 503) { setGenerating(false); setError("Serviço de IA temporariamente indisponível. Tente novamente em instantes."); return; }
+            if (!res.ok) { setGenerating(false); throw new Error(data.error ?? "Erro desconhecido"); }
 
             setDevotional(data.devotional as Devotional);
             setEmotionAnalysis(data.emotion_analysis);
@@ -86,28 +74,25 @@ export default function GenerateDevotionalPage() {
 
     if (limitReached) {
         return (
-            <main className="relative min-h-screen flex items-center justify-center px-6">
-                <div className="absolute inset-0 pointer-events-none">
-                    <div className="absolute rounded-full blur-[120px]" style={{ width: 600, height: 600, left: "20%", top: "10%", background: "rgba(124,58,237,0.10)" }} />
-                </div>
+            <main className="aurora-bg relative min-h-dvh flex items-center justify-center px-6 overflow-hidden">
+                <Horizon position={0.86} glow={0.8} />
                 <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
+                    initial={{ opacity: 0, scale: 0.96 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="relative z-10 text-center max-w-md glass-strong rounded-3xl p-10"
+                    className="relative z-10 text-center max-w-md surface-wood rounded-3xl p-9"
                 >
-                    <span className="text-5xl mb-6 block">✨</span>
-                    <h2 className="text-2xl font-bold mb-4" style={{ color: "var(--text-primary)" }}>
+                    <div className="inline-flex items-center justify-center w-14 h-14 rounded-full mb-5"
+                        style={{ background: "rgba(247,201,122,0.10)", border: "1px solid rgba(247,201,122,0.3)" }}>
+                        <Icon name="crown" size={26} style={{ color: "var(--gold)" }} />
+                    </div>
+                    <h2 className="font-display text-2xl mb-3" style={{ color: "var(--cream)" }}>
                         Você já recebeu seu devocional gratuito
                     </h2>
-                    <p className="mb-8" style={{ color: "var(--text-secondary)" }}>
-                        Para continuar recebendo devocionais personalizados todos os dias, assine o Premium por apenas R$ 24,90/mês.
+                    <p className="text-sm mb-7" style={{ color: "var(--text-secondary)" }}>
+                        Para continuar recebendo uma Palavra nova a cada dia, assine o Premium por apenas R$ 24,90/mês.
                     </p>
-                    <a href="/subscription" className="btn-primary w-full justify-center">
-                        ✨ Assinar Premium
-                    </a>
-                    <a href="/dashboard" className="btn-ghost w-full justify-center mt-3">
-                        Ver meu devocional salvo
-                    </a>
+                    <Link href="/subscription" className="btn-primary mb-3">Assinar Premium</Link>
+                    <Link href="/dashboard" className="btn-ghost">Ver meu devocional salvo</Link>
                 </motion.div>
             </main>
         );
@@ -115,60 +100,35 @@ export default function GenerateDevotionalPage() {
 
     if (error) {
         return (
-            <main className="min-h-dvh flex items-center justify-center px-6" style={{ background: "var(--bg-base)" }}>
-                <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="text-center max-w-sm">
-                    <span className="text-4xl mb-5 block">⚠️</span>
-                    <h2 className="text-lg font-bold mb-3" style={{ color: "var(--text-primary)" }}>Algo deu errado</h2>
-                    <p className="text-sm mb-8" style={{ color: "var(--text-secondary)" }}>{error}</p>
-                    <button onClick={() => generate()} className="btn-primary w-full">
-                        Tentar novamente
-                    </button>
-                    <button onClick={() => router.replace("/emotion")} className="btn-ghost w-full mt-3">
-                        Escolher outra emoção
-                    </button>
+            <main className="aurora-bg relative min-h-dvh flex items-center justify-center px-6 overflow-hidden">
+                <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} className="relative z-10 text-center max-w-sm">
+                    <div className="inline-flex items-center justify-center w-12 h-12 rounded-full mb-5"
+                        style={{ background: "rgba(224,151,90,0.12)", border: "1px solid rgba(224,151,90,0.3)" }}>
+                        <Icon name="bell" size={22} style={{ color: "var(--amber)" }} />
+                    </div>
+                    <h2 className="font-display text-xl mb-3" style={{ color: "var(--cream)" }}>Algo deu errado</h2>
+                    <p className="text-sm mb-7" style={{ color: "var(--text-secondary)" }}>{error}</p>
+                    <button onClick={() => generate()} className="btn-primary mb-3">Tentar novamente</button>
+                    <button onClick={() => router.replace("/emotion")} className="btn-ghost">Escolher outra emoção</button>
                 </motion.div>
             </main>
         );
     }
 
     return (
-        <main className="relative min-h-dvh flex items-center justify-center overflow-hidden px-6">
+        <main className="aurora-bg relative min-h-dvh flex flex-col items-center justify-center overflow-hidden px-6">
+            {/* O loading É o amanhecer: o horizonte sobe */}
+            <Horizon rising position={0.32} riseFrom={0.82} />
+
             <div className="relative z-10 text-center w-full max-w-sm mx-auto">
-                {/* Circular loader */}
-                <div className="relative mx-auto mb-10" style={{ width: 160, height: 160 }}>
-                    {/* Outer pulse ring */}
-                    <motion.div
-                        className="absolute inset-0 rounded-full"
-                        style={{ border: "1px solid rgba(168,85,247,0.2)" }}
-                        animate={{ scale: [1, 1.25, 1], opacity: [0.8, 0, 0.8] }}
-                        transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-                    />
-                    {/* Spinning arc */}
-                    <motion.div
-                        className="absolute inset-2 rounded-full"
-                        style={{
-                            border: "2px solid transparent",
-                            borderTopColor: "#A855F7",
-                            borderRightColor: "rgba(168,85,247,0.3)",
-                        }}
-                        animate={{ rotate: 360 }}
-                        transition={{ duration: 1.4, repeat: Infinity, ease: "linear" }}
-                    />
-                    {/* Inner sphere */}
-                    <div
-                        className="absolute inset-6 rounded-full flex items-center justify-center"
-                        style={{
-                            background: "radial-gradient(circle at 35% 35%, rgba(236,72,153,0.5), rgba(168,85,247,0.8))",
-                            boxShadow: "0 0 40px rgba(168,85,247,0.5)",
-                        }}
-                    >
-                        <motion.span
-                            className="text-3xl"
-                            animate={{ rotate: [0, 10, -10, 0] }}
-                            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                        >✨</motion.span>
-                    </div>
-                </div>
+                <motion.div
+                    className="inline-flex mb-9 animate-pulse-glow rounded-full"
+                    animate={{ opacity: [0.8, 1, 0.8] }}
+                    transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                    style={{ padding: 14, background: "rgba(247,201,122,0.05)" }}
+                >
+                    <BrandMark size={48} />
+                </motion.div>
 
                 <motion.p
                     key={phraseIndex}
@@ -176,24 +136,23 @@ export default function GenerateDevotionalPage() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -8 }}
                     transition={{ duration: 0.5 }}
-                    className="text-lg font-semibold mb-2"
-                    style={{ color: "var(--text-primary)" }}
+                    className="font-display text-xl mb-2"
+                    style={{ color: "var(--cream)" }}
                 >
                     {loadingPhrases[phraseIndex]}
                 </motion.p>
-                <p className="text-sm mb-8" style={{ color: "var(--text-muted)" }}>
-                    Isso leva apenas alguns segundos
+                <p className="text-sm mb-9" style={{ color: "var(--text-muted)" }}>
+                    A alegria vem pela manhã · Salmo 30:5
                 </p>
 
-                {/* Verse teaser */}
                 <motion.p
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    transition={{ delay: 1.5 }}
-                    className="text-sm italic px-4"
-                    style={{ color: "var(--text-muted)", fontFamily: "var(--font-cormorant)" }}
+                    transition={{ delay: 1.4 }}
+                    className="text-base italic px-4 font-serif-devotional"
+                    style={{ color: "var(--text-secondary)" }}
                 >
-                    &ldquo;Não andeis ansiosos por coisa alguma...&rdquo;
+                    &ldquo;As misericórdias do Senhor se renovam a cada manhã.&rdquo;
                 </motion.p>
             </div>
         </main>
