@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { EMOTION_CATEGORIES } from "@/lib/constants";
 import { useDevotionalStore } from "@/store";
+import { getStoredReferral } from "@/lib/analytics/events";
 import { Icon, EmotionGlyph } from "@/components/icons";
 
 export default function EmotionPage() {
@@ -15,6 +16,22 @@ export default function EmotionPage() {
     const [showCustom, setShowCustom] = useState(false);
     const [customText, setCustomText] = useState("");
     const [loading, setLoading] = useState(false);
+
+    // Vincula um eventual convite (?ref=) na primeira tela autenticada do fluxo.
+    // Idempotente no servidor; limpa o código local após tentar.
+    useEffect(() => {
+        const code = getStoredReferral();
+        if (!code) return;
+        fetch("/api/referral/attach", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code }),
+        })
+            .catch(() => {})
+            .finally(() => {
+                try { localStorage.removeItem("sh_ref"); } catch {}
+            });
+    }, []);
 
     async function handleProceed() {
         const raw = showCustom ? customText.trim() : selected ?? "";

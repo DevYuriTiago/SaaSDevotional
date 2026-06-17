@@ -4,6 +4,7 @@ import { genai } from "@/lib/gemini/client";
 import { JOURNEY_THEMES, FREE_JOURNEY_DAY_LIMIT } from "@/lib/constants";
 import { validateReference } from "@/lib/bible/canon";
 import { logEvent, EVENTS } from "@/lib/analytics/events";
+import { isPremium } from "@/lib/premium";
 
 const isMaster = process.env.MASTER_MODE === "true";
 
@@ -16,12 +17,12 @@ function computeStatus(
     day: number,
     completed: CompletedDay[],
     masterMode: boolean,
-    isPremium: boolean,
+    isPremiumUser: boolean,
 ): DayStatus {
     if (completed.find((d) => d.day === day)) return "completed";
 
     // Free experimenta os 7 primeiros dias; do 8º em diante é Premium.
-    if (!masterMode && !isPremium && day > FREE_JOURNEY_DAY_LIMIT) return "premium";
+    if (!masterMode && !isPremiumUser && day > FREE_JOURNEY_DAY_LIMIT) return "premium";
 
     if (day === 1) return "available";
 
@@ -42,13 +43,13 @@ export async function POST(request: NextRequest) {
 
     const { data: profile } = await supabase
         .from("profiles")
-        .select("subscription_tier, name")
+        .select("subscription_tier, premium_until, name")
         .eq("id", user.id)
         .single();
 
     // Free agora pode iniciar UMA jornada e percorrer os 7 primeiros dias.
     // O gating dos dias 8–21 acontece por dia (status "premium" + 402 no generate).
-    const isPremium = profile?.subscription_tier === "premium";
+    const userIsPremium = isPremium(profile);
 
     const body = await request.json() as { slug: string };
     const { slug } = body;
@@ -181,12 +182,12 @@ Retorne JSON com exatamente 21 itens:
         day: v.day,
         reference: v.reference,
         theme: v.theme,
-        status: computeStatus(v.day, completed, isMaster, isPremium),
+        status: computeStatus(v.day, completed, isMaster, userIsPremium),
         generated_at: completed.find((c) => c.day === v.day)?.generated_at,
     }));
 
     if (!existingPlan) {
-        await logEvent(supabase, user.id, EVENTS.JOURNEY_STARTED, { slug, tier: isPremium ? "premium" : "free" });
+        await logEvent(supabase, user.id, EVENTS.JOURNEY_STARTED, { slug, tier: userIsPremium ? "premium" : "free" });
     }
 
     return NextResponse.json({

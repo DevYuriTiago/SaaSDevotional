@@ -4,9 +4,11 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { formatShortDate } from "@/lib/utils";
 import { JOURNEY_THEMES, FREE_DEVOTIONAL_LIMIT } from "@/lib/constants";
+import { isPremium } from "@/lib/premium";
 import type { Devotional, JournalEntry } from "@/types";
 import BottomNav from "@/components/BottomNav";
 import StreakHero from "@/components/StreakHero";
+import MilestoneCelebration from "@/components/MilestoneCelebration";
 import { Icon, journeyGlyph } from "@/components/icons";
 
 interface Props {
@@ -21,7 +23,7 @@ export default function DashboardClient({ profile, devotionals, journalEntries, 
     const streak = (profile?.streak_days as number) ?? 0;
     const lastDate = (profile?.last_devotional_date as string) ?? null;
     const totalDevotionals = (profile?.total_devotionals as number) ?? 0;
-    const isPremium = profile?.subscription_tier === "premium";
+    const isPremiumUser = isPremium(profile as { subscription_tier?: string | null; premium_until?: string | null } | null);
     const devotionalsUsed = (profile?.devotionals_used as number) ?? 0;
 
     const card = {
@@ -34,6 +36,11 @@ export default function DashboardClient({ profile, devotionals, journalEntries, 
 
     const hour = new Date().getHours();
     const greeting = hour < 12 ? "Bom dia" : hour < 18 ? "Boa tarde" : "Boa noite";
+
+    // Lembrete de constância (in-app): sequência ativa mas devocional de hoje pendente.
+    const todayStr = new Date().toISOString().split("T")[0];
+    const doneToday = lastDate === todayStr;
+    const streakAtRisk = streak >= 1 && !doneToday;
 
     return (
         <main className="aurora-bg relative min-h-dvh overflow-x-hidden pb-24 lg:pb-10">
@@ -56,6 +63,25 @@ export default function DashboardClient({ profile, devotionals, journalEntries, 
                                 {name[0]?.toUpperCase()}
                             </Link>
                         </motion.div>
+
+                        {/* Lembrete de constância (sequência em risco hoje) */}
+                        {streakAtRisk && (
+                            <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="mb-5">
+                                <Link href="/emotion" className="flex items-center gap-3 rounded-2xl p-4"
+                                    style={{ background: "rgba(247,201,122,0.10)", border: "1px solid rgba(247,201,122,0.28)" }}>
+                                    <Icon name="flame" size={22} style={{ color: "var(--gold)", flexShrink: 0 }} />
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-semibold" style={{ color: "var(--cream)" }}>
+                                            Sua sequência de {streak} {streak === 1 ? "dia" : "dias"} te espera
+                                        </p>
+                                        <p className="text-xs" style={{ color: "var(--text-secondary)" }}>
+                                            Não quebre hoje — receba o devocional de agora.
+                                        </p>
+                                    </div>
+                                    <Icon name="arrow-right" size={16} style={{ color: "var(--gold)" }} />
+                                </Link>
+                            </motion.div>
+                        )}
 
                         {/* Chama da Vigília — constância e retorno diário */}
                         <motion.div custom={1} variants={card} initial="hidden" animate="visible" className="mb-5">
@@ -95,7 +121,7 @@ export default function DashboardClient({ profile, devotionals, journalEntries, 
                         </motion.div>
 
                         {/* Premium upsell */}
-                        {!isPremium && devotionalsUsed >= FREE_DEVOTIONAL_LIMIT && (
+                        {!isPremiumUser && devotionalsUsed >= FREE_DEVOTIONAL_LIMIT && (
                             <motion.div custom={4} variants={card} initial="hidden" animate="visible" className="mb-5">
                                 <div className="rounded-2xl p-5 flex items-center gap-4" style={{ background: "rgba(247,201,122,0.08)", border: "1px solid rgba(247,201,122,0.22)" }}>
                                     <Icon name="crown" size={26} style={{ color: "var(--gold)", flexShrink: 0 }} />
@@ -153,10 +179,10 @@ export default function DashboardClient({ profile, devotionals, journalEntries, 
                             </div>
                             <div className="grid grid-cols-2 gap-3">
                                 {JOURNEY_THEMES.slice(0, 4).map((j) => (
-                                    <Link key={j.slug} href={isPremium ? `/journey/${j.slug}` : "/subscription"} className="card-base card-hover p-4 block">
+                                    <Link key={j.slug} href={`/journey/${j.slug}`} className="card-base card-hover p-4 block">
                                         <Icon name={journeyGlyph(j.slug)} size={22} style={{ color: "var(--text-secondary)" }} className="mb-2" />
                                         <p className="text-xs font-medium truncate" style={{ color: "var(--text-secondary)" }}>{j.label}</p>
-                                        {!isPremium && <p className="text-[11px] mt-1 flex items-center gap-1" style={{ color: "var(--text-muted)" }}><Icon name="lock" size={11} /> Premium</p>}
+                                        {!isPremiumUser && <p className="text-[11px] mt-1 flex items-center gap-1" style={{ color: "var(--gold)" }}><Icon name="sparkle" size={11} /> 7 dias grátis</p>}
                                     </Link>
                                 ))}
                             </div>
@@ -182,6 +208,7 @@ export default function DashboardClient({ profile, devotionals, journalEntries, 
                 </div>
             </div>
 
+            <MilestoneCelebration streak={streak} />
             <BottomNav />
         </main>
     );

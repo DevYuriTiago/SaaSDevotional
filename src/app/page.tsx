@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import AmbientSphere from "@/components/AmbientSphere";
 import Horizon from "@/components/Horizon";
 import { Icon, BrandMark, type IconName } from "@/components/icons";
-import { captureUtmFromUrl } from "@/lib/analytics/events";
+import { captureUtmFromUrl, captureReferralFromUrl } from "@/lib/analytics/events";
 
 const features: { icon: IconName; title: string; desc: string }[] = [
     { icon: "sparkle", title: "IA que entende seu coração", desc: "Um devocional gerado para o que você está sentindo agora, neste exato momento." },
@@ -30,9 +30,10 @@ const premiumItems = [
 ];
 
 export default function LandingPage() {
-    // Persiste UTM da URL para atribuir o signup ao canal de origem (ex.: share).
+    // Persiste UTM e código de convite da URL para atribuir o signup depois.
     useEffect(() => {
         captureUtmFromUrl();
+        captureReferralFromUrl();
     }, []);
 
     return (

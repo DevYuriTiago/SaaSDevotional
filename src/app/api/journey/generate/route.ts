@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { genai } from "@/lib/gemini/client";
 import { JOURNEY_THEMES, FREE_JOURNEY_DAY_LIMIT } from "@/lib/constants";
+import { isPremium } from "@/lib/premium";
 
 const isMaster = process.env.MASTER_MODE === "true";
 
@@ -14,11 +15,11 @@ export async function POST(request: NextRequest) {
 
     const { data: profile } = await supabase
         .from("profiles")
-        .select("subscription_tier, name")
+        .select("subscription_tier, premium_until, name")
         .eq("id", user.id)
         .single();
 
-    const isPremium = profile?.subscription_tier === "premium";
+    const userIsPremium = isPremium(profile);
 
     const body = await request.json() as { slug: string; day: number; plan_id: string };
     const { slug, day, plan_id } = body;
@@ -28,7 +29,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Free percorre só os 7 primeiros dias da jornada; do 8º em diante é Premium.
-    if (!isMaster && !isPremium && day > FREE_JOURNEY_DAY_LIMIT) {
+    if (!isMaster && !userIsPremium && day > FREE_JOURNEY_DAY_LIMIT) {
         return NextResponse.json({ error: "premium_required" }, { status: 402 });
     }
 

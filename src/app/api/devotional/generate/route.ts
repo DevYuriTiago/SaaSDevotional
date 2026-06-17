@@ -4,7 +4,50 @@ import { analyzeEmotion, generateDevotional } from "@/lib/gemini/devotional-ai";
 import { FREE_DEVOTIONAL_LIMIT } from "@/lib/constants";
 import { validateReference } from "@/lib/bible/canon";
 import { logEvent, EVENTS } from "@/lib/analytics/events";
+import { isPremium, extendPremiumUntil } from "@/lib/premium";
+import { createClient as createAdminClient } from "@supabase/supabase-js";
 import type { DevotionalContent } from "@/types";
+
+const REFERRAL_REWARD_DAYS = 7;
+
+// Concede premium temporário a convidante e convidado quando o convidado gera
+// seu 1º devocional. Usa service role (escreve no perfil de outro usuário).
+async function rewardReferralIfPending(inviteeId: string, inviteePremiumUntil: string | null) {
+    const admin = createAdminClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+
+    const { data: ref } = await admin
+        .from("referrals")
+        .select("id, referrer_id, status")
+        .eq("invitee_id", inviteeId)
+        .maybeSingle();
+
+    if (!ref || ref.status !== "pending") return;
+
+    // Convidado
+    await admin
+        .from("profiles")
+        .update({ premium_until: extendPremiumUntil(inviteePremiumUntil, REFERRAL_REWARD_DAYS) })
+        .eq("id", inviteeId);
+
+    // Convidante (lê o premium_until atual para empilhar)
+    const { data: referrer } = await admin
+        .from("profiles")
+        .select("premium_until")
+        .eq("id", ref.referrer_id)
+        .single();
+    await admin
+        .from("profiles")
+        .update({ premium_until: extendPremiumUntil(referrer?.premium_until ?? null, REFERRAL_REWARD_DAYS) })
+        .eq("id", ref.referrer_id);
+
+    await admin
+        .from("referrals")
+        .update({ status: "rewarded", rewarded_at: new Date().toISOString() })
+        .eq("id", ref.id);
+}
 
 export async function POST(request: NextRequest) {
     const supabase = await createClient();
@@ -40,8 +83,8 @@ export async function POST(request: NextRequest) {
         profile = newProfile;
     }
 
-    // Enforce free limit (skip in MASTER_MODE)
-    const isFree = profile.subscription_tier === "free";
+    // Enforce free limit (skip in MASTER_MODE). Premium = assinatura OU premium temporário.
+    const isFree = !isPremium(profile);
     if (isFree && profile.devotionals_used >= FREE_DEVOTIONAL_LIMIT && process.env.MASTER_MODE !== "true") {
         return NextResponse.json(
             { error: "limit_reached", message: "Limite do plano gratuito atingido." },
@@ -130,12 +173,19 @@ export async function POST(request: NextRequest) {
             })
             .eq("id", user.id);
 
+        const isFirstDevotional = profile.devotionals_used === 0;
+
         // Ativação: marca se este é o primeiro devocional do usuário.
         await logEvent(supabase, user.id, EVENTS.DEVOTIONAL_GENERATED, {
-            first: profile.devotionals_used === 0,
+            first: isFirstDevotional,
             emotion: emotionAnalysis.primary_emotion,
             tier: profile.subscription_tier,
         });
+
+        // Loop de convite: recompensa ambos quando o convidado ativa (1º devocional).
+        if (isFirstDevotional && profile.referred_by) {
+            await rewardReferralIfPending(user.id, profile.premium_until ?? null);
+        }
 
         return NextResponse.json({ devotional, emotion_analysis: emotionAnalysis });
     } catch (error: unknown) {
