@@ -82,6 +82,25 @@ export default function ProfileClient({ profile, userEmail }: Props) {
     ];
     const unlockedCount = achievements.filter((a) => a.unlocked).length;
 
+    const [billingLoading, setBillingLoading] = useState(false);
+
+    async function handleManageBilling() {
+        setBillingLoading(true);
+        try {
+            const res = await fetch("/api/billing/portal", { method: "POST" });
+            const data = await res.json();
+            if (data.url) {
+                window.location.href = data.url;
+            } else {
+                alert(data.error ?? "Não foi possível abrir o gerenciamento da assinatura.");
+                setBillingLoading(false);
+            }
+        } catch {
+            alert("Erro de conexão. Tente novamente.");
+            setBillingLoading(false);
+        }
+    }
+
     async function handleLogout() {
         const supabase = createClient();
         await supabase.auth.signOut();
@@ -258,10 +277,26 @@ export default function ProfileClient({ profile, userEmail }: Props) {
                             <Icon name="crown" size={20} style={{ color: "var(--gold)" }} />
                             <div className="flex-1">
                                 <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Assinar Premium</p>
-                                <p className="text-xs" style={{ color: "var(--text-muted)" }}>R$ 24,90/mês · Devocionais ilimitados</p>
+                                <p className="text-xs" style={{ color: "var(--text-muted)" }}>A partir de R$ 16,58/mês · Devocionais ilimitados</p>
                             </div>
                             <Icon name="arrow-right" size={16} style={{ color: "var(--text-muted)" }} />
                         </Link>
+                    )}
+                    {isPremium && (
+                        <button
+                            onClick={handleManageBilling}
+                            disabled={billingLoading}
+                            className="card-base p-4 flex items-center gap-3 w-full text-left"
+                        >
+                            <Icon name="crown" size={20} style={{ color: "var(--gold)" }} />
+                            <div className="flex-1">
+                                <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Gerenciar assinatura</p>
+                                <p className="text-xs" style={{ color: "var(--text-muted)" }}>
+                                    {billingLoading ? "Abrindo..." : "Pagamento, faturas e cancelamento"}
+                                </p>
+                            </div>
+                            <Icon name="arrow-right" size={16} style={{ color: "var(--text-muted)" }} />
+                        </button>
                     )}
                     <Link href="/journal" className="card-base p-4 flex items-center gap-3 block">
                         <Icon name="pen" size={20} style={{ color: "var(--text-secondary)" }} />

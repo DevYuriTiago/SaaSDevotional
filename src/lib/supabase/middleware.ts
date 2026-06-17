@@ -48,8 +48,11 @@ export async function updateSession(request: NextRequest) {
         return NextResponse.redirect(url);
     }
 
-    // Redirect new users to onboarding (skip if already on /onboarding or /emotion)
-    if (user && isProtected && !pathname.startsWith("/onboarding") && !pathname.startsWith("/emotion")) {
+    // Value-first: o novo usuário gera e lê seu 1º devocional ANTES do onboarding.
+    // Liberamos /emotion e /devotional; o onboarding é cobrado ao entrar no app
+    // (dashboard, jornadas, perfil, etc.).
+    const valueFirstExempt = ["/onboarding", "/emotion", "/devotional"];
+    if (user && isProtected && !valueFirstExempt.some((r) => pathname.startsWith(r))) {
         const { data: profile } = await supabase
             .from("profiles")
             .select("onboarding_completed")

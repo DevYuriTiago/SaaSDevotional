@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe/client";
 import { createClient } from "@supabase/supabase-js";
+import { logEvent, EVENTS } from "@/lib/analytics/events";
 import Stripe from "stripe";
 
 const admin = createClient(
@@ -8,18 +9,31 @@ const admin = createClient(
     process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-async function upgradeUser(userId: string) {
+type BillingFields = {
+    stripe_customer_id?: string | null;
+    stripe_subscription_id?: string | null;
+    subscription_status?: string | null;
+    subscription_current_period_end?: string | null;
+};
+
+async function upgradeUser(userId: string, billing: BillingFields = {}) {
     await admin
         .from("profiles")
-        .update({ subscription_tier: "premium" })
+        .update({ subscription_tier: "premium", ...billing })
         .eq("id", userId);
 }
 
-async function downgradeUser(userId: string) {
+async function downgradeUser(userId: string, billing: BillingFields = {}) {
     await admin
         .from("profiles")
-        .update({ subscription_tier: "free" })
+        .update({ subscription_tier: "free", ...billing })
         .eq("id", userId);
+}
+
+// Stripe envia current_period_end em segundos (epoch). Converte para ISO.
+function periodEndISO(sub: Stripe.Subscription): string | null {
+    const end = (sub as unknown as { current_period_end?: number }).current_period_end;
+    return typeof end === "number" ? new Date(end * 1000).toISOString() : null;
 }
 
 export async function POST(request: NextRequest) {
@@ -44,7 +58,18 @@ export async function POST(request: NextRequest) {
         case "checkout.session.completed": {
             const session = event.data.object as Stripe.Checkout.Session;
             const uid = getUserId(session);
-            if (uid) await upgradeUser(uid);
+            if (!uid) break;
+            const customerId = typeof session.customer === "string" ? session.customer : null;
+            const subId = typeof session.subscription === "string" ? session.subscription : null;
+            await upgradeUser(uid, {
+                stripe_customer_id: customerId,
+                stripe_subscription_id: subId,
+                subscription_status: "active",
+            });
+            await logEvent(admin, uid, EVENTS.SUBSCRIPTION_ACTIVATED, {
+                amount_total: session.amount_total,
+                currency: session.currency,
+            });
             break;
         }
         case "invoice.payment_succeeded": {
@@ -54,7 +79,28 @@ export async function POST(request: NextRequest) {
             if (!subId) break; // initial checkout invoice — already handled by checkout.session.completed
             const sub = await stripe.subscriptions.retrieve(subId);
             const uid = getUserId(sub);
-            if (uid) await upgradeUser(uid);
+            if (uid) await upgradeUser(uid, {
+                stripe_customer_id: typeof sub.customer === "string" ? sub.customer : null,
+                stripe_subscription_id: sub.id,
+                subscription_status: sub.status,
+                subscription_current_period_end: periodEndISO(sub),
+            });
+            break;
+        }
+        case "customer.subscription.updated": {
+            // Mudança de status/renovação/cancelamento agendado.
+            const sub = event.data.object as Stripe.Subscription;
+            const uid = getUserId(sub);
+            if (!uid) break;
+            const active = sub.status === "active" || sub.status === "trialing";
+            const billing: BillingFields = {
+                stripe_customer_id: typeof sub.customer === "string" ? sub.customer : null,
+                stripe_subscription_id: sub.id,
+                subscription_status: sub.status,
+                subscription_current_period_end: periodEndISO(sub),
+            };
+            if (active) await upgradeUser(uid, billing);
+            else await downgradeUser(uid, billing);
             break;
         }
         case "customer.subscription.deleted":
@@ -65,7 +111,11 @@ export async function POST(request: NextRequest) {
             if (!subId) break;
             const sub = await stripe.subscriptions.retrieve(subId);
             const uid = getUserId(sub);
-            if (uid) await downgradeUser(uid);
+            if (uid) await downgradeUser(uid, {
+                stripe_subscription_id: sub.id,
+                subscription_status: sub.status,
+                subscription_current_period_end: periodEndISO(sub),
+            });
             break;
         }
     }

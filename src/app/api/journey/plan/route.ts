@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { genai } from "@/lib/gemini/client";
 import { JOURNEY_THEMES, FREE_JOURNEY_DAY_LIMIT } from "@/lib/constants";
+import { validateReference } from "@/lib/bible/canon";
+import { logEvent, EVENTS } from "@/lib/analytics/events";
 
 const isMaster = process.env.MASTER_MODE === "true";
 
@@ -104,31 +106,47 @@ export async function POST(request: NextRequest) {
             },
         });
 
-        let verses: PlanVerse[];
-        try {
-            const result = await model.generateContent(
-                `Para o tema "${theme.label}" (${theme.description}), crie um currículo de 21 versículos bíblicos em ordem de progressão espiritual crescente:
+        const planPrompt = `Para o tema "${theme.label}" (${theme.description}), crie um currículo de 21 versículos bíblicos em ordem de progressão espiritual crescente:
 - Dias 1-7: fundamentos — conceitos básicos e introdução ao tema (acessível para iniciantes)
 - Dias 8-14: aprofundamento — compreensão mais densa e aplicação prática
 - Dias 15-21: maturidade espiritual — transformação interior, prática avançada e plenitude
 
-Regras: cada versículo deve ser ÚNICO. Use versículos reais da Bíblia em português (NVI ou ARC). O texto deve ser o versículo completo.
+Regras: cada versículo deve ser ÚNICO. Use versículos REAIS da Bíblia em português (NVI ou ARC), com referência correta (livro, capítulo e versículo que existem de fato). O texto deve ser o versículo completo.
 
 Retorne JSON com exatamente 21 itens:
 {
   "verses": [
     { "day": 1, "reference": "Livro Cap:Ver", "text": "texto completo em português", "theme": "título do foco (máx 5 palavras)" }
   ]
-}`
-            );
-            const raw = result.response.text().trim();
-            const parsed = JSON.parse(raw);
-            verses = Array.isArray(parsed) ? parsed : parsed.verses;
-            if (!Array.isArray(verses) || verses.length < 10) throw new Error("Poucas entradas no plano");
-            // Garantir que todos os dias estejam numerados corretamente
-            verses = verses.slice(0, 21).map((v, i) => ({ ...v, day: i + 1 }));
-        } catch (err) {
-            console.error("[journey/plan] Gemini error:", err);
+}`;
+
+        // Gera o plano e valida as referências contra o cânon; regenera uma vez
+        // se a IA inventar livros/capítulos inexistentes (anti-alucinação).
+        let verses: PlanVerse[] | null = null;
+        for (let attempt = 0; attempt < 2; attempt++) {
+            try {
+                const result = await model.generateContent(planPrompt);
+                const raw = result.response.text().trim();
+                const parsed = JSON.parse(raw);
+                let v: PlanVerse[] = Array.isArray(parsed) ? parsed : parsed.verses;
+                if (!Array.isArray(v) || v.length < 10) throw new Error("Poucas entradas no plano");
+                // Garantir que todos os dias estejam numerados corretamente
+                v = v.slice(0, 21).map((x, i) => ({ ...x, day: i + 1 }));
+
+                verses = v; // mantém como fallback
+                const invalid = v.filter((x) => !validateReference(x.reference).valid);
+                if (invalid.length === 0) break;
+                console.warn(
+                    `[journey/plan] ${invalid.length}/21 referências inválidas (tentativa ${attempt + 1}): ${invalid.map((x) => x.reference).join(", ")}`
+                );
+            } catch (err) {
+                console.error("[journey/plan] Gemini error:", err);
+                if (attempt === 1 && !verses) {
+                    return NextResponse.json({ error: "Erro ao criar plano. Tente novamente." }, { status: 503 });
+                }
+            }
+        }
+        if (!verses) {
             return NextResponse.json({ error: "Erro ao criar plano. Tente novamente." }, { status: 503 });
         }
 
@@ -166,6 +184,10 @@ Retorne JSON com exatamente 21 itens:
         status: computeStatus(v.day, completed, isMaster, isPremium),
         generated_at: completed.find((c) => c.day === v.day)?.generated_at,
     }));
+
+    if (!existingPlan) {
+        await logEvent(supabase, user.id, EVENTS.JOURNEY_STARTED, { slug, tier: isPremium ? "premium" : "free" });
+    }
 
     return NextResponse.json({
         plan_id: plan.id,
