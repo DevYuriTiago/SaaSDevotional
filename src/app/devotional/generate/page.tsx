@@ -86,10 +86,10 @@ export default function GenerateDevotionalPage() {
                         <Icon name="crown" size={26} style={{ color: "var(--gold)" }} />
                     </div>
                     <h2 className="font-display text-2xl mb-3" style={{ color: "var(--cream)" }}>
-                        Você já recebeu seu devocional gratuito
+                        Sua experiência gratuita chegou ao fim
                     </h2>
                     <p className="text-sm mb-7" style={{ color: "var(--text-secondary)" }}>
-                        Para continuar recebendo uma Palavra nova a cada dia, assine o Premium por apenas R$ 24,90/mês.
+                        Você já sentiu como é receber uma Palavra feita para o seu momento. Para continuar todos os dias — sem limites — assine o Premium a partir de R$ 16,58/mês no plano anual.
                     </p>
                     <Link href="/subscription" className="btn-primary mb-3">Assinar Premium</Link>
                     <Link href="/dashboard" className="btn-ghost">Ver meu devocional salvo</Link>

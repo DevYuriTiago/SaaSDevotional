@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { genai } from "@/lib/gemini/client";
-import { JOURNEY_THEMES } from "@/lib/constants";
+import { JOURNEY_THEMES, FREE_JOURNEY_DAY_LIMIT } from "@/lib/constants";
 
 const isMaster = process.env.MASTER_MODE === "true";
 
@@ -18,15 +18,18 @@ export async function POST(request: NextRequest) {
         .eq("id", user.id)
         .single();
 
-    if (!isMaster && profile?.subscription_tier !== "premium") {
-        return NextResponse.json({ error: "premium_required" }, { status: 402 });
-    }
+    const isPremium = profile?.subscription_tier === "premium";
 
     const body = await request.json() as { slug: string; day: number; plan_id: string };
     const { slug, day, plan_id } = body;
 
     if (!slug || !day || day < 1 || day > 21 || !plan_id) {
         return NextResponse.json({ error: "Parâmetros inválidos" }, { status: 400 });
+    }
+
+    // Free percorre só os 7 primeiros dias da jornada; do 8º em diante é Premium.
+    if (!isMaster && !isPremium && day > FREE_JOURNEY_DAY_LIMIT) {
+        return NextResponse.json({ error: "premium_required" }, { status: 402 });
     }
 
     const theme = JOURNEY_THEMES.find((t) => t.slug === slug);

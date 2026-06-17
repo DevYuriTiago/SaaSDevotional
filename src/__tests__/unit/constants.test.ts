@@ -2,7 +2,10 @@
 import {
     EMOTION_CATEGORIES,
     FREE_DEVOTIONAL_LIMIT,
+    FREE_JOURNEY_DAY_LIMIT,
     PREMIUM_PRICE,
+    PREMIUM_PRICE_ANNUAL,
+    PREMIUM_ANNUAL_SAVINGS,
     JOURNEY_THEMES,
     ACHIEVEMENTS,
 } from "@/lib/constants";
@@ -77,12 +80,36 @@ describe("EMOTION_CATEGORIES", () => {
 // ─── FREE_DEVOTIONAL_LIMIT ────────────────────────────────────────────────────
 
 describe("FREE_DEVOTIONAL_LIMIT", () => {
-    it("deve ser igual a 1", () => {
-        expect(FREE_DEVOTIONAL_LIMIT).toBe(1);
+    it("deve ser igual a 7 (trial de hábito)", () => {
+        expect(FREE_DEVOTIONAL_LIMIT).toBe(7);
     });
 
     it("deve ser do tipo number", () => {
         expect(typeof FREE_DEVOTIONAL_LIMIT).toBe("number");
+    });
+});
+
+// ─── FREE_JOURNEY_DAY_LIMIT ───────────────────────────────────────────────────
+
+describe("FREE_JOURNEY_DAY_LIMIT", () => {
+    it("deve liberar os 7 primeiros dias da jornada ao free", () => {
+        expect(FREE_JOURNEY_DAY_LIMIT).toBe(7);
+    });
+});
+
+// ─── PLANO ANUAL ──────────────────────────────────────────────────────────────
+
+describe("Plano anual", () => {
+    it("PREMIUM_PRICE_ANNUAL deve ser 199", () => {
+        expect(PREMIUM_PRICE_ANNUAL).toBe(199);
+    });
+
+    it("deve ser mais barato que 12x o mensal", () => {
+        expect(PREMIUM_PRICE_ANNUAL).toBeLessThan(PREMIUM_PRICE * 12);
+    });
+
+    it("a economia anunciada deve bater com 12x mensal menos o anual", () => {
+        expect(PREMIUM_ANNUAL_SAVINGS).toBe(Math.round(PREMIUM_PRICE * 12 - PREMIUM_PRICE_ANNUAL));
     });
 });
 

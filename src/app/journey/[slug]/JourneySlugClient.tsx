@@ -14,7 +14,7 @@ interface Props {
     slug: string;
 }
 
-type DayStatus = "completed" | "available" | "available_tomorrow" | "locked";
+type DayStatus = "completed" | "available" | "available_tomorrow" | "locked" | "premium";
 
 interface DayInfo {
     day: number;
@@ -51,8 +51,9 @@ function DayButton({ d, selected, onClick }: { d: DayInfo; selected: boolean; on
     const statusIcon: IconName | null =
         d.status === "completed" ? "check" :
             d.status === "available_tomorrow" ? "moon" :
-                d.status === "locked" ? "lock" :
-                    null;
+                d.status === "premium" ? "crown" :
+                    d.status === "locked" ? "lock" :
+                        null;
 
     return (
         <button
@@ -105,6 +106,7 @@ export default function JourneySlugClient({ slug }: Props) {
     const [dayLoading, setDayLoading] = useState(false);
     const [dayError, setDayError] = useState<string | null>(null);
     const [lockedMessage, setLockedMessage] = useState<string | null>(null);
+    const [dayNeedsPremium, setDayNeedsPremium] = useState(false);
 
     const [showShare, setShowShare] = useState(false);
 
@@ -182,6 +184,12 @@ export default function JourneySlugClient({ slug }: Props) {
         const dayInfo = days.find((d) => d.day === selectedDay);
         if (!dayInfo) return;
 
+        if (dayInfo.status === "premium") {
+            setDayNeedsPremium(true);
+            setLockedMessage(null);
+            setDevotional(null);
+            return;
+        }
         if (dayInfo.status === "locked") {
             setLockedMessage("Complete os dias anteriores para desbloquear este dia.");
             setDevotional(null);
@@ -192,6 +200,7 @@ export default function JourneySlugClient({ slug }: Props) {
             setDevotional(null);
             return;
         }
+        setDayNeedsPremium(false);
         setLockedMessage(null);
         contentForDayRef.current = selectedDay;
         fetchDayContent(selectedDay);
@@ -239,8 +248,14 @@ export default function JourneySlugClient({ slug }: Props) {
         setDevotional(null);
         setDayError(null);
         setLockedMessage(null);
+        setDayNeedsPremium(false);
         contentForDayRef.current = null;
 
+        if (dayInfo.status === "premium") {
+            setDayNeedsPremium(true);
+            setSelectedDay(dayInfo.day);
+            return;
+        }
         if (dayInfo.status === "locked") {
             setLockedMessage("Complete os dias anteriores para desbloquear este dia.");
             setSelectedDay(dayInfo.day);
@@ -388,9 +403,9 @@ export default function JourneySlugClient({ slug }: Props) {
             <main className="aurora-bg min-h-dvh flex items-center justify-center px-6">
                 <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="text-center max-w-md glass-strong rounded-3xl p-10">
                     <Icon name="crown" size={48} style={{ color: "var(--gold)" }} className="mx-auto mb-6" />
-                    <h2 className="font-display text-xl mb-3" style={{ color: "var(--cream)" }}>Jornadas são Premium</h2>
+                    <h2 className="font-display text-xl mb-3" style={{ color: "var(--cream)" }}>Continue sua jornada</h2>
                     <p className="text-sm mb-8" style={{ color: "var(--text-secondary)" }}>
-                        Acesse 21 dias de devocionais guiados sobre {theme.label} com o plano Premium.
+                        Os 7 primeiros dias de {theme.label} são gratuitos. Desbloqueie os 21 dias completos com o Premium e mantenha todo o seu progresso.
                     </p>
                     <Link href="/subscription" className="btn-primary">Assinar Premium</Link>
                     <Link href="/journey" className="btn-ghost mt-3 block">Voltar</Link>
@@ -533,8 +548,25 @@ export default function JourneySlugClient({ slug }: Props) {
             {/* Área de conteúdo */}
             <div className="relative z-10 max-w-lg lg:max-w-3xl mx-auto px-5 pt-2">
 
+                {/* Dia Premium (free passou do 7º dia) */}
+                {dayNeedsPremium && !dayLoading && (
+                    <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+                        className="text-center py-12 px-4 card-base mt-2"
+                        style={{ borderColor: "rgba(247,201,122,0.25)" }}
+                    >
+                        <Icon name="crown" size={42} style={{ color: "var(--gold)" }} className="mx-auto mb-5" />
+                        <p className="font-display text-xl mb-2" style={{ color: "var(--cream)" }}>
+                            Você completou os 7 primeiros dias 🎉
+                        </p>
+                        <p className="text-sm mb-7 max-w-sm mx-auto" style={{ color: "var(--text-secondary)" }}>
+                            Os dias 8 a 21 de <strong style={{ color: "var(--cream)" }}>{theme.label}</strong> — a fase de aprofundamento e maturidade — fazem parte do Premium. Continue de onde parou, sem perder seu progresso.
+                        </p>
+                        <Link href="/subscription" className="btn-primary">Desbloquear a jornada completa</Link>
+                    </motion.div>
+                )}
+
                 {/* Mensagem de bloqueio */}
-                {lockedMessage && !dayLoading && !devotional && (
+                {lockedMessage && !dayLoading && !devotional && !dayNeedsPremium && (
                     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="text-center py-16 px-4">
                         <Icon name={lockedMessage.includes("amanhã") ? "moon" : "lock"} size={44} style={{ color: "var(--text-secondary)" }} className="mx-auto mb-6" />
                         <p className="font-display text-lg mb-2" style={{ color: "var(--cream)" }}>
@@ -674,6 +706,9 @@ export default function JourneySlugClient({ slug }: Props) {
                                     }
                                     if (next.status === "available_tomorrow") {
                                         return <button disabled className="btn-ghost flex-1 opacity-50 cursor-not-allowed"><Icon name="moon" size={16} /> Disponível amanhã</button>;
+                                    }
+                                    if (next.status === "premium") {
+                                        return <Link href="/subscription" className="btn-primary flex-1 text-center"><Icon name="crown" size={16} /> Continuar no Premium</Link>;
                                     }
                                     return <button disabled className="btn-ghost flex-1 opacity-40 cursor-not-allowed"><Icon name="lock" size={16} /> Bloqueado</button>;
                                 })()}

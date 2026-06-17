@@ -90,18 +90,29 @@ export async function POST(request: NextRequest) {
         if (insertError) throw insertError;
 
         // Step 4: Increment usage + streak
+        // Streak por dia de calendário (UTC). Gerar mais de um devocional no MESMO
+        // dia não deve quebrar a sequência — só conta a transição de dia.
         const today = new Date().toISOString().split("T")[0];
-        const lastDate = profile.last_devotional_date;
-        const isConsecutive =
-            lastDate &&
-            new Date(today).getTime() - new Date(lastDate).getTime() === 86400000;
+        const lastDate = profile.last_devotional_date as string | null;
+
+        let nextStreak: number;
+        if (!lastDate) {
+            nextStreak = 1; // primeiro devocional
+        } else if (lastDate === today) {
+            nextStreak = profile.streak_days; // mesmo dia — mantém a sequência
+        } else {
+            const diffDays = Math.round(
+                (new Date(today).getTime() - new Date(lastDate).getTime()) / 86400000
+            );
+            nextStreak = diffDays === 1 ? profile.streak_days + 1 : 1;
+        }
 
         await supabase
             .from("profiles")
             .update({
                 devotionals_used: profile.devotionals_used + 1,
                 total_devotionals: profile.total_devotionals + 1,
-                streak_days: isConsecutive ? profile.streak_days + 1 : 1,
+                streak_days: nextStreak,
                 last_devotional_date: today,
             })
             .eq("id", user.id);

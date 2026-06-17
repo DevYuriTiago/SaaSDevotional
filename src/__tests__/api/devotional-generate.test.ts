@@ -98,8 +98,8 @@ const FREE_PROFILE_AT_LIMIT = {
   id: "user-uuid-1",
   name: "Yuri",
   subscription_tier: "free",
-  devotionals_used: 1,
-  total_devotionals: 1,
+  devotionals_used: 7,
+  total_devotionals: 7,
   streak_days: 0,
   last_devotional_date: null,
 };
@@ -144,6 +144,30 @@ describe("POST /api/devotional/generate", () => {
 
     const json = await res.json();
     expect(json.error).toBe("limit_reached");
+  });
+
+  it("permite gerar quando usuário free ainda está abaixo do limite", async () => {
+    mockGetUser.mockResolvedValue({ data: { user: MOCK_USER } });
+
+    const FREE_UNDER_LIMIT = {
+      id: "user-uuid-1",
+      name: "Yuri",
+      subscription_tier: "free",
+      devotionals_used: 3,
+      total_devotionals: 3,
+      streak_days: 2,
+      last_devotional_date: null,
+    };
+
+    mockSingle
+      .mockResolvedValueOnce({ data: FREE_UNDER_LIMIT, error: null })
+      .mockResolvedValueOnce({ data: MOCK_DEVOTIONAL_ROW, error: null });
+
+    const res = await POST(makeReq({ emotion_raw: "ansioso" }));
+    expect(res.status).toBe(200);
+
+    const json = await res.json();
+    expect(json).toHaveProperty("devotional");
   });
 
   it("retorna 200 com objeto devotional para usuário premium", async () => {

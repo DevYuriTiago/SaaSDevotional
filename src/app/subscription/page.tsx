@@ -5,10 +5,11 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import AmbientSphere from "@/components/AmbientSphere";
 import { Icon } from "@/components/icons";
+import { PREMIUM_PRICE, PREMIUM_PRICE_ANNUAL, PREMIUM_ANNUAL_SAVINGS } from "@/lib/constants";
 
 const features = [
     "Devocionais ilimitados",
-    "Jornada de 21 dias",
+    "Jornadas de 21 dias completas",
     "Diário espiritual completo",
     "Modo madrugada",
     "Áudios exclusivos",
@@ -16,13 +17,21 @@ const features = [
     "Histórico completo",
 ];
 
+const fmt = (v: number) => v.toFixed(2).replace(".", ",");
+const annualMonthly = fmt(PREMIUM_PRICE_ANNUAL / 12); // R$/mês equivalente no anual
+
 export default function SubscriptionPage() {
     const [loading, setLoading] = useState(false);
+    const [plan, setPlan] = useState<"month" | "year">("year");
 
     async function handleSubscribe() {
         setLoading(true);
         try {
-            const res = await fetch("/api/checkout/session", { method: "POST" });
+            const res = await fetch("/api/checkout/session", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ plan }),
+            });
             const data = await res.json();
             if (data.url) {
                 window.location.href = data.url;
@@ -98,17 +107,48 @@ export default function SubscriptionPage() {
                     </ul>
                 </motion.div>
 
-                {/* Price */}
+                {/* Seletor de plano */}
                 <motion.div
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.4 }}
-                    className="text-center mb-6"
+                    className="grid grid-cols-2 gap-3 mb-6"
                 >
-                    <div className="flex items-baseline justify-center gap-1 mb-1">
-                        <span className="font-display" style={{ color: "var(--cream)", fontSize: "clamp(2.5rem, 11vw, 3rem)", fontWeight: 500 }}>R$ 24,90</span>
-                        <span className="text-sm" style={{ color: "var(--text-muted)" }}>/mês</span>
-                    </div>
+                    {/* Anual */}
+                    <button
+                        onClick={() => setPlan("year")}
+                        className="relative text-left rounded-2xl p-4 transition-all"
+                        style={{
+                            background: plan === "year" ? "rgba(247,201,122,0.10)" : "var(--glass)",
+                            border: plan === "year" ? "1.5px solid var(--gold)" : "1px solid var(--glass-border)",
+                        }}
+                    >
+                        <span className="absolute -top-2 right-3 text-[10px] font-bold px-2 py-0.5 rounded-full"
+                            style={{ background: "var(--gradient-gold)", color: "#2A1E08" }}>
+                            ECONOMIZE R$ {PREMIUM_ANNUAL_SAVINGS}
+                        </span>
+                        <p className="text-xs mb-1" style={{ color: "var(--text-muted)" }}>Anual</p>
+                        <p className="font-display" style={{ color: "var(--cream)", fontSize: "1.5rem", fontWeight: 500 }}>
+                            R$ {annualMonthly}<span className="text-xs" style={{ color: "var(--text-muted)" }}>/mês</span>
+                        </p>
+                        <p className="text-[11px] mt-0.5" style={{ color: "var(--text-muted)" }}>R$ {fmt(PREMIUM_PRICE_ANNUAL)} por ano</p>
+                    </button>
+
+                    {/* Mensal */}
+                    <button
+                        onClick={() => setPlan("month")}
+                        className="text-left rounded-2xl p-4 transition-all"
+                        style={{
+                            background: plan === "month" ? "rgba(247,201,122,0.10)" : "var(--glass)",
+                            border: plan === "month" ? "1.5px solid var(--gold)" : "1px solid var(--glass-border)",
+                        }}
+                    >
+                        <p className="text-xs mb-1" style={{ color: "var(--text-muted)" }}>Mensal</p>
+                        <p className="font-display" style={{ color: "var(--cream)", fontSize: "1.5rem", fontWeight: 500 }}>
+                            R$ {fmt(PREMIUM_PRICE)}<span className="text-xs" style={{ color: "var(--text-muted)" }}>/mês</span>
+                        </p>
+                        <p className="text-[11px] mt-0.5" style={{ color: "var(--text-muted)" }}>Flexível, cancele quando quiser</p>
+                    </button>
                 </motion.div>
 
                 {/* CTA */}
@@ -120,7 +160,7 @@ export default function SubscriptionPage() {
                                 Redirecionando...
                             </span>
                         ) : (
-                            "Assinar agora"
+                            plan === "year" ? "Assinar plano anual" : "Assinar plano mensal"
                         )}
                     </button>
                     <p className="text-xs text-center mt-3" style={{ color: "var(--text-muted)" }}>
