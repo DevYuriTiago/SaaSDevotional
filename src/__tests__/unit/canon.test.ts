@@ -1,4 +1,5 @@
 import { parseReference, validateReference } from "@/lib/bible/canon";
+import { VERSE_THEMES } from "@/lib/seo/verse-themes";
 
 describe("parseReference", () => {
     it("faz parse de referência simples", () => {
@@ -52,5 +53,21 @@ describe("validateReference", () => {
     it("rejeita capítulo inexistente em livro de 1 capítulo", () => {
         expect(validateReference("Judas 2:1").valid).toBe(false); // Judas só tem 1 capítulo
         expect(validateReference("Judas 1:3").valid).toBe(true);
+    });
+});
+
+describe("Páginas SEO de versículos", () => {
+    it("toda referência citada nas páginas SEO é canônica", () => {
+        for (const theme of VERSE_THEMES) {
+            for (const v of theme.verses) {
+                const check = validateReference(v.reference);
+                expect(check.valid, `${theme.slug}: "${v.reference}" — ${check.reason ?? ""}`).toBe(true);
+            }
+        }
+    });
+
+    it("slugs de tema são únicos", () => {
+        const slugs = VERSE_THEMES.map((t) => t.slug);
+        expect(new Set(slugs).size).toBe(slugs.length);
     });
 });

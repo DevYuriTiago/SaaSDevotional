@@ -67,6 +67,29 @@ export function captureUtmFromUrl(): void {
     }
 }
 
+const REF_STORAGE = "sh_ref";
+
+/** Captura o código de convite (?ref=) da URL e persiste para o signup. */
+export function captureReferralFromUrl(): void {
+    if (typeof window === "undefined") return;
+    try {
+        const ref = new URLSearchParams(window.location.search).get("ref");
+        if (ref) localStorage.setItem(REF_STORAGE, ref);
+    } catch {
+        // ignora
+    }
+}
+
+/** Recupera o código de convite persistido (se houver). */
+export function getStoredReferral(): string | null {
+    if (typeof window === "undefined") return null;
+    try {
+        return localStorage.getItem(REF_STORAGE);
+    } catch {
+        return null;
+    }
+}
+
 /** Recupera os UTM persistidos (se houver). */
 export function getStoredUtm(): Props {
     if (typeof window === "undefined") return {};

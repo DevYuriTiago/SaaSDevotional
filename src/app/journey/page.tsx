@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { JOURNEY_THEMES } from "@/lib/constants";
 import BottomNav from "@/components/BottomNav";
 import { createClient } from "@/lib/supabase/client";
+import { isPremium as isPremiumProfile } from "@/lib/premium";
 import { Icon, journeyGlyph } from "@/components/icons";
 
 interface PlanProgress {
@@ -25,14 +26,14 @@ export default function JourneyPage() {
             if (!user) { setLoading(false); return; }
 
             const [{ data: profile }, { data: rawPlans }] = await Promise.all([
-                supabase.from("profiles").select("subscription_tier").eq("id", user.id).single(),
+                supabase.from("profiles").select("subscription_tier, premium_until").eq("id", user.id).single(),
                 supabase
                     .from("journey_plans")
                     .select("slug, journey_days(count)")
                     .eq("user_id", user.id),
             ]);
 
-            setIsPremium(profile?.subscription_tier === "premium");
+            setIsPremium(isPremiumProfile(profile));
             setPlans(
                 (rawPlans ?? []).map((p: { slug: string; journey_days: unknown }) => ({
                     slug: p.slug,

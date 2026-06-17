@@ -7,6 +7,8 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import BottomNav from "@/components/BottomNav";
 import { useUIStore } from "@/store";
+import { isPremium, isPaidSubscriber } from "@/lib/premium";
+import InviteCard from "@/components/InviteCard";
 import { Icon, type IconName } from "@/components/icons";
 
 interface Props {
@@ -38,7 +40,9 @@ export default function ProfileClient({ profile, userEmail }: Props) {
     const name = (profile?.name as string) ?? "Amigo";
     const streak = (profile?.streak_days as number) ?? 0;
     const totalDevotionals = (profile?.total_devotionals as number) ?? 0;
-    const isPremium = profile?.subscription_tier === "premium";
+    const premiumProfile = profile as { subscription_tier?: string | null; premium_until?: string | null } | null;
+    const isPremiumUser = isPremium(premiumProfile);
+    const isPaying = isPaidSubscriber(premiumProfile);
 
     const [maxJourneyDays, setMaxJourneyDays] = useState(0);
     const [totalJourneyDays, setTotalJourneyDays] = useState(0);
@@ -134,7 +138,7 @@ export default function ProfileClient({ profile, userEmail }: Props) {
                     </div>
                     <h1 className="font-display text-xl mb-1" style={{ color: "var(--cream)", fontWeight: 500 }}>{name}</h1>
                     <p className="text-sm" style={{ color: "var(--text-muted)" }}>{userEmail}</p>
-                    {isPremium && (
+                    {isPremiumUser && (
                         <span
                             className="mt-3 text-xs px-3 py-1 rounded-full font-semibold inline-flex items-center gap-1.5"
                             style={{ background: "rgba(247,201,122,0.15)", color: "var(--gold)", border: "1px solid rgba(247,201,122,0.3)" }}
@@ -270,19 +274,22 @@ export default function ProfileClient({ profile, userEmail }: Props) {
                     transition={{ delay: 0.2 }}
                     className="space-y-2 mb-6"
                 >
-                    {!isPremium && (
+                    <InviteCard />
+                    {!isPaying && (
                         <Link href="/subscription" className="card-base p-4 flex items-center gap-3 block"
                             style={{ borderColor: "rgba(247,201,122,0.25)" }}
                         >
                             <Icon name="crown" size={20} style={{ color: "var(--gold)" }} />
                             <div className="flex-1">
-                                <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Assinar Premium</p>
+                                <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
+                                    {isPremiumUser ? "Tornar meu Premium permanente" : "Assinar Premium"}
+                                </p>
                                 <p className="text-xs" style={{ color: "var(--text-muted)" }}>A partir de R$ 16,58/mês · Devocionais ilimitados</p>
                             </div>
                             <Icon name="arrow-right" size={16} style={{ color: "var(--text-muted)" }} />
                         </Link>
                     )}
-                    {isPremium && (
+                    {isPaying && (
                         <button
                             onClick={handleManageBilling}
                             disabled={billingLoading}
