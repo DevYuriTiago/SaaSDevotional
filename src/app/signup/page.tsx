@@ -10,6 +10,7 @@ import { motion } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
 import { GoogleButton } from "@/components/auth/GoogleButton";
 import { BrandMark, Icon } from "@/components/icons";
+import { track, getStoredUtm, EVENTS } from "@/lib/analytics/events";
 
 const schema = z.object({
     name: z.string().min(2, "Nome muito curto"),
@@ -38,7 +39,7 @@ export default function SignupPage() {
             password: data.password,
             options: {
                 data: { name: data.name },
-                emailRedirectTo: `${window.location.origin}/auth/callback?next=/onboarding`,
+                emailRedirectTo: `${window.location.origin}/auth/callback?next=/emotion`,
             },
         });
         if (error) {
@@ -47,7 +48,9 @@ export default function SignupPage() {
         }
         // Se sessão já foi criada (confirmação de e-mail desativada no Supabase)
         if (signUpData.session) {
-            router.push("/onboarding");
+            await track(EVENTS.SIGNUP, { method: "email", ...getStoredUtm() });
+            // Value-first: leva direto à 1ª geração; onboarding vem depois.
+            router.push("/emotion");
             router.refresh();
             return;
         }
@@ -100,12 +103,12 @@ export default function SignupPage() {
                         </Link>
                         <h1 className="font-display mb-2" style={{ color: "var(--cream)", fontSize: "1.6rem", fontWeight: 400, letterSpacing: "-0.01em" }}>Comece sua jornada</h1>
                         <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
-                            Seu primeiro devocional é gratuito
+                            Seus 7 primeiros devocionais são gratuitos
                         </p>
                     </div>
 
                     <div className="glass-strong rounded-3xl p-8">
-                        <GoogleButton next="/onboarding" label="Continuar com Google" />
+                        <GoogleButton next="/emotion" label="Continuar com Google" />
 
                         <div className="flex items-center gap-3 my-5">
                             <div className="flex-1 h-px" style={{ background: "var(--glass-border)" }} />

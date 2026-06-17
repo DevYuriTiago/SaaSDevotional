@@ -1,11 +1,12 @@
 ﻿"use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import AmbientSphere from "@/components/AmbientSphere";
 import { Icon } from "@/components/icons";
 import { PREMIUM_PRICE, PREMIUM_PRICE_ANNUAL, PREMIUM_ANNUAL_SAVINGS } from "@/lib/constants";
+import { track, EVENTS } from "@/lib/analytics/events";
 
 const features = [
     "Devocionais ilimitados",
@@ -23,6 +24,10 @@ const annualMonthly = fmt(PREMIUM_PRICE_ANNUAL / 12); // R$/mês equivalente no 
 export default function SubscriptionPage() {
     const [loading, setLoading] = useState(false);
     const [plan, setPlan] = useState<"month" | "year">("year");
+
+    useEffect(() => {
+        track(EVENTS.PAYWALL_VIEWED, { source: "subscription_page" });
+    }, []);
 
     async function handleSubscribe() {
         setLoading(true);

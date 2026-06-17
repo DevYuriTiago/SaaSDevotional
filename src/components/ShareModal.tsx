@@ -208,7 +208,9 @@ export default function ShareModal({ open, onClose, data }: Props) {
 
     async function handleCopy() {
         if (!data) return;
-        const text = `${data.declaration}\n\n"${data.verse}"\n— ${data.verseRef}\n\nO Que Você Está Sentindo Hoje`;
+        // Link rastreável: atribui cadastros vindos de compartilhamento ao canal.
+        const shareUrl = `https://oquevoceestasentindohoje.app/?utm_source=share&utm_medium=social&utm_campaign=${data.type}`;
+        const text = `${data.declaration}\n\n"${data.verse}"\n— ${data.verseRef}\n\nO Que Você Está Sentindo Hoje\n${shareUrl}`;
         await navigator.clipboard.writeText(text);
         setCopied(true);
         setTimeout(() => setCopied(false), 2200);

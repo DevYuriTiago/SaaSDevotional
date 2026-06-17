@@ -9,14 +9,14 @@ import { Icon, type IconName } from "@/components/icons";
 const steps = [
     {
         id: "welcome",
-        title: (name: string) => `${name}, que bom ter você aqui`,
-        subtitle: "Este é um espaço seguro. Sem julgamento. Só você, Deus e a Palavra.",
+        title: (name: string) => `${name}, você acabou de sentir`,
+        subtitle: "Esse é o coração do Sentindo Hoje: uma Palavra viva para o seu momento. Vamos personalizar sua caminhada daqui pra frente.",
         content: null,
     },
     {
         id: "how",
-        title: () => "Como funciona",
-        subtitle: "Você nos diz o que está sentindo. A IA interpreta com profundidade espiritual e cria um devocional único para você.",
+        title: () => "Um espaço só seu",
+        subtitle: "Sem julgamento. Aqui ficam seus devocionais, seu diário e suas jornadas — só você, Deus e a Palavra.",
         content: null,
     },
     {

@@ -1,10 +1,12 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import AmbientSphere from "@/components/AmbientSphere";
 import Horizon from "@/components/Horizon";
 import { Icon, BrandMark, type IconName } from "@/components/icons";
+import { captureUtmFromUrl } from "@/lib/analytics/events";
 
 const features: { icon: IconName; title: string; desc: string }[] = [
     { icon: "sparkle", title: "IA que entende seu coração", desc: "Um devocional gerado para o que você está sentindo agora, neste exato momento." },
@@ -28,6 +30,11 @@ const premiumItems = [
 ];
 
 export default function LandingPage() {
+    // Persiste UTM da URL para atribuir o signup ao canal de origem (ex.: share).
+    useEffect(() => {
+        captureUtmFromUrl();
+    }, []);
+
     return (
         <main className="aurora-bg relative min-h-dvh overflow-x-hidden">
             {/* ── Hero ─────────────────────────────────────────── */}

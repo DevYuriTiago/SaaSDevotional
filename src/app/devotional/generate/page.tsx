@@ -8,6 +8,7 @@ import { useDevotionalStore } from "@/store";
 import type { Devotional } from "@/types";
 import Horizon from "@/components/Horizon";
 import { Icon, BrandMark } from "@/components/icons";
+import { track, EVENTS } from "@/lib/analytics/events";
 
 const loadingPhrases = [
     "Interpretando o seu coração...",
@@ -58,7 +59,7 @@ export default function GenerateDevotionalPage() {
             });
             const data = await res.json();
 
-            if (res.status === 402) { setLimitReached(true); setGenerating(false); return; }
+            if (res.status === 402) { setLimitReached(true); setGenerating(false); track(EVENTS.PAYWALL_VIEWED, { source: "generate_limit" }); return; }
             if (res.status === 429) { setGenerating(false); setError("A IA está sobrecarregada agora. Aguarde 1 minuto e tente novamente."); return; }
             if (res.status === 503) { setGenerating(false); setError("Serviço de IA temporariamente indisponível. Tente novamente em instantes."); return; }
             if (!res.ok) { setGenerating(false); throw new Error(data.error ?? "Erro desconhecido"); }

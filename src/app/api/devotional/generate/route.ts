@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { analyzeEmotion, generateDevotional } from "@/lib/gemini/devotional-ai";
 import { FREE_DEVOTIONAL_LIMIT } from "@/lib/constants";
+import { validateReference } from "@/lib/bible/canon";
+import { logEvent, EVENTS } from "@/lib/analytics/events";
 import type { DevotionalContent } from "@/types";
 
 export async function POST(request: NextRequest) {
@@ -58,14 +60,25 @@ export async function POST(request: NextRequest) {
         // Step 1: Analyze emotion
         const emotionAnalysis = await analyzeEmotion(emotion_raw.trim());
 
-        // Step 2: Generate devotional
-        const rawContent = await generateDevotional(
-            emotion_raw.trim(),
-            emotionAnalysis,
-            profile.name
-        );
+        // Step 2: Generate devotional — verifica a referência bíblica e regenera
+        // uma vez se a IA citar um livro/capítulo inexistente (anti-alucinação).
+        let content: DevotionalContent | null = null;
+        for (let attempt = 0; attempt < 2; attempt++) {
+            const rawContent = await generateDevotional(
+                emotion_raw.trim(),
+                emotionAnalysis,
+                profile.name
+            );
+            const parsed = JSON.parse(rawContent) as DevotionalContent;
+            content = parsed; // mantém a última tentativa como fallback
 
-        const content: DevotionalContent = JSON.parse(rawContent);
+            const check = validateReference(parsed.verse_reference);
+            if (check.valid) break;
+            console.warn(
+                `[devotional/generate] referência inválida (tentativa ${attempt + 1}): "${parsed.verse_reference}" — ${check.reason}`
+            );
+        }
+        if (!content) throw new Error("Falha ao gerar devocional");
 
         // Step 3: Save to DB
         const { data: devotional, error: insertError } = await supabase
@@ -116,6 +129,13 @@ export async function POST(request: NextRequest) {
                 last_devotional_date: today,
             })
             .eq("id", user.id);
+
+        // Ativação: marca se este é o primeiro devocional do usuário.
+        await logEvent(supabase, user.id, EVENTS.DEVOTIONAL_GENERATED, {
+            first: profile.devotionals_used === 0,
+            emotion: emotionAnalysis.primary_emotion,
+            tier: profile.subscription_tier,
+        });
 
         return NextResponse.json({ devotional, emotion_analysis: emotionAnalysis });
     } catch (error: unknown) {
