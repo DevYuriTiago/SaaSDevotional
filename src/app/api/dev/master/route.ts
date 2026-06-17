@@ -3,6 +3,12 @@ import { createClient as createServerClient } from "@/lib/supabase/server";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 
 export async function GET() {
+    // Atalho de desenvolvimento: NUNCA disponível em produção, mesmo que
+    // MASTER_MODE vaze para o ambiente. Evita auto-promoção a premium.
+    if (process.env.NODE_ENV === "production") {
+        return NextResponse.json({ error: "Não encontrado" }, { status: 404 });
+    }
+
     if (process.env.MASTER_MODE !== "true") {
         return NextResponse.json({ error: "Não disponível" }, { status: 403 });
     }

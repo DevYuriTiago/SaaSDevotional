@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { formatShortDate } from "@/lib/utils";
-import { JOURNEY_THEMES } from "@/lib/constants";
+import { JOURNEY_THEMES, FREE_DEVOTIONAL_LIMIT } from "@/lib/constants";
 import type { Devotional, JournalEntry } from "@/types";
 import BottomNav from "@/components/BottomNav";
 import StreakHero from "@/components/StreakHero";
@@ -95,13 +95,13 @@ export default function DashboardClient({ profile, devotionals, journalEntries, 
                         </motion.div>
 
                         {/* Premium upsell */}
-                        {!isPremium && devotionalsUsed >= 1 && (
+                        {!isPremium && devotionalsUsed >= FREE_DEVOTIONAL_LIMIT && (
                             <motion.div custom={4} variants={card} initial="hidden" animate="visible" className="mb-5">
                                 <div className="rounded-2xl p-5 flex items-center gap-4" style={{ background: "rgba(247,201,122,0.08)", border: "1px solid rgba(247,201,122,0.22)" }}>
                                     <Icon name="crown" size={26} style={{ color: "var(--gold)", flexShrink: 0 }} />
                                     <div className="flex-1 min-w-0">
-                                        <p className="text-sm font-semibold mb-0.5" style={{ color: "var(--cream)" }}>Limite gratuito atingido</p>
-                                        <p className="text-xs" style={{ color: "var(--text-secondary)" }}>R$ 24,90/mês para devocionais ilimitados</p>
+                                        <p className="text-sm font-semibold mb-0.5" style={{ color: "var(--cream)" }}>Continue sua caminhada diária</p>
+                                        <p className="text-xs" style={{ color: "var(--text-secondary)" }}>Devocionais ilimitados a partir de R$ 16,58/mês</p>
                                     </div>
                                     <Link href="/subscription" className="text-xs font-semibold px-4 py-2 rounded-full flex-shrink-0"
                                         style={{ background: "var(--gradient-gold)", color: "#2A1E08" }}>

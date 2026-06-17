@@ -109,10 +109,19 @@ export const STREAK_MILESTONES: { days: number; label: string }[] = [
     { days: 365, label: "Um ano inteiro" },
 ];
 
-export const FREE_DEVOTIONAL_LIMIT = 1;
+// Trial de hábito: o free experimenta o ciclo diário (não só 1 vez) antes do paywall.
+export const FREE_DEVOTIONAL_LIMIT = 7;
+
+// O free pode percorrer os 7 primeiros dias de UMA jornada; dias 8–21 são Premium.
+export const FREE_JOURNEY_DAY_LIMIT = 7;
 
 export const PREMIUM_PRICE = 24.9;
+export const PREMIUM_PRICE_ANNUAL = 199;
+// Economia anual vs. 12x o mensal (R$ 298,80) — usada na copy da oferta.
+export const PREMIUM_ANNUAL_SAVINGS = Math.round(PREMIUM_PRICE * 12 - PREMIUM_PRICE_ANNUAL);
 export const PREMIUM_CURRENCY = "BRL";
+
+export type BillingInterval = "month" | "year";
 
 export interface JourneyPhase {
     days: string;

@@ -175,7 +175,8 @@ export default function LandingPage() {
                         R$ 24,90
                         <span className="text-base font-sans" style={{ color: "var(--text-muted)" }}>/mês</span>
                     </p>
-                    <p className="text-sm mb-7" style={{ color: "var(--text-secondary)" }}>Experiência espiritual completa</p>
+                    <p className="text-sm mb-1" style={{ color: "var(--text-secondary)" }}>Experiência espiritual completa</p>
+                    <p className="text-xs mb-7" style={{ color: "var(--gold)" }}>ou R$ 199/ano — economize R$ 99</p>
                     <ul className="space-y-2.5 mb-8 text-left">
                         {premiumItems.map((item) => (
                             <li key={item} className="flex items-center gap-3 text-sm" style={{ color: "var(--text-secondary)" }}>

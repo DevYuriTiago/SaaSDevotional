@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { genai } from "@/lib/gemini/client";
-import { JOURNEY_THEMES } from "@/lib/constants";
+import { JOURNEY_THEMES, FREE_JOURNEY_DAY_LIMIT } from "@/lib/constants";
 
 const isMaster = process.env.MASTER_MODE === "true";
 
-type DayStatus = "completed" | "available" | "available_tomorrow" | "locked";
+type DayStatus = "completed" | "available" | "available_tomorrow" | "locked" | "premium";
 
 interface CompletedDay { day: number; generated_at: string; }
 interface PlanVerse { day: number; reference: string; text: string; theme: string; }
@@ -14,8 +14,13 @@ function computeStatus(
     day: number,
     completed: CompletedDay[],
     masterMode: boolean,
+    isPremium: boolean,
 ): DayStatus {
     if (completed.find((d) => d.day === day)) return "completed";
+
+    // Free experimenta os 7 primeiros dias; do 8º em diante é Premium.
+    if (!masterMode && !isPremium && day > FREE_JOURNEY_DAY_LIMIT) return "premium";
+
     if (day === 1) return "available";
 
     const prev = completed.find((d) => d.day === day - 1);
@@ -39,9 +44,9 @@ export async function POST(request: NextRequest) {
         .eq("id", user.id)
         .single();
 
-    if (!isMaster && profile?.subscription_tier !== "premium") {
-        return NextResponse.json({ error: "premium_required" }, { status: 402 });
-    }
+    // Free agora pode iniciar UMA jornada e percorrer os 7 primeiros dias.
+    // O gating dos dias 8–21 acontece por dia (status "premium" + 402 no generate).
+    const isPremium = profile?.subscription_tier === "premium";
 
     const body = await request.json() as { slug: string };
     const { slug } = body;
@@ -158,7 +163,7 @@ Retorne JSON com exatamente 21 itens:
         day: v.day,
         reference: v.reference,
         theme: v.theme,
-        status: computeStatus(v.day, completed, isMaster),
+        status: computeStatus(v.day, completed, isMaster, isPremium),
         generated_at: completed.find((c) => c.day === v.day)?.generated_at,
     }));
 

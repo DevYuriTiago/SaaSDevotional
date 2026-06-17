@@ -48,7 +48,7 @@ export default function JourneyPage() {
     const hasActiveJourney = !!activeJourney;
 
     function getJourneyHref(slug: string): string {
-        if (!isPremium) return "/subscription";
+        // Free também entra: percorre os 7 primeiros dias; o paywall aparece no 8º.
         return `/journey/${slug}`;
     }
 
@@ -157,7 +157,7 @@ export default function JourneyPage() {
                                                     21 dias
                                                 </span>
                                                 {!isPremium && (
-                                                    <span className="text-xs whitespace-nowrap inline-flex items-center gap-1" style={{ color: "var(--text-muted)" }}><Icon name="lock" size={11} /> Premium</span>
+                                                    <span className="text-xs whitespace-nowrap inline-flex items-center gap-1" style={{ color: "var(--gold)" }}><Icon name="sparkle" size={11} /> 7 dias grátis</span>
                                                 )}
                                                 {isOtherActive && isPremium && (
                                                     <span className="text-xs whitespace-nowrap" style={{ color: "var(--text-muted)" }}>Complete a ativa primeiro</span>
@@ -177,9 +177,9 @@ export default function JourneyPage() {
                         style={{ background: "rgba(247,201,122,0.08)", border: "1px solid rgba(247,201,122,0.22)" }}
                     >
                         <Icon name="crown" size={32} style={{ color: "var(--gold)" }} className="mx-auto mb-3" />
-                        <h3 className="font-display text-lg mb-2" style={{ color: "var(--cream)" }}>Jornadas no Premium</h3>
-                        <p className="text-xs mb-5" style={{ color: "var(--text-secondary)" }}>R$ 24,90/mês — todas as jornadas + devocionais ilimitados.</p>
-                        <Link href="/subscription" className="btn-primary">Assinar Premium</Link>
+                        <h3 className="font-display text-lg mb-2" style={{ color: "var(--cream)" }}>Comece grátis, vá até o fim no Premium</h3>
+                        <p className="text-xs mb-5" style={{ color: "var(--text-secondary)" }}>Os 7 primeiros dias de uma jornada são grátis. O Premium libera os 21 dias completos + devocionais ilimitados, a partir de R$ 16,58/mês.</p>
+                        <Link href="/subscription" className="btn-primary">Conhecer o Premium</Link>
                     </motion.div>
                 )}
             </div>
