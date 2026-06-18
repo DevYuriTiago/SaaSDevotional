@@ -95,9 +95,19 @@ export default function ReadDevotionalPage() {
             {/* ── Capa: cena de amanhecer ── */}
             <div className="relative z-10 px-4 pt-5">
                 <div className="relative rounded-3xl overflow-hidden" style={{ height: 210 }}>
-                    {/* céu noite → alvorada */}
+                    {/* céu noite → alvorada (degradê multi-stop, transição suave) */}
                     <div className="absolute inset-0" style={{
-                        background: "linear-gradient(180deg, #07070D 0%, #141633 42%, #2B1B4D 66%, #C9824A 100%)"
+                        background: "linear-gradient(180deg, #07070D 0%, #0D0E1F 22%, #141633 44%, #23184A 60%, #4A2C57 74%, #8A4F49 87%, #C9824A 100%)"
+                    }} />
+                    {/* brilho do sol nascente — aquece o horizonte e quebra as faixas */}
+                    <div className="absolute inset-0" style={{
+                        background: "radial-gradient(120% 82% at 50% 116%, rgba(247,201,122,0.55) 0%, rgba(224,151,90,0.20) 30%, rgba(0,0,0,0) 60%)"
+                    }} />
+                    {/* grão sutil — dither que elimina o banding do degradê */}
+                    <div className="absolute inset-0" style={{
+                        backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
+                        opacity: 0.1,
+                        mixBlendMode: "overlay",
                     }} />
                     {/* estrelas */}
                     {[...Array(16)].map((_, i) => (

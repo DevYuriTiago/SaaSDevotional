@@ -98,29 +98,57 @@ function drawCard(canvas: HTMLCanvasElement, data: ShareData) {
     ctx.stroke();
 
     // ── Milestone badge (opcional) ───────────────────────────────
-    let contentY = 255;
+    // Layout adaptativo: o bloco central é medido e CENTRALIZADO entre o
+    // cabeçalho e o rodapé — elimina a sobreposição que ocorria com posições
+    // fixas quando declaração/versículo eram longos.
+    const HEADER_BOTTOM = 210;
+    const FOOTER_TOP = H - 300;
+    const declLineH = 104;
+    const verseLineH = 68;
+    const GAP_DECL_DIV = 64;
+    const GAP_DIV_VERSE = 84;
+    const GAP_VERSE_REF = 58;
+    const REF_H = 46;
+    const milestoneH = data.milestone ? 96 : 0;
+    const DECL_FONT = "italic 700 78px Georgia, 'Times New Roman', serif";
+    const VERSE_FONT = "italic 400 50px Georgia, serif";
+
+    // Pré-medição (cap de 4 linhas evita estouro mesmo com textos longos)
+    ctx.font = DECL_FONT;
+    const declLines = wrapText(ctx, data.declaration, W - 200, 4);
+    ctx.font = VERSE_FONT;
+    const verseLines = wrapText(ctx, `“${data.verse}”`, W - 240, 4);
+
+    const blockH =
+        milestoneH +
+        declLines.length * declLineH +
+        GAP_DECL_DIV + GAP_DIV_VERSE +
+        verseLines.length * verseLineH +
+        GAP_VERSE_REF + REF_H;
+
+    let cursorY = HEADER_BOTTOM + Math.max(30, (FOOTER_TOP - HEADER_BOTTOM - blockH) / 2);
+
     if (data.milestone) {
+        ctx.textAlign = "center";
         ctx.font = "500 44px 'Fraunces', Georgia, serif";
         ctx.fillStyle = "rgba(251,227,176,0.92)";
-        ctx.fillText(data.milestone, W / 2, contentY);
-        contentY += 85;
+        ctx.fillText(data.milestone, W / 2, cursorY + 44);
+        cursorY += milestoneH;
     }
 
     // ── Aspas decorativas ────────────────────────────────────────
     ctx.font = "300 260px Georgia, serif";
     ctx.fillStyle = "rgba(247,201,122,0.10)";
     ctx.textAlign = "left";
-    ctx.fillText("\u201C", 36, contentY + 240);
+    ctx.fillText("\u201C", 36, cursorY + 150);
 
     // ── Declaração (texto principal) ─────────────────────────────
-    ctx.font = "italic 700 78px Georgia, 'Times New Roman', serif";
+    ctx.font = DECL_FONT;
     ctx.fillStyle = "rgba(251,247,230,0.95)";
     ctx.textAlign = "center";
-    const declLines = wrapText(ctx, data.declaration, W - 200, 5);
-    const declLineH = 108;
-    const declStartY = contentY + 305;
-    declLines.forEach((l, i) => ctx.fillText(l, W / 2, declStartY + i * declLineH));
-    const afterDecl = declStartY + declLines.length * declLineH + 65;
+    const declFirstBaseline = cursorY + 74;
+    declLines.forEach((l, i) => ctx.fillText(l, W / 2, declFirstBaseline + i * declLineH));
+    cursorY = declFirstBaseline + (declLines.length - 1) * declLineH + GAP_DECL_DIV;
 
     // ── Divisor ──────────────────────────────────────────────────
     const dg = ctx.createLinearGradient(W * 0.3, 0, W * 0.7, 0);
@@ -130,23 +158,23 @@ function drawCard(canvas: HTMLCanvasElement, data: ShareData) {
     ctx.strokeStyle = dg;
     ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.moveTo(W * 0.3, afterDecl);
-    ctx.lineTo(W * 0.7, afterDecl);
+    ctx.moveTo(W * 0.3, cursorY);
+    ctx.lineTo(W * 0.7, cursorY);
     ctx.stroke();
+    cursorY += GAP_DIV_VERSE;
 
     // ── Versículo ─────────────────────────────────────────────────
-    const verseY = afterDecl + 85;
-    ctx.font = "italic 400 52px Georgia, serif";
+    ctx.font = VERSE_FONT;
     ctx.fillStyle = "rgba(251,247,230,0.6)";
-    const verseLines = wrapText(ctx, `\u201C${data.verse}\u201D`, W - 240, 5);
-    const verseLineH = 72;
-    verseLines.forEach((l, i) => ctx.fillText(l, W / 2, verseY + i * verseLineH));
-    const afterVerse = verseY + verseLines.length * verseLineH + 58;
+    ctx.textAlign = "center";
+    const verseFirstBaseline = cursorY + 50;
+    verseLines.forEach((l, i) => ctx.fillText(l, W / 2, verseFirstBaseline + i * verseLineH));
+    cursorY = verseFirstBaseline + (verseLines.length - 1) * verseLineH + GAP_VERSE_REF;
 
     // ── Referência ────────────────────────────────────────────────
     ctx.font = "600 46px system-ui, sans-serif";
     ctx.fillStyle = "rgba(247,201,122,0.9)";
-    ctx.fillText(`\u2014 ${data.verseRef}`, W / 2, afterVerse);
+    ctx.fillText(`\u2014 ${data.verseRef}`, W / 2, cursorY);
 
     // ── Atribuição ────────────────────────────────────────────────
     ctx.font = "400 38px system-ui, sans-serif";
