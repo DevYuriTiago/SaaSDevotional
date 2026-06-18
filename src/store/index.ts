@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { User, Devotional, EmotionAnalysis } from "@/types";
+import type { User, Devotional, EmotionAnalysis, ToastMessage } from "@/types";
 
 // ─── Auth Store ────────────────────────────────────
 interface AuthState {
@@ -52,18 +52,40 @@ export const useDevotionalStore = create<DevotionalFlowState>((set) => ({
 interface UIState {
     nightMode: boolean;
     sidebarOpen: boolean;
+    toasts: ToastMessage[];
     toggleNightMode: () => void;
     setSidebarOpen: (open: boolean) => void;
+    addToast: (toast: Omit<ToastMessage, "id">) => void;
+    removeToast: (id: string) => void;
 }
 
 export const useUIStore = create<UIState>()(
     persist(
-        (set) => ({
+        (set, get) => ({
             nightMode: false,
             sidebarOpen: false,
+            toasts: [],
             toggleNightMode: () => set((s) => ({ nightMode: !s.nightMode })),
             setSidebarOpen: (open) => set({ sidebarOpen: open }),
+            addToast: (toast) => {
+                const id =
+                    typeof crypto !== "undefined" && crypto.randomUUID
+                        ? crypto.randomUUID()
+                        : `${Date.now()}-${performance.now()}`;
+                set((s) => ({ toasts: [...s.toasts, { ...toast, id }] }));
+                setTimeout(() => get().removeToast(id), 4500);
+            },
+            removeToast: (id) => set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) })),
         }),
-        { name: "ui-store" }
+        {
+            name: "ui-store",
+            // Só a preferência de tema persiste; toasts/sidebar são efêmeros.
+            partialize: (s) => ({ nightMode: s.nightMode }),
+        }
     )
 );
+
+// Helper de conveniência para disparar toasts fora de componentes.
+export function toast(t: Omit<ToastMessage, "id">) {
+    useUIStore.getState().addToast(t);
+}

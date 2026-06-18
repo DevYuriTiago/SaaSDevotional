@@ -478,6 +478,21 @@ body {
   border-radius: 8px;
 }
 
+/* Foco de teclado GLOBAL (acessibilidade): anel de ouro visível ao navegar
+   por Tab, sem afetar o clique do mouse (:focus-visible). */
+a:focus-visible,
+button:focus-visible,
+[role="button"]:focus-visible,
+[role="switch"]:focus-visible,
+[tabindex]:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--border-glow);
+  outline-offset: 2px;
+  border-radius: 10px;
+}
+
 /* ─── Animações ──────────────────────────────────── */
 @keyframes float {
   0%, 100% { transform: translateY(0px); }

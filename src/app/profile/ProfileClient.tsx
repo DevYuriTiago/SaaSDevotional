@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import BottomNav from "@/components/BottomNav";
-import { useUIStore } from "@/store";
+import { useUIStore, toast } from "@/store";
 import { isPremium, isPaidSubscriber } from "@/lib/premium";
 import InviteCard from "@/components/InviteCard";
 import { Icon, type IconName } from "@/components/icons";
@@ -96,11 +96,11 @@ export default function ProfileClient({ profile, userEmail }: Props) {
             if (data.url) {
                 window.location.href = data.url;
             } else {
-                alert(data.error ?? "Não foi possível abrir o gerenciamento da assinatura.");
+                toast({ type: "error", title: "Não foi possível abrir o gerenciamento", description: data.error });
                 setBillingLoading(false);
             }
         } catch {
-            alert("Erro de conexão. Tente novamente.");
+            toast({ type: "error", title: "Erro de conexão", description: "Tente novamente em instantes." });
             setBillingLoading(false);
         }
     }
@@ -322,6 +322,9 @@ export default function ProfileClient({ profile, userEmail }: Props) {
                     </Link>
                     <button
                         onClick={toggleNightMode}
+                        role="switch"
+                        aria-checked={nightMode}
+                        aria-label="Modo Madrugada"
                         className="card-base p-4 flex items-center gap-3 w-full text-left"
                     >
                         <Icon name={nightMode ? "moon" : "sunrise"} size={20} style={{ color: "var(--text-secondary)" }} />

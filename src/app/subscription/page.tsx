@@ -7,6 +7,7 @@ import AmbientSphere from "@/components/AmbientSphere";
 import { Icon } from "@/components/icons";
 import { PREMIUM_PRICE, PREMIUM_PRICE_ANNUAL, PREMIUM_ANNUAL_SAVINGS } from "@/lib/constants";
 import { track, EVENTS } from "@/lib/analytics/events";
+import { toast } from "@/store";
 
 const features = [
     "Devocionais ilimitados",
@@ -41,11 +42,11 @@ export default function SubscriptionPage() {
             if (data.url) {
                 window.location.href = data.url;
             } else {
-                alert(data.error ?? "Erro ao iniciar pagamento.");
+                toast({ type: "error", title: "Não foi possível iniciar o pagamento", description: data.error });
                 setLoading(false);
             }
         } catch {
-            alert("Erro de conexão. Tente novamente.");
+            toast({ type: "error", title: "Erro de conexão", description: "Tente novamente em instantes." });
             setLoading(false);
         }
     }
