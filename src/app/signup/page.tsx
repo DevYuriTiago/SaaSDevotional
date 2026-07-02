@@ -10,6 +10,7 @@ import { motion } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
 import { GoogleButton } from "@/components/auth/GoogleButton";
 import { BrandMark, Icon } from "@/components/icons";
+import Wordmark from "@/components/Wordmark";
 import { track, getStoredUtm, EVENTS } from "@/lib/analytics/events";
 
 const schema = z.object({
@@ -25,6 +26,7 @@ export default function SignupPage() {
     const supabase = createClient();
     const [serverError, setServerError] = useState<string | null>(null);
     const [emailSent, setEmailSent] = useState(false);
+    const [showPw, setShowPw] = useState(false);
 
     const {
         register,
@@ -46,21 +48,17 @@ export default function SignupPage() {
             setServerError(error.message);
             return;
         }
-        // Se sessão já foi criada (confirmação de e-mail desativada no Supabase)
         if (signUpData.session) {
             await track(EVENTS.SIGNUP, { method: "email", ...getStoredUtm() });
-            // Value-first: leva direto à 1ª geração; onboarding vem depois.
             router.push("/emotion");
             router.refresh();
             return;
         }
-        // Confirmação de e-mail ativada — mostra mensagem
         setEmailSent(true);
     }
 
     return (
-        <main className="relative min-h-dvh flex items-center justify-center px-6 py-12">
-
+        <main className="auth-glow relative min-h-dvh flex items-center justify-center px-6 py-12">
             {emailSent ? (
                 <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
@@ -79,36 +77,35 @@ export default function SignupPage() {
                     </p>
                     <p className="text-xs" style={{ color: "var(--text-muted)" }}>
                         Não recebeu?{" "}
-                        <button
-                            onClick={() => setEmailSent(false)}
-                            className="underline"
-                            style={{ color: "var(--gold)" }}
-                        >
+                        <button onClick={() => setEmailSent(false)} className="underline" style={{ color: "var(--gold)" }}>
                             Tentar novamente
                         </button>
                     </p>
                 </motion.div>
             ) : (
-
                 <motion.div
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.7 }}
                     className="relative z-10 w-full max-w-md"
                 >
-                    <div className="text-center mb-10">
-                        <Link href="/" className="inline-flex flex-col items-center gap-3 mb-6">
-                            <BrandMark size={48} />
-                            <span className="font-display text-lg" style={{ color: "var(--cream)", fontWeight: 500 }}>Sentindo Hoje</span>
+                    {/* Marca */}
+                    <div className="text-center mb-9">
+                        <Link href="/" className="inline-flex flex-col items-center gap-0 mb-5">
+                            <BrandMark size={140} className="brand-emblem" />
+                            <Wordmark className="brand-wordmark" priority />
                         </Link>
-                        <h1 className="font-display mb-2" style={{ color: "var(--cream)", fontSize: "1.6rem", fontWeight: 400, letterSpacing: "-0.01em" }}>Comece sua jornada</h1>
-                        <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
-                            Seus 7 primeiros devocionais são gratuitos
+                        <p className="text-sm leading-relaxed px-4" style={{ color: "var(--text-secondary)" }}>
+                            Comece sua jornada e receba direcionamentos<br className="hidden sm:block" /> personalizados para o momento que você vive.
                         </p>
                     </div>
 
-                    <div className="glass-strong rounded-3xl p-8">
-                        <GoogleButton next="/emotion" label="Continuar com Google" />
+                    {/* Card */}
+                    <div
+                        className="glass-strong rounded-3xl p-7"
+                        style={{ border: "1px solid rgba(247,201,122,0.22)", boxShadow: "0 0 50px rgba(247,201,122,0.07), var(--shadow-card)" }}
+                    >
+                        <GoogleButton next="/emotion" label="Cadastrar com Google" />
 
                         <div className="flex items-center gap-3 my-5">
                             <div className="flex-1 h-px" style={{ background: "var(--glass-border)" }} />
@@ -117,52 +114,69 @@ export default function SignupPage() {
                         </div>
 
                         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+                            {/* Nome */}
                             <div>
-                                <label className="block text-sm font-medium mb-2" style={{ color: "var(--text-secondary)" }}>
-                                    Seu nome
-                                </label>
-                                <input
-                                    {...register("name")}
-                                    type="text"
-                                    placeholder="Como você se chama?"
-                                    className="input-base"
-                                    autoComplete="name"
-                                />
-                                {errors.name && (
-                                    <p className="mt-1 text-xs text-red-400">{errors.name.message}</p>
-                                )}
+                                <label className="block text-sm font-medium mb-2" style={{ color: "var(--text-secondary)" }}>Nome completo</label>
+                                <div className="relative">
+                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                                        <Icon name="user" size={18} style={{ color: "var(--text-muted)" }} />
+                                    </span>
+                                    <input
+                                        {...register("name")}
+                                        type="text"
+                                        placeholder="Como você se chama?"
+                                        className="input-base"
+                                        style={{ paddingLeft: 46 }}
+                                        autoComplete="name"
+                                    />
+                                </div>
+                                {errors.name && <p className="mt-1 text-xs text-red-400">{errors.name.message}</p>}
                             </div>
 
+                            {/* E-mail */}
                             <div>
-                                <label className="block text-sm font-medium mb-2" style={{ color: "var(--text-secondary)" }}>
-                                    E-mail
-                                </label>
-                                <input
-                                    {...register("email")}
-                                    type="email"
-                                    placeholder="seu@email.com"
-                                    className="input-base"
-                                    autoComplete="email"
-                                />
-                                {errors.email && (
-                                    <p className="mt-1 text-xs text-red-400">{errors.email.message}</p>
-                                )}
+                                <label className="block text-sm font-medium mb-2" style={{ color: "var(--text-secondary)" }}>E-mail</label>
+                                <div className="relative">
+                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                                        <Icon name="mail" size={18} style={{ color: "var(--text-muted)" }} />
+                                    </span>
+                                    <input
+                                        {...register("email")}
+                                        type="email"
+                                        placeholder="seu@email.com"
+                                        className="input-base"
+                                        style={{ paddingLeft: 46 }}
+                                        autoComplete="email"
+                                    />
+                                </div>
+                                {errors.email && <p className="mt-1 text-xs text-red-400">{errors.email.message}</p>}
                             </div>
 
+                            {/* Senha */}
                             <div>
-                                <label className="block text-sm font-medium mb-2" style={{ color: "var(--text-secondary)" }}>
-                                    Senha
-                                </label>
-                                <input
-                                    {...register("password")}
-                                    type="password"
-                                    placeholder="••••••••"
-                                    className="input-base"
-                                    autoComplete="new-password"
-                                />
-                                {errors.password && (
-                                    <p className="mt-1 text-xs text-red-400">{errors.password.message}</p>
-                                )}
+                                <label className="block text-sm font-medium mb-2" style={{ color: "var(--text-secondary)" }}>Senha</label>
+                                <div className="relative">
+                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                                        <Icon name="lock" size={18} style={{ color: "var(--text-muted)" }} />
+                                    </span>
+                                    <input
+                                        {...register("password")}
+                                        type={showPw ? "text" : "password"}
+                                        placeholder="Crie uma senha segura"
+                                        className="input-base"
+                                        style={{ paddingLeft: 46, paddingRight: 46 }}
+                                        autoComplete="new-password"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPw((v) => !v)}
+                                        aria-label={showPw ? "Ocultar senha" : "Mostrar senha"}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 p-1"
+                                    >
+                                        <Icon name={showPw ? "eye-off" : "eye"} size={18} style={{ color: "var(--text-muted)" }} />
+                                    </button>
+                                </div>
+                                {errors.password && <p className="mt-1 text-xs text-red-400">{errors.password.message}</p>}
                             </div>
 
                             {serverError && (
@@ -175,11 +189,7 @@ export default function SignupPage() {
                                 </motion.p>
                             )}
 
-                            <button
-                                type="submit"
-                                disabled={isSubmitting}
-                                className="btn-primary w-full justify-center py-4"
-                            >
+                            <button type="submit" disabled={isSubmitting} className="btn-primary w-full justify-center py-4">
                                 {isSubmitting ? (
                                     <span className="flex items-center gap-2">
                                         <span className="w-4 h-4 border-2 border-black/20 border-t-black/70 rounded-full animate-spin" />
@@ -188,25 +198,28 @@ export default function SignupPage() {
                                 ) : (
                                     <span className="flex items-center gap-2">
                                         <Icon name="sparkle" size={18} />
-                                        Criar conta gratuita
+                                        Criar minha conta gratuita
                                     </span>
                                 )}
                             </button>
                         </form>
 
-                        <p className="mt-4 text-xs text-center" style={{ color: "var(--text-muted)" }}>
-                            Ao criar, você concorda com nossos termos de uso.
-                        </p>
-
-                        <div className="mt-6 text-center">
-                            <p className="text-sm" style={{ color: "var(--text-muted)" }}>
-                                Já tem conta?{" "}
-                                <Link href="/login" className="font-medium" style={{ color: "var(--gold)" }}>
-                                    Entrar
-                                </Link>
+                        {/* Confiança (dentro do card) */}
+                        <div className="flex items-center justify-center gap-2 mt-5 text-center">
+                            <Icon name="shield" size={15} style={{ color: "var(--text-muted)", flexShrink: 0 }} />
+                            <p className="text-xs" style={{ color: "var(--text-muted)" }}>
+                                Seus dados estão protegidos e nunca serão compartilhados.
                             </p>
                         </div>
                     </div>
+
+                    {/* Já tem conta */}
+                    <p className="text-center text-sm mt-6" style={{ color: "var(--text-muted)" }}>
+                        Já tem uma conta?{" "}
+                        <Link href="/login" className="font-semibold inline-flex items-center gap-1" style={{ color: "var(--gold)" }}>
+                            Fazer login <Icon name="arrow-right" size={14} />
+                        </Link>
+                    </p>
                 </motion.div>
             )}
         </main>

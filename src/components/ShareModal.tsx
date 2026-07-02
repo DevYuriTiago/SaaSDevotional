@@ -10,6 +10,9 @@ export interface ShareData {
     declaration: string;
     verse: string;
     verseRef: string;
+    emotion?: string;
+    reflection?: string;
+    reflectiveQuestion?: string;
     dayLabel?: string;
     journeyLabel?: string;
     journeyEmoji?: string;
@@ -17,12 +20,9 @@ export interface ShareData {
     date?: string;
 }
 
-function wrapText(
-    ctx: CanvasRenderingContext2D,
-    text: string,
-    maxWidth: number,
-    maxLines = 6,
-): string[] {
+type ShareVariant = "verse" | "declaration" | "question";
+
+function wrapText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number, maxLines = 8): string[] {
     const words = text.split(" ");
     const lines: string[] = [];
     let current = "";
@@ -32,10 +32,7 @@ function wrapText(
             current = test;
         } else {
             if (current) lines.push(current);
-            if (lines.length >= maxLines - 1) {
-                current = word + "…";
-                break;
-            }
+            if (lines.length >= maxLines - 1) { current = word + "…"; break; }
             current = word;
         }
     }
@@ -43,125 +40,189 @@ function wrapText(
     return lines;
 }
 
-function drawCard(canvas: HTMLCanvasElement, data: ShareData) {
+function excerpt(text: string, max = 210): string {
+    const clean = (text ?? "").replace(/\s+/g, " ").trim();
+    if (clean.length <= max) return clean;
+    const cut = clean.slice(0, max);
+    const lastDot = cut.lastIndexOf(". ");
+    if (lastDot > max * 0.5) return cut.slice(0, lastDot + 1);
+    return cut.slice(0, cut.lastIndexOf(" ")) + "…";
+}
+
+function loadImage(src: string): Promise<HTMLImageElement> {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = src;
+    });
+}
+
+function setLetterSpacing(ctx: CanvasRenderingContext2D, v: string) {
+    try { (ctx as unknown as { letterSpacing: string }).letterSpacing = v; } catch { /* não suportado */ }
+}
+
+function drawSparkle(ctx: CanvasRenderingContext2D, cx: number, cy: number, r: number, alpha = 0.9) {
+    ctx.beginPath();
+    for (let i = 0; i < 8; i++) {
+        const ang = (Math.PI / 4) * i - Math.PI / 2;
+        const rad = i % 2 === 0 ? r : r * 0.34;
+        ctx.lineTo(cx + Math.cos(ang) * rad, cy + Math.sin(ang) * rad);
+    }
+    ctx.closePath();
+    ctx.fillStyle = `rgba(247,201,122,${alpha})`;
+    ctx.fill();
+}
+
+function drawDivider(ctx: CanvasRenderingContext2D, W: number, y: number, half: number) {
+    const cx = W / 2;
+    const grad = ctx.createLinearGradient(cx - half, 0, cx + half, 0);
+    grad.addColorStop(0, "rgba(247,201,122,0)");
+    grad.addColorStop(0.5, "rgba(247,201,122,0.5)");
+    grad.addColorStop(1, "rgba(247,201,122,0)");
+    ctx.strokeStyle = grad;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(cx - half, y); ctx.lineTo(cx - 26, y);
+    ctx.moveTo(cx + 26, y); ctx.lineTo(cx + half, y);
+    ctx.stroke();
+    drawSparkle(ctx, cx, y, 12);
+}
+
+function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+}
+
+// Selo da emoção (pílula com a palavra da emoção).
+function drawEmotionBadge(ctx: CanvasRenderingContext2D, cx: number, cy: number, emotion: string) {
+    const text = emotion.toUpperCase();
+    ctx.font = "600 26px system-ui, sans-serif";
+    setLetterSpacing(ctx, "3px");
+    const tw = ctx.measureText(text).width;
+    const h = 54, w = tw + 64;
+    roundRect(ctx, cx - w / 2, cy - h / 2, w, h, h / 2);
+    ctx.fillStyle = "rgba(247,201,122,0.12)";
+    ctx.fill();
+    ctx.strokeStyle = "rgba(247,201,122,0.4)";
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    ctx.fillStyle = "rgba(247,201,122,0.95)";
+    ctx.textBaseline = "middle";
+    ctx.fillText(text, cx, cy + 2);
+    ctx.textBaseline = "alphabetic";
+    setLetterSpacing(ctx, "0px");
+}
+
+// Card no formato Story do Instagram (1080×1920).
+async function drawCard(canvas: HTMLCanvasElement, data: ShareData, variant: ShareVariant) {
     const ctx = canvas.getContext("2d")!;
     const W = 1080, H = 1920;
     canvas.width = W;
     canvas.height = H;
 
-    // ── Background ──────────────────────────────────────────────
-    const bg = ctx.createLinearGradient(0, 0, W, H);
-    bg.addColorStop(0, "#07070D");
-    bg.addColorStop(0.48, "#0B0B12");
-    bg.addColorStop(1, "#07070D");
-    ctx.fillStyle = bg;
-    ctx.fillRect(0, 0, W, H);
+    let bg: HTMLImageElement | null = null;
+    let logo: HTMLImageElement | null = null;
+    let wm: HTMLImageElement | null = null;
+    try {
+        [bg, logo, wm] = await Promise.all([
+            loadImage("/fundo-comp.png"),
+            loadImage("/icon-512.png"),
+            loadImage("/wordmark.png"),
+        ]);
+    } catch { /* segue sem assets */ }
 
-    const g1 = ctx.createRadialGradient(W * 0.78, H * 0.32, 0, W * 0.78, H * 0.32, 780);
-    g1.addColorStop(0, "rgba(247,201,122,0.18)");
-    g1.addColorStop(1, "rgba(0,0,0,0)");
-    ctx.fillStyle = g1;
-    ctx.fillRect(0, 0, W, H);
-
-    const g2 = ctx.createRadialGradient(W * 0.18, H * 0.72, 0, W * 0.18, H * 0.72, 520);
-    g2.addColorStop(0, "rgba(224,151,90,0.14)");
-    g2.addColorStop(1, "rgba(0,0,0,0)");
-    ctx.fillStyle = g2;
-    ctx.fillRect(0, 0, W, H);
-
-    // ── Stars ────────────────────────────────────────────────────
-    for (let i = 0; i < 110; i++) {
-        const x = ((Math.sin(i * 1.618 + 0.4) + 1) / 2) * W;
-        const y = ((Math.cos(i * 2.718 + 1.1) + 1) / 2) * H;
-        const r = i % 7 === 0 ? 3 : i % 3 === 0 ? 1.8 : 1;
-        ctx.beginPath();
-        ctx.arc(x, y, r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255,255,255,${0.1 + (i % 5) * 0.07})`;
-        ctx.fill();
+    if (bg) {
+        const s = Math.max(W / bg.width, H / bg.height);
+        ctx.drawImage(bg, (W - bg.width * s) / 2, (H - bg.height * s) / 2, bg.width * s, bg.height * s);
+    } else {
+        ctx.fillStyle = "#07070D";
+        ctx.fillRect(0, 0, W, H);
     }
 
-    // ── App name ─────────────────────────────────────────────────
     ctx.textAlign = "center";
-    ctx.font = "300 40px 'Fraunces', Georgia, serif";
-    ctx.fillStyle = "rgba(247,201,122,0.8)";
-    ctx.fillText("O Que Você Está Sentindo Hoje", W / 2, 142);
 
-    const lg = ctx.createLinearGradient(W * 0.25, 0, W * 0.75, 0);
-    lg.addColorStop(0, "rgba(247,201,122,0)");
-    lg.addColorStop(0.5, "rgba(247,201,122,0.4)");
-    lg.addColorStop(1, "rgba(247,201,122,0)");
-    ctx.strokeStyle = lg;
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    ctx.moveTo(W * 0.25, 170);
-    ctx.lineTo(W * 0.75, 170);
-    ctx.stroke();
-
-    // ── Milestone badge (opcional) ───────────────────────────────
-    let contentY = 255;
-    if (data.milestone) {
-        ctx.font = "500 44px 'Fraunces', Georgia, serif";
-        ctx.fillStyle = "rgba(251,227,176,0.92)";
-        ctx.fillText(data.milestone, W / 2, contentY);
-        contentY += 85;
+    // Logo (emblema)
+    if (logo) {
+        const ls = 104;
+        ctx.drawImage(logo, W / 2 - ls / 2, 64, ls, ls);
     }
 
-    // ── Aspas decorativas ────────────────────────────────────────
-    ctx.font = "300 260px Georgia, serif";
-    ctx.fillStyle = "rgba(247,201,122,0.10)";
-    ctx.textAlign = "left";
-    ctx.fillText("\u201C", 36, contentY + 240);
+    // Wordmark (imagem)
+    if (wm) {
+        const ww = 470;
+        const wh = (ww * wm.height) / wm.width;
+        ctx.drawImage(wm, W / 2 - ww / 2, 176, ww, wh);
+    }
 
-    // ── Declaração (texto principal) ─────────────────────────────
-    ctx.font = "italic 700 78px Georgia, 'Times New Roman', serif";
-    ctx.fillStyle = "rgba(251,247,230,0.95)";
-    ctx.textAlign = "center";
-    const declLines = wrapText(ctx, data.declaration, W - 200, 5);
-    const declLineH = 108;
-    const declStartY = contentY + 305;
-    declLines.forEach((l, i) => ctx.fillText(l, W / 2, declStartY + i * declLineH));
-    const afterDecl = declStartY + declLines.length * declLineH + 65;
+    // Selo da emoção
+    if (data.emotion) drawEmotionBadge(ctx, W / 2, 560, data.emotion);
 
-    // ── Divisor ──────────────────────────────────────────────────
-    const dg = ctx.createLinearGradient(W * 0.3, 0, W * 0.7, 0);
-    dg.addColorStop(0, "rgba(247,201,122,0)");
-    dg.addColorStop(0.5, "rgba(247,201,122,0.5)");
-    dg.addColorStop(1, "rgba(247,201,122,0)");
-    ctx.strokeStyle = dg;
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(W * 0.3, afterDecl);
-    ctx.lineTo(W * 0.7, afterDecl);
-    ctx.stroke();
-
-    // ── Versículo ─────────────────────────────────────────────────
-    const verseY = afterDecl + 85;
-    ctx.font = "italic 400 52px Georgia, serif";
-    ctx.fillStyle = "rgba(251,247,230,0.6)";
-    const verseLines = wrapText(ctx, `\u201C${data.verse}\u201D`, W - 240, 5);
-    const verseLineH = 72;
-    verseLines.forEach((l, i) => ctx.fillText(l, W / 2, verseY + i * verseLineH));
-    const afterVerse = verseY + verseLines.length * verseLineH + 58;
-
-    // ── Referência ────────────────────────────────────────────────
-    ctx.font = "600 46px system-ui, sans-serif";
+    // Rótulo da variação
+    const LABELS: Record<ShareVariant, string> = { verse: "VERSÍCULO", declaration: "DECLARAÇÃO DE FÉ", question: "PARA REFLETIR" };
     ctx.fillStyle = "rgba(247,201,122,0.9)";
-    ctx.fillText(`\u2014 ${data.verseRef}`, W / 2, afterVerse);
+    ctx.font = "600 30px system-ui, sans-serif";
+    setLetterSpacing(ctx, "6px");
+    ctx.fillText(LABELS[variant], W / 2, 640);
+    setLetterSpacing(ctx, "0px");
 
-    // ── Atribuição ────────────────────────────────────────────────
-    ctx.font = "400 38px system-ui, sans-serif";
-    ctx.fillStyle = "rgba(251,247,230,0.42)";
-    if (data.journeyLabel) {
-        const parts = [data.dayLabel, data.journeyLabel].filter(Boolean);
-        ctx.fillText(parts.join(" · "), W / 2, H - 248);
-    } else if (data.date) {
-        ctx.fillText(`Devocional Diário · ${data.date}`, W / 2, H - 248);
+    // Conteúdo principal (varia conforme a seleção)
+    const content =
+        variant === "verse" ? `“${data.verse}”`
+            : variant === "question" ? (data.reflectiveQuestion || excerpt(data.reflection || data.declaration, 220))
+                : data.declaration;
+
+    // Auto-ajuste: encolhe a fonte até o texto INTEIRO caber (sem truncar).
+    const REGION_TOP = 700, REGION_BOTTOM = 1340;
+    const regionH = REGION_BOTTOM - REGION_TOP;
+    const maxW = W - 150;
+    let fontSize = 78, lineH = 102;
+    let lines: string[] = [];
+    for (fontSize = 78; fontSize >= 30; fontSize -= 2) {
+        lineH = Math.round(fontSize * 1.34);
+        ctx.font = `700 ${fontSize}px Georgia, 'Times New Roman', serif`;
+        lines = wrapText(ctx, content, maxW, 40); // maxLines alto = não trunca
+        if (lines.length * lineH <= regionH) break;
     }
+    const blockH = lines.length * lineH;
+    const firstBaseline = REGION_TOP + Math.max(0, (regionH - blockH) / 2) + fontSize * 0.82;
+    ctx.fillStyle = "rgba(251,247,230,0.96)";
+    lines.forEach((l, i) => ctx.fillText(l, W / 2, firstBaseline + i * lineH));
 
-    // ── Watermark ─────────────────────────────────────────────────
-    ctx.font = "300 36px system-ui, sans-serif";
-    ctx.fillStyle = "rgba(247,201,122,0.4)";
-    ctx.fillText("oquevoceestasentindohoje.app", W / 2, H - 148);
+    drawDivider(ctx, W, 1400, 90);
+
+    // Livro + referência
+    ctx.save();
+    ctx.translate(W / 2 - 30, 1446);
+    ctx.scale(60 / 24, 60 / 24);
+    ctx.strokeStyle = "rgba(247,201,122,0.9)";
+    ctx.lineWidth = 1.4;
+    ctx.lineCap = "round"; ctx.lineJoin = "round";
+    ctx.stroke(new Path2D("M12 6c-2-1.4-4.5-2-7-2v13c2.5 0 5 .6 7 2 2-1.4 4.5-2 7-2V4c-2.5 0-5 .6-7 2Z"));
+    ctx.beginPath(); ctx.moveTo(12, 6); ctx.lineTo(12, 21); ctx.stroke();
+    ctx.restore();
+
+    ctx.fillStyle = "rgba(247,201,122,0.9)";
+    ctx.font = "600 42px system-ui, sans-serif";
+    setLetterSpacing(ctx, "4px");
+    ctx.fillText(data.verseRef.toUpperCase(), W / 2, 1570);
+    setLetterSpacing(ctx, "0px");
+
+    // Rodapé
+    drawDivider(ctx, W, 1700, 80);
+    ctx.fillStyle = "rgba(247,201,122,0.55)";
+    ctx.font = "600 27px system-ui, sans-serif";
+    setLetterSpacing(ctx, "3px");
+    ctx.fillText("DEUS É MAIOR. VOCÊ NÃO ESTÁ SOZINHO.", W / 2, 1786);
+    setLetterSpacing(ctx, "0px");
+    ctx.fillStyle = "rgba(247,201,122,0.85)";
+    ctx.font = "400 34px system-ui, sans-serif";
+    ctx.fillText("oquevoceestasentindohoje.app", W / 2, 1842);
 }
 
 interface Props {
@@ -170,21 +231,31 @@ interface Props {
     data: ShareData | null;
 }
 
+const VARIANTS: { key: ShareVariant; label: string }[] = [
+    { key: "verse", label: "Versículo" },
+    { key: "declaration", label: "Declaração" },
+    { key: "question", label: "Pergunta" },
+];
+
 export default function ShareModal({ open, onClose, data }: Props) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [drawn, setDrawn] = useState(false);
     const [copied, setCopied] = useState(false);
+    const [variant, setVariant] = useState<ShareVariant>("verse");
 
     useEffect(() => {
         if (!open || !data) { setDrawn(false); return; }
+        let cancelled = false;
+        setDrawn(false);
         const t = setTimeout(() => {
             if (canvasRef.current) {
-                drawCard(canvasRef.current, data);
-                setDrawn(true);
+                drawCard(canvasRef.current, data, variant)
+                    .then(() => { if (!cancelled) setDrawn(true); })
+                    .catch(() => { if (!cancelled) setDrawn(true); });
             }
-        }, 80);
-        return () => clearTimeout(t);
-    }, [open, data]);
+        }, 60);
+        return () => { cancelled = true; clearTimeout(t); };
+    }, [open, data, variant]);
 
     async function handleShare() {
         if (!canvasRef.current || !drawn) return;
@@ -208,9 +279,12 @@ export default function ShareModal({ open, onClose, data }: Props) {
 
     async function handleCopy() {
         if (!data) return;
-        // Link rastreável: atribui cadastros vindos de compartilhamento ao canal.
         const shareUrl = `https://oquevoceestasentindohoje.app/?utm_source=share&utm_medium=social&utm_campaign=${data.type}`;
-        const text = `${data.declaration}\n\n"${data.verse}"\n— ${data.verseRef}\n\nO Que Você Está Sentindo Hoje\n${shareUrl}`;
+        const body =
+            variant === "verse" ? `"${data.verse}"\n— ${data.verseRef}`
+                : variant === "question" ? (data.reflectiveQuestion || excerpt(data.reflection || data.declaration, 260))
+                    : `${data.declaration}\n— ${data.verseRef}`;
+        const text = `${body}\n\nO Que Você Está Sentindo Hoje\n${shareUrl}`;
         await navigator.clipboard.writeText(text);
         setCopied(true);
         setTimeout(() => setCopied(false), 2200);
@@ -247,20 +321,30 @@ export default function ShareModal({ open, onClose, data }: Props) {
                             </button>
                         </div>
 
-                        <p className="eyebrow mb-5 text-center" style={{ color: "var(--gold)" }}>
-                            Compartilhar
-                        </p>
+                        <p className="eyebrow mb-4 text-center" style={{ color: "var(--gold)" }}>Compartilhar</p>
 
-                        {/* Preview compacto do card */}
+                        {/* Seletor de variação */}
+                        <div className="flex gap-1.5 p-1 rounded-full mb-5" style={{ background: "rgba(255,252,245,0.04)", border: "1px solid var(--glass-border)" }}>
+                            {VARIANTS.map((v) => {
+                                const active = variant === v.key;
+                                return (
+                                    <button
+                                        key={v.key}
+                                        onClick={() => setVariant(v.key)}
+                                        className="flex-1 py-2 rounded-full text-xs font-semibold transition-all"
+                                        style={{ background: active ? "var(--gradient-gold)" : "transparent", color: active ? "#2A1E08" : "var(--text-secondary)" }}
+                                    >
+                                        {v.label}
+                                    </button>
+                                );
+                            })}
+                        </div>
+
+                        {/* Preview compacto (9:16) */}
                         <div className="flex justify-center mb-5">
                             <div
                                 className="relative rounded-2xl overflow-hidden"
-                                style={{
-                                    width: 162, height: 288,
-                                    background: "#07070D",
-                                    boxShadow: "0 0 40px rgba(247,201,122,0.22), 0 8px 32px rgba(0,0,0,0.6)",
-                                    flexShrink: 0,
-                                }}
+                                style={{ width: 174, height: 309, background: "#07070D", boxShadow: "0 0 40px rgba(247,201,122,0.22), 0 8px 32px rgba(0,0,0,0.6)", flexShrink: 0 }}
                             >
                                 {!drawn && (
                                     <div className="absolute inset-0 flex items-center justify-center">
@@ -274,12 +358,7 @@ export default function ShareModal({ open, onClose, data }: Props) {
                                 )}
                                 <canvas
                                     ref={canvasRef}
-                                    style={{
-                                        position: "absolute", top: 0, left: 0,
-                                        width: "100%", height: "100%",
-                                        opacity: drawn ? 1 : 0,
-                                        transition: "opacity 0.35s",
-                                    }}
+                                    style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", opacity: drawn ? 1 : 0, transition: "opacity 0.35s" }}
                                 />
                             </div>
                         </div>
@@ -290,12 +369,7 @@ export default function ShareModal({ open, onClose, data }: Props) {
                                 onClick={handleShare}
                                 disabled={!drawn}
                                 className="flex items-center justify-center gap-2 rounded-2xl py-4"
-                                style={{
-                                    background: drawn ? "var(--gradient-gold)" : "rgba(247,201,122,0.18)",
-                                    opacity: drawn ? 1 : 0.55,
-                                    boxShadow: drawn ? "0 4px 20px rgba(247,201,122,0.35)" : "none",
-                                    transition: "all 0.3s",
-                                }}
+                                style={{ background: drawn ? "var(--gradient-gold)" : "rgba(247,201,122,0.18)", opacity: drawn ? 1 : 0.55, boxShadow: drawn ? "0 4px 20px rgba(247,201,122,0.35)" : "none", transition: "all 0.3s" }}
                             >
                                 <Icon name="share" size={18} style={{ color: drawn ? "var(--night)" : "var(--gold)" }} />
                                 <span className="text-sm font-semibold" style={{ color: drawn ? "var(--night)" : "var(--gold)" }}>Compartilhar</span>

@@ -17,7 +17,7 @@ export default function BottomNav() {
     const pathname = usePathname();
 
     return (
-        <nav className="bottom-nav lg:hidden">
+        <nav className="bottom-nav">
             {tabs.map((tab) => {
                 const active = pathname === tab.href || (tab.href !== "/dashboard" && pathname.startsWith(tab.href));
                 return (

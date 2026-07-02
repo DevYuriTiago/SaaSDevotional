@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { Icon, BrandMark, type IconName } from "@/components/icons";
+import { Icon, type IconName } from "@/components/icons";
+import BrandWordmark from "@/components/BrandWordmark";
 
 const NAV_ITEMS: { href: string; icon: IconName; label: string }[] = [
     { href: "/dashboard", icon: "dawn", label: "Início" },
@@ -30,16 +31,10 @@ export default function DesktopSidebar() {
                 background: "radial-gradient(120% 80% at 50% 0%, rgba(247,201,122,0.10) 0%, transparent 65%)",
             }} />
 
-            {/* Marca */}
+            {/* Marca — a logo é o "O" de "O que você está sentindo hoje?" */}
             <div className="relative px-5 pt-7 pb-5">
-                <Link href="/dashboard" className="flex items-center gap-3 group">
-                    <BrandMark size={34} />
-                    <div>
-                        <p className="text-[10px] font-medium uppercase tracking-[0.22em]" style={{ color: "var(--text-muted)" }}>Sua vigília</p>
-                        <h2 className="text-sm leading-snug font-display" style={{ color: "var(--cream)" }}>
-                            Sentindo Hoje
-                        </h2>
-                    </div>
+                <Link href="/dashboard" className="group">
+                    <BrandWordmark size={34} layout="stack" />
                 </Link>
             </div>
 

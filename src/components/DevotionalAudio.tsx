@@ -146,31 +146,56 @@ export default function DevotionalAudio({ devotional, isPremium }: Props) {
         );
     }
 
+    // Tempo de leitura estimado (~130 palavras/min).
+    const words = [
+        devotional.title, devotional.verse, devotional.reflection,
+        devotional.practical_application, devotional.prayer, devotional.declaration,
+        devotional.reflective_question,
+    ].filter(Boolean).join(" ").split(/\s+/).length;
+    const minutes = Math.max(1, Math.round(words / 130));
+
     return (
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2.5">
+            {/* Ouvir devocional (TTS) */}
             <button
                 onClick={handleTTS}
-                className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-2xl text-xs font-medium transition-all"
-                style={{
-                    background: speaking ? "rgba(247,201,122,0.18)" : "rgba(247,201,122,0.07)",
-                    border: `1px solid ${speaking ? "rgba(247,201,122,0.4)" : "var(--glass-border)"}`,
-                    color: speaking ? "var(--gold)" : "var(--text-secondary)",
-                }}
+                className="flex-1 min-w-0 flex items-center gap-3 px-4 py-3 rounded-2xl text-left transition-all"
+                style={{ background: speaking ? "rgba(247,201,122,0.10)" : "rgba(255,252,245,0.04)", border: `1px solid ${speaking ? "rgba(247,201,122,0.4)" : "var(--glass-border)"}` }}
             >
-                <Icon name={speaking ? "pause" : "play"} size={15} style={{ color: speaking ? "var(--gold)" : "var(--text-secondary)" }} />
-                <span>{speaking ? "Parar leitura" : "Ouvir devocional"}</span>
+                <span
+                    className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
+                    style={{ border: "1.5px solid rgba(247,201,122,0.5)", background: speaking ? "rgba(247,201,122,0.15)" : "transparent" }}
+                >
+                    <Icon name={speaking ? "pause" : "play"} size={16} style={{ color: "var(--gold)" }} />
+                </span>
+                <span className="flex-1 min-w-0">
+                    <span className="block text-sm font-medium truncate" style={{ color: "var(--cream)" }}>
+                        {speaking ? "Parar leitura" : "Ouvir devocional"}
+                    </span>
+                    <span className="block text-xs" style={{ color: "var(--text-muted)" }}>{minutes} min</span>
+                </span>
             </button>
+
+            {/* Música ambiente — switch compacto */}
             <button
                 onClick={handleAmbient}
-                className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-2xl text-xs font-medium transition-all"
-                style={{
-                    background: ambient ? "rgba(247,201,122,0.18)" : "rgba(247,201,122,0.07)",
-                    border: `1px solid ${ambient ? "rgba(247,201,122,0.4)" : "var(--glass-border)"}`,
-                    color: ambient ? "var(--gold)" : "var(--text-secondary)",
-                }}
+                role="switch"
+                aria-checked={ambient}
+                aria-label="Música ambiente"
+                title={ambient ? "Música ambiente ligada" : "Música ambiente"}
+                className="flex items-center gap-2.5 px-3.5 py-3 rounded-2xl flex-shrink-0 transition-all"
+                style={{ background: ambient ? "rgba(247,201,122,0.10)" : "rgba(255,252,245,0.04)", border: `1px solid ${ambient ? "rgba(247,201,122,0.4)" : "var(--glass-border)"}` }}
             >
-                <Icon name="waves" size={15} style={{ color: ambient ? "var(--gold)" : "var(--text-secondary)" }} />
-                <span>{ambient ? "Som ligado" : "Música ambiente"}</span>
+                <Icon name="waves" size={18} style={{ color: ambient ? "var(--gold)" : "var(--text-secondary)" }} />
+                <span
+                    className="w-9 h-5 rounded-full relative transition-all duration-300"
+                    style={{ background: ambient ? "var(--gradient-gold)" : "rgba(255,255,255,0.1)", border: `1px solid ${ambient ? "transparent" : "rgba(255,255,255,0.12)"}` }}
+                >
+                    <span
+                        className="absolute top-0.5 w-3.5 h-3.5 rounded-full bg-white transition-all duration-300"
+                        style={{ left: ambient ? "calc(100% - 17px)" : "2px", boxShadow: "0 1px 3px rgba(0,0,0,0.3)" }}
+                    />
+                </span>
             </button>
         </div>
     );

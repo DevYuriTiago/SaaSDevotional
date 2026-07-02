@@ -100,7 +100,7 @@ export default function JourneyPage() {
                     );
                 })()}
 
-                <div className="space-y-3 lg:space-y-0 lg:grid lg:grid-cols-2 lg:gap-4">
+                <div className="space-y-3">
                     {JOURNEY_THEMES.map((journey, i) => {
                         const plan = plans.find((p) => p.slug === journey.slug);
                         const isActive = plan && plan.completedDays < 21;
