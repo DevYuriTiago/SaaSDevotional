@@ -6,9 +6,11 @@ import { createClient } from "@/lib/supabase/client";
 interface Props {
     next?: string;
     label?: string;
+    /** "full" = botão largo no topo; "compact" = pílula com ícone (social secundário). */
+    variant?: "full" | "compact";
 }
 
-export function GoogleButton({ next = "/dashboard", label = "Continuar com Google" }: Props) {
+export function GoogleButton({ next = "/dashboard", label = "Continuar com Google", variant = "full" }: Props) {
     const supabase = createClient();
     const [loading, setLoading] = useState(false);
 
@@ -20,6 +22,26 @@ export function GoogleButton({ next = "/dashboard", label = "Continuar com Googl
                 redirectTo: `${window.location.origin}/auth/callback?next=${next}`,
             },
         });
+    }
+
+    const spinner = (
+        <span className="w-4 h-4 border-2 rounded-full animate-spin" style={{ borderColor: "var(--glass-border)", borderTopColor: "var(--gold)" }} />
+    );
+
+    if (variant === "compact") {
+        return (
+            <button
+                type="button"
+                onClick={handleGoogle}
+                disabled={loading}
+                aria-label={label}
+                className="mx-auto flex items-center justify-center gap-2.5 rounded-full px-7 py-3 text-sm font-medium transition-all hover:opacity-80 disabled:opacity-50"
+                style={{ background: "var(--glass)", border: "1px solid var(--glass-border)", color: "var(--cream)" }}
+            >
+                {loading ? spinner : <GoogleIcon />}
+                <span>Google</span>
+            </button>
+        );
     }
 
     return (
@@ -34,11 +56,7 @@ export function GoogleButton({ next = "/dashboard", label = "Continuar com Googl
                 color: "var(--cream)",
             }}
         >
-            {loading ? (
-                <span className="w-4 h-4 border-2 rounded-full animate-spin" style={{ borderColor: "var(--glass-border)", borderTopColor: "var(--gold)" }} />
-            ) : (
-                <GoogleIcon />
-            )}
+            {loading ? spinner : <GoogleIcon />}
             {loading ? "Redirecionando..." : label}
         </button>
     );

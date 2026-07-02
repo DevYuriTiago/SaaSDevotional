@@ -1,4 +1,5 @@
 import type { CSSProperties, ReactNode } from "react";
+import Image from "next/image";
 
 /* ════════════════════════════════════════════════════════════
    Ícones de linha autorais — traço único, currentColor.
@@ -13,7 +14,8 @@ export type IconName =
     | "check" | "close" | "bell" | "calendar" | "star" | "sparkle"
     | "settings" | "moon" | "sunrise" | "anchor" | "quote" | "lock"
     | "logout" | "rewind" | "forward" | "constellation" | "storm" | "rain"
-    | "hands" | "rest" | "waves" | "dove" | "feather" | "scroll";
+    | "hands" | "rest" | "waves" | "dove" | "feather" | "scroll"
+    | "mail" | "eye" | "eye-off" | "shield";
 
 export interface IconProps {
     name: IconName;
@@ -172,6 +174,35 @@ function paths(name: IconName): ReactNode {
                     <path d="M15 8l4 4-4 4M19 12H9.5" />
                 </>
             );
+        case "mail":
+            return (
+                <>
+                    <rect x="3" y="5" width="18" height="14" rx="2.5" />
+                    <path d="M4 7l8 6 8-6" />
+                </>
+            );
+        case "eye":
+            return (
+                <>
+                    <path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z" />
+                    <circle cx="12" cy="12" r="3" />
+                </>
+            );
+        case "eye-off":
+            return (
+                <>
+                    <path d="M10.6 6.2A8.8 8.8 0 0 1 12 6c6 0 9.5 6 9.5 6a14.6 14.6 0 0 1-3 3.4M6.4 8.1A14.7 14.7 0 0 0 2.5 12S6 18 12 18a8.7 8.7 0 0 0 3.6-.8" />
+                    <path d="M9.9 9.9a3 3 0 0 0 4.2 4.2" />
+                    <line x1="3.5" y1="3.5" x2="20.5" y2="20.5" />
+                </>
+            );
+        case "shield":
+            return (
+                <>
+                    <path d="M12 3.5l7 2.5v5c0 4.5-3 7.6-7 9.5-4-1.9-7-5-7-9.5V6l7-2.5Z" />
+                    <path d="M9.2 12l2 2 3.6-3.8" />
+                </>
+            );
         case "rewind":
             return (
                 <>
@@ -316,30 +347,20 @@ export function Icon({ name, size = 22, strokeWidth = 1.6, className, style }: I
 }
 
 /* Marca: cruz + livro aberto dentro do anel de ouro */
+// Marca oficial (emblema dourado: halo + cruz-estrela + livro aberto).
+// Renderiza o asset oficial em vez do antigo traço de linha, para que toda a
+// aplicação use a mesma identidade — basta passar `size`.
 export function BrandMark({ size = 40, className, style }: { size?: number; className?: string; style?: CSSProperties }) {
     return (
-        <svg
+        <Image
+            src="/icon-512.png"
+            alt="O Que Você Está Sentindo Hoje"
             width={size}
             height={size}
-            viewBox="0 0 48 48"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={1.3}
-            strokeLinecap="round"
-            strokeLinejoin="round"
             className={className}
-            style={{ color: "var(--gold)", ...style }}
-            aria-hidden="true"
-        >
-            <circle cx="24" cy="23" r="16.5" opacity="0.85" />
-            {/* cruz */}
-            <line x1="24" y1="10.5" x2="24" y2="27" />
-            <line x1="19.5" y1="15.5" x2="28.5" y2="15.5" />
-            {/* livro aberto */}
-            <path d="M11.5 29.5c4-1.7 8.2-1.7 12.5 0 4.3-1.7 8.5-1.7 12.5 0" />
-            <path d="M11.5 29.5V33c4-1.7 8.2-1.7 12.5 0 4.3-1.7 8.5-1.7 12.5 0v-3.5" />
-            <line x1="24" y1="29.5" x2="24" y2="33" />
-        </svg>
+            style={style}
+            priority
+        />
     );
 }
 
