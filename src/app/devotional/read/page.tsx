@@ -101,13 +101,31 @@ export default function ReadDevotionalPage() {
     const verseFirst = d.verse.trim().charAt(0);
     const verseRest = d.verse.trim().slice(1);
 
+    // Volta respeitando a origem: o histórico do navegador já reflete o fluxo
+    // (geração nova usa replace → cai em /emotion; histórico/menu usam push →
+    // caem na origem). Fallback para o dashboard se não houver histórico.
+    function handleBack() {
+        if (typeof window !== "undefined" && window.history.length > 1) router.back();
+        else router.push("/dashboard");
+    }
+
     return (
         <main className="aurora-bg relative min-h-dvh overflow-x-hidden pb-28">
             <div className="relative z-10 max-w-md mx-auto px-5 pt-7">
                 {/* ── Header ── */}
                 <div className="flex items-center justify-between mb-5">
-                    <h1 className="font-display text-3xl" style={{ color: "var(--cream)" }}>Devocional</h1>
-                    <Link href="/devotional/history" className="w-10 h-10 rounded-full flex items-center justify-center"
+                    <div className="flex items-center gap-3 min-w-0">
+                        <button
+                            onClick={handleBack}
+                            aria-label="Voltar"
+                            className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
+                            style={{ border: "1px solid var(--glass-border)", color: "var(--text-secondary)" }}
+                        >
+                            <Icon name="arrow-left" size={18} />
+                        </button>
+                        <h1 className="font-display text-2xl truncate" style={{ color: "var(--cream)" }}>Devocional</h1>
+                    </div>
+                    <Link href="/devotional/history" className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
                         style={{ border: "1px solid var(--glass-border)", color: "var(--gold)" }}>
                         <Icon name="book" size={18} />
                     </Link>

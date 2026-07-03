@@ -5,9 +5,10 @@ import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { Icon, type IconName } from "@/components/icons";
 
-const tabs: { href: string; icon: IconName; label: string }[] = [
+const tabs: { href: string; icon: IconName; label: string; match?: string[] }[] = [
     { href: "/dashboard", icon: "dawn", label: "Início" },
-    { href: "/devotional/read", icon: "book", label: "Devocional" },
+    // Aba Devocional leva sempre à geração (/emotion); fica acesa em todo o fluxo.
+    { href: "/emotion", icon: "book", label: "Devocional", match: ["/emotion", "/devotional"] },
     { href: "/journey", icon: "compass", label: "Jornadas" },
     { href: "/journal", icon: "pen", label: "Diário" },
     { href: "/profile", icon: "user", label: "Perfil" },
@@ -19,7 +20,10 @@ export default function BottomNav() {
     return (
         <nav className="bottom-nav">
             {tabs.map((tab) => {
-                const active = pathname === tab.href || (tab.href !== "/dashboard" && pathname.startsWith(tab.href));
+                const paths = tab.match ?? [tab.href];
+                const active = paths.some((p) =>
+                    p === "/dashboard" ? pathname === p : (pathname === p || pathname.startsWith(p))
+                );
                 return (
                     <Link
                         key={tab.href}

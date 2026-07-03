@@ -5,6 +5,7 @@ import { FREE_DEVOTIONAL_LIMIT } from "@/lib/constants";
 import { validateReference } from "@/lib/bible/canon";
 import { logEvent, EVENTS } from "@/lib/analytics/events";
 import { isPremium, extendPremiumUntil } from "@/lib/premium";
+import { aiErrorResponse } from "@/lib/ai/errors";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 import type { DevotionalContent } from "@/types";
 
@@ -189,27 +190,6 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json({ devotional, emotion_analysis: emotionAnalysis });
     } catch (error: unknown) {
-        console.error("[devotional/generate] Error:", error);
-
-        const msg = error instanceof Error ? error.message : String(error);
-
-        if (msg.includes("429") || msg.includes("quota") || msg.includes("Too Many Requests")) {
-            return NextResponse.json(
-                { error: "quota_exceeded", message: "Limite de requisições da IA atingido. Aguarde alguns minutos e tente novamente." },
-                { status: 429 }
-            );
-        }
-
-        if (msg.includes("404") || msg.includes("no longer available") || msg.includes("Not Found")) {
-            return NextResponse.json(
-                { error: "model_unavailable", message: "Modelo de IA indisponível. Verifique a configuração da API." },
-                { status: 503 }
-            );
-        }
-
-        return NextResponse.json(
-            { error: "Erro ao gerar devocional. Tente novamente." },
-            { status: 500 }
-        );
+        return aiErrorResponse(error, { subject: "seu devocional" });
     }
 }

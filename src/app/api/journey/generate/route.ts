@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { genai } from "@/lib/gemini/client";
 import { JOURNEY_THEMES, FREE_JOURNEY_DAY_LIMIT } from "@/lib/constants";
 import { isPremium } from "@/lib/premium";
+import { aiErrorResponse } from "@/lib/ai/errors";
 
 const isMaster = process.env.MASTER_MODE === "true";
 
@@ -126,8 +127,8 @@ Retorne SOMENTE JSON válido:
             `Nome: ${name}\nJornada: ${theme.label}\nDia ${day} de 21\nFoco: ${verseData.theme}\nVersículo: ${verseData.reference} — "${verseData.text}"`
         );
         content = JSON.parse(result.response.text());
-    } catch {
-        return NextResponse.json({ error: "Erro na IA. Tente novamente." }, { status: 503 });
+    } catch (err) {
+        return aiErrorResponse(err, { subject: "seu devocional" });
     }
 
     // 5. Salvar em journey_days

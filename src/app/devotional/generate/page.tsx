@@ -59,10 +59,10 @@ export default function GenerateDevotionalPage() {
             });
             const data = await res.json();
 
+            // Paywall tem UI própria; qualquer outro erro mostra a mensagem
+            // amigável que o servidor já centraliza (lib/ai/errors).
             if (res.status === 402) { setLimitReached(true); setGenerating(false); track(EVENTS.PAYWALL_VIEWED, { source: "generate_limit" }); return; }
-            if (res.status === 429) { setGenerating(false); setError("A IA está sobrecarregada agora. Aguarde 1 minuto e tente novamente."); return; }
-            if (res.status === 503) { setGenerating(false); setError("Serviço de IA temporariamente indisponível. Tente novamente em instantes."); return; }
-            if (!res.ok) { setGenerating(false); throw new Error(data.error ?? "Erro desconhecido"); }
+            if (!res.ok) { setGenerating(false); setError(data.error ?? "Algo não saiu como esperado. Tente novamente."); return; }
 
             setDevotional(data.devotional as Devotional);
             setEmotionAnalysis(data.emotion_analysis);

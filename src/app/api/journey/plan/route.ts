@@ -5,6 +5,7 @@ import { JOURNEY_THEMES, FREE_JOURNEY_DAY_LIMIT } from "@/lib/constants";
 import { validateReference } from "@/lib/bible/canon";
 import { logEvent, EVENTS } from "@/lib/analytics/events";
 import { isPremium } from "@/lib/premium";
+import { aiErrorResponse } from "@/lib/ai/errors";
 
 const isMaster = process.env.MASTER_MODE === "true";
 
@@ -141,14 +142,13 @@ Retorne JSON com exatamente 21 itens:
                     `[journey/plan] ${invalid.length}/21 referências inválidas (tentativa ${attempt + 1}): ${invalid.map((x) => x.reference).join(", ")}`
                 );
             } catch (err) {
-                console.error("[journey/plan] Gemini error:", err);
                 if (attempt === 1 && !verses) {
-                    return NextResponse.json({ error: "Erro ao criar plano. Tente novamente." }, { status: 503 });
+                    return aiErrorResponse(err, { subject: "sua jornada" });
                 }
             }
         }
         if (!verses) {
-            return NextResponse.json({ error: "Erro ao criar plano. Tente novamente." }, { status: 503 });
+            return aiErrorResponse(new Error("plan_failed"), { subject: "sua jornada" });
         }
 
         const { data: newPlan, error: insertErr } = await supabase
