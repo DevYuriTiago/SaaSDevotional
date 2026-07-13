@@ -35,39 +35,39 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "https://oquevoceestasentindohoje.com.br"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "https://humanah.app"),
   title: {
-    default: "O Que Você Está Sentindo Hoje?",
-    template: "%s · O Que Você Está Sentindo Hoje?",
+    default: "Humanáh — Seu maná de hoje",
+    template: "%s · Humanáh",
   },
   description:
-    "Uma experiência espiritual guiada por IA. Receba um devocional profundamente personalizado baseado no que você está sentindo agora.",
-  keywords: ["devocional", "espiritual", "IA", "fé", "oração", "bíblia", "espiritualidade", "cristão"],
-  authors: [{ name: "O Que Você Está Sentindo Hoje?" }],
+    "Diga o que está sentindo e receba o seu maná de hoje: um devocional feito para o seu momento — versículo, reflexão e oração, fundamentados na Palavra.",
+  keywords: ["Humanáh", "maná", "devocional", "devocional diário", "espiritual", "fé", "oração", "bíblia", "palavra", "cristão"],
+  authors: [{ name: "Humanáh" }],
   robots: {
     index: true,
     follow: true,
     googleBot: { index: true, follow: true },
   },
   openGraph: {
-    title: "O Que Você Está Sentindo Hoje?",
-    description: "Receba um devocional personalizado por IA baseado no que você está sentindo agora.",
+    title: "Humanáh — Seu maná de hoje",
+    description: "A Palavra encontra você no momento que está vivendo. Um devocional feito para hoje, fundamentado na Palavra.",
     type: "website",
     locale: "pt_BR",
-    siteName: "O Que Você Está Sentindo Hoje?",
+    siteName: "Humanáh",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "O Que Você Está Sentindo Hoje? — Devocional com IA",
+        alt: "Humanáh — Seu maná de hoje",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "O Que Você Está Sentindo Hoje?",
-    description: "Receba um devocional personalizado por IA baseado no que você está sentindo agora.",
+    title: "Humanáh — Seu maná de hoje",
+    description: "A Palavra encontra você no momento que está vivendo. Seu devocional feito para hoje.",
     images: ["/og-image.png"],
   },
   icons: {
@@ -80,7 +80,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Sentindo Hoje",
+    title: "Humanáh",
   },
 };
 

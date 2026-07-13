@@ -174,7 +174,7 @@ export default function ReadDevotionalPage() {
                         </div>
                     </div>
                     <div className="p-5">
-                        <div className="flex items-center gap-2 mb-4">
+                        <div className="grid grid-cols-3 gap-2.5 mb-4">
                             {[
                                 { icon: "bookmark" as const, label: saved ? "Salvo" : "Salvar", on: handleSave, active: saved, accent: false },
                                 { icon: "pen" as const, label: "Diário", on: () => setShowJournal(true), active: false, accent: false },
@@ -183,14 +183,15 @@ export default function ReadDevotionalPage() {
                                 const gold = b.active || b.accent;
                                 return (
                                     <button key={i} onClick={b.on} disabled={saving && b.icon === "bookmark"}
-                                        className="flex-1 flex items-center justify-center gap-2 h-11 rounded-2xl text-sm font-medium transition-all"
+                                        className="flex flex-col items-center justify-center gap-2 px-2 py-3.5 rounded-2xl transition-all"
                                         style={{
                                             color: gold ? "var(--gold)" : "var(--text-secondary)",
                                             border: `1px solid ${gold ? "rgba(247,201,122,0.55)" : "var(--glass-border)"}`,
                                             background: gold ? "rgba(247,201,122,0.08)" : "transparent",
                                             boxShadow: b.accent ? "0 0 18px rgba(247,201,122,0.18)" : "none",
                                         }}>
-                                        <Icon name={b.icon} size={16} style={{ fill: b.active && b.icon === "bookmark" ? "var(--gold)" : "none" }} /> {b.label}
+                                        <Icon name={b.icon} size={19} style={{ fill: b.active && b.icon === "bookmark" ? "var(--gold)" : "none" }} />
+                                        <span className="text-xs font-medium whitespace-nowrap">{b.label}</span>
                                     </button>
                                 );
                             })}

@@ -113,7 +113,7 @@ export async function POST(request: NextRequest) {
 - Dias 8-14: aprofundamento — compreensão mais densa e aplicação prática
 - Dias 15-21: maturidade espiritual — transformação interior, prática avançada e plenitude
 
-Regras: cada versículo deve ser ÚNICO. Use versículos REAIS da Bíblia em português (NVI ou ARC), com referência correta (livro, capítulo e versículo que existem de fato). O texto deve ser o versículo completo.
+Regras: cada versículo deve ser ÚNICO. Use versículos REAIS da Bíblia em português (NVI ou ARA), com referência correta (livro, capítulo e versículo que existem de fato). O texto deve ser o versículo completo.
 
 Retorne JSON com exatamente 21 itens:
 {
