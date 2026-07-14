@@ -89,7 +89,7 @@ function HeroContent() {
                     <Icon name="play" size={16} /> Ver como funciona
                 </a>
             </motion.div>
-            <motion.div variants={rise} custom={4} className="hidden lg:flex flex-wrap gap-2.5">
+            <motion.div variants={rise} custom={4} className="hidden xl:flex flex-wrap gap-2.5">
                 {heroChips.map((c) => (
                     <div key={c.label} className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl"
                         style={{ border: "1px solid var(--glass-border)", background: "rgba(11,11,18,0.4)", backdropFilter: "blur(6px)" }}>
@@ -174,7 +174,7 @@ export default function LandingPage() {
                     <Image src="/background-hero.png" alt="Humanáh — devocional para o seu momento" width={1672} height={941} priority
                         className="w-full h-auto"
                         style={{ WebkitMaskImage: "linear-gradient(to bottom, #000 82%, transparent 100%)", maskImage: "linear-gradient(to bottom, #000 82%, transparent 100%)" }} />
-                    <div className="absolute inset-0 flex items-center">
+                    <div className="absolute inset-0 flex items-start xl:items-center pt-28 xl:pt-0">
                         <div className="w-full max-w-7xl mx-auto px-8 xl:px-10">
                             <HeroContent />
                         </div>
