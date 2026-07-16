@@ -6,9 +6,14 @@ import { MotionConfig } from "framer-motion";
 import Toaster from "@/components/Toaster";
 import { useUIStore } from "@/store";
 
-// Rotas "web" (tela cheia no desktop, sem moldura de celular): landing e SEO.
+// Rotas "web" (tela cheia no desktop, sem moldura de celular): landing, SEO e páginas legais.
 function isWebRoute(pathname: string): boolean {
-    return pathname === "/" || pathname.startsWith("/versiculos");
+    return (
+        pathname === "/" ||
+        pathname.startsWith("/versiculos") ||
+        pathname === "/privacidade" ||
+        pathname === "/termos"
+    );
 }
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {

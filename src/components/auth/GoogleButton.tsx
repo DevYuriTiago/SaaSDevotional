@@ -8,13 +8,16 @@ interface Props {
     label?: string;
     /** "full" = botão largo no topo; "compact" = pílula com ícone (social secundário). */
     variant?: "full" | "compact";
+    /** Executado antes do OAuth; se retornar false, aborta (ex.: consentimento não marcado). */
+    beforeClick?: () => boolean;
 }
 
-export function GoogleButton({ next = "/dashboard", label = "Continuar com Google", variant = "full" }: Props) {
+export function GoogleButton({ next = "/dashboard", label = "Continuar com Google", variant = "full", beforeClick }: Props) {
     const supabase = createClient();
     const [loading, setLoading] = useState(false);
 
     async function handleGoogle() {
+        if (beforeClick && !beforeClick()) return;
         setLoading(true);
         await supabase.auth.signInWithOAuth({
             provider: "google",

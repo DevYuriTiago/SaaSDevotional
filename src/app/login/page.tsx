@@ -71,6 +71,11 @@ export default function LoginPage() {
                     style={{ border: "1px solid rgba(247,201,122,0.22)", boxShadow: "0 0 50px rgba(247,201,122,0.07), var(--shadow-card)" }}
                 >
                     <GoogleButton next="/dashboard" label="Entrar com Google" />
+                    <p className="text-[11px] leading-relaxed text-center mt-2.5" style={{ color: "var(--text-muted)" }}>
+                        Ao continuar, você concorda com os{" "}
+                        <Link href="/termos" target="_blank" className="underline" style={{ color: "var(--gold)" }}>Termos</Link> e a{" "}
+                        <Link href="/privacidade" target="_blank" className="underline" style={{ color: "var(--gold)" }}>Política de Privacidade</Link>.
+                    </p>
 
                     <div className="flex items-center gap-3 my-5">
                         <div className="flex-1 h-px" style={{ background: "var(--glass-border)" }} />

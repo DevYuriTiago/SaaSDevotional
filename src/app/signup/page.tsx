@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
@@ -17,6 +17,7 @@ const schema = z.object({
     name: z.string().min(2, "Nome muito curto"),
     email: z.string().email("E-mail inválido"),
     password: z.string().min(6, "Mínimo de 6 caracteres"),
+    consent: z.boolean().refine((v) => v === true, { message: "Aceite os Termos e a Política para continuar." }),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -27,12 +28,17 @@ export default function SignupPage() {
     const [serverError, setServerError] = useState<string | null>(null);
     const [emailSent, setEmailSent] = useState(false);
     const [showPw, setShowPw] = useState(false);
+    const [consentError, setConsentError] = useState(false);
+    const consentRef = useRef<HTMLDivElement>(null);
 
     const {
         register,
         handleSubmit,
+        watch,
         formState: { errors, isSubmitting },
     } = useForm<FormData>({ resolver: zodResolver(schema) });
+
+    const consent = watch("consent");
 
     async function onSubmit(data: FormData) {
         setServerError(null);
@@ -105,7 +111,18 @@ export default function SignupPage() {
                         className="glass-strong rounded-3xl p-7"
                         style={{ border: "1px solid rgba(247,201,122,0.22)", boxShadow: "0 0 50px rgba(247,201,122,0.07), var(--shadow-card)" }}
                     >
-                        <GoogleButton next="/emotion" label="Cadastrar com Google" />
+                        <GoogleButton
+                            next="/emotion"
+                            label="Cadastrar com Google"
+                            beforeClick={() => {
+                                if (!consent) {
+                                    setConsentError(true);
+                                    consentRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+                                    return false;
+                                }
+                                return true;
+                            }}
+                        />
 
                         <div className="flex items-center gap-3 my-5">
                             <div className="flex-1 h-px" style={{ background: "var(--glass-border)" }} />
@@ -189,6 +206,27 @@ export default function SignupPage() {
                                 </motion.p>
                             )}
 
+                            {/* Consentimento LGPD (obrigatório para e-mail e Google) */}
+                            <div ref={consentRef}>
+                                <div className="flex items-start gap-2.5">
+                                    <input
+                                        id="consent"
+                                        type="checkbox"
+                                        {...register("consent", { onChange: () => setConsentError(false) })}
+                                        className="mt-0.5 w-4 h-4 shrink-0 accent-[var(--gold)]"
+                                    />
+                                    <label htmlFor="consent" className="text-xs leading-relaxed" style={{ color: "var(--text-muted)" }}>
+                                        Li e aceito os{" "}
+                                        <Link href="/termos" target="_blank" className="underline" style={{ color: "var(--gold)" }}>Termos de Uso</Link>{" "}
+                                        e a{" "}
+                                        <Link href="/privacidade" target="_blank" className="underline" style={{ color: "var(--gold)" }}>Política de Privacidade</Link>, e consinto com o tratamento dos dados que eu compartilhar para gerar meus devocionais.
+                                    </label>
+                                </div>
+                                {(errors.consent || consentError) && (
+                                    <p className="mt-1.5 text-xs text-red-400">Aceite os Termos e a Política para continuar.</p>
+                                )}
+                            </div>
+
                             <button type="submit" disabled={isSubmitting} className="btn-primary w-full justify-center py-4">
                                 {isSubmitting ? (
                                     <span className="flex items-center gap-2">
@@ -208,7 +246,7 @@ export default function SignupPage() {
                         <div className="flex items-center justify-center gap-2 mt-5 text-center">
                             <Icon name="shield" size={15} style={{ color: "var(--text-muted)", flexShrink: 0 }} />
                             <p className="text-xs" style={{ color: "var(--text-muted)" }}>
-                                Seus dados estão protegidos e nunca serão compartilhados.
+                                Seus dados são protegidos e tratados conforme a nossa Política de Privacidade.
                             </p>
                         </div>
                     </div>
