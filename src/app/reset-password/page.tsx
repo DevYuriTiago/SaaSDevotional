@@ -55,7 +55,7 @@ export default function ResetPasswordPage() {
                 <div className="text-center mb-10">
                     <Link href="/" className="inline-flex flex-col items-center gap-3 mb-6">
                         <BrandMark size={48} />
-                        <span className="font-display text-lg" style={{ color: "var(--cream)", fontWeight: 500 }}>Sentindo Hoje</span>
+                        <span className="font-display text-lg" style={{ color: "var(--cream)", fontWeight: 500 }}>Human<span style={{ color: "var(--gold)" }}>á</span>h</span>
                     </Link>
                     <div className="w-16 h-16 rounded-2xl mx-auto mb-6 flex items-center justify-center"
                         style={{ background: "rgba(247,201,122,0.12)", border: "1px solid var(--glass-border)" }}>

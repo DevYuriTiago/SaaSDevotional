@@ -34,7 +34,7 @@ export default function InviteCard() {
 
     async function handleShare() {
         if (!info?.url) return;
-        const text = `Estou usando o Sentindo Hoje — um devocional feito pra cada momento. Faça sua jornada comigo e nós dois ganhamos 7 dias de Premium 🙏\n${info.url}`;
+        const text = `Estou usando a Humanáh — um devocional feito pra cada momento. Faça sua jornada comigo e nós dois ganhamos 7 dias de Premium 🙏\n${info.url}`;
         if (typeof navigator !== "undefined" && navigator.share) {
             try {
                 await navigator.share({ text });

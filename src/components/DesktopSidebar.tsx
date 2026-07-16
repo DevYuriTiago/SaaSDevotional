@@ -31,7 +31,7 @@ export default function DesktopSidebar() {
                 background: "radial-gradient(120% 80% at 50% 0%, rgba(247,201,122,0.10) 0%, transparent 65%)",
             }} />
 
-            {/* Marca — a logo é o "O" de "O que você está sentindo hoje?" */}
+            {/* Marca Humanáh */}
             <div className="relative px-5 pt-7 pb-5">
                 <Link href="/dashboard" className="group">
                     <BrandWordmark size={34} layout="stack" />

@@ -10,7 +10,7 @@ const steps = [
     {
         id: "welcome",
         title: (name: string) => `${name}, você acabou de sentir`,
-        subtitle: "Esse é o coração do Sentindo Hoje: uma Palavra viva para o seu momento. Vamos personalizar sua caminhada daqui pra frente.",
+        subtitle: "Esse é o coração da Humanáh: uma Palavra viva para o seu momento. Vamos personalizar sua caminhada daqui pra frente.",
         content: null,
     },
     {

@@ -13,7 +13,7 @@ export async function generateMetadata(
 ): Promise<Metadata> {
     const { slug } = await params;
     const theme = getVerseTheme(slug);
-    if (!theme) return { title: "Versículos | Sentindo Hoje" };
+    if (!theme) return { title: "Versículos | Humanáh" };
     return {
         title: theme.title,
         description: theme.metaDescription,

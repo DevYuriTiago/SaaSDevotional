@@ -11,26 +11,24 @@ interface Props {
 }
 
 /**
- * Marca-frase: a logo (círculo) faz o papel da letra "O" de
- * "O que você está sentindo hoje?". Acessível via aria-label.
+ * Marca oficial: o emblema + a wordmark "Humanáh". Acessível via aria-label.
  */
-export default function BrandWordmark({ size = 30, layout = "stack", className, style }: Props) {
-    const fontSize = Math.round(size * 0.46);
+export default function BrandWordmark({ size = 30, className, style }: Props) {
+    const fontSize = Math.round(size * 0.6);
     return (
         <span
             className={`inline-flex items-center gap-2.5 ${className ?? ""}`}
             style={style}
             role="img"
-            aria-label="O Que Você Está Sentindo Hoje"
+            aria-label="Humanáh"
         >
             <BrandMark size={size} style={{ flexShrink: 0 }} />
             <span
                 className="font-display"
-                style={{ color: "var(--cream)", fontSize, lineHeight: 1.08, fontWeight: 400, letterSpacing: "-0.01em" }}
+                style={{ color: "var(--cream)", fontSize, lineHeight: 1.08, fontWeight: 500, letterSpacing: "-0.01em" }}
                 aria-hidden="true"
             >
-                que você está{layout === "stack" ? <br /> : " "}
-                sentindo <span style={{ fontStyle: "italic", color: "var(--gold)" }}>hoje?</span>
+                Human<span style={{ color: "var(--gold)" }}>á</span>h
             </span>
         </span>
     );

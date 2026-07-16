@@ -4,12 +4,12 @@ import { VERSE_THEMES } from "@/lib/seo/verse-themes";
 import { Icon, BrandMark } from "@/components/icons";
 
 export const metadata: Metadata = {
-    title: "Versículos para cada momento — Ansiedade, Medo, Gratidão | Sentindo Hoje",
+    title: "Versículos para cada momento — Ansiedade, Medo, Gratidão | Humanáh",
     description:
         "Versículos bíblicos selecionados por tema: ansiedade, medo, tristeza, gratidão, perdão e propósito. Encontre uma palavra de Deus para o que você sente hoje.",
     alternates: { canonical: "/versiculos" },
     openGraph: {
-        title: "Versículos para cada momento | Sentindo Hoje",
+        title: "Versículos para cada momento | Humanáh",
         description: "Uma palavra de Deus para o que você está sentindo hoje.",
         type: "website",
     },

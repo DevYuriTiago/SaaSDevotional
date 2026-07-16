@@ -133,7 +133,7 @@ async function drawCard(canvas: HTMLCanvasElement, data: ShareData, variant: Sha
         [bg, logo, wm] = await Promise.all([
             loadImage("/fundo-comp.png"),
             loadImage("/new-icon.png"),
-            loadImage("/wordmark.png"),
+            loadImage("/new-wordmark.png"),
         ]);
     } catch { /* segue sem assets */ }
 
@@ -284,7 +284,7 @@ export default function ShareModal({ open, onClose, data }: Props) {
             variant === "verse" ? `"${data.verse}"\n— ${data.verseRef}`
                 : variant === "question" ? (data.reflectiveQuestion || excerpt(data.reflection || data.declaration, 260))
                     : `${data.declaration}\n— ${data.verseRef}`;
-        const text = `${body}\n\nO Que Você Está Sentindo Hoje\n${shareUrl}`;
+        const text = `${body}\n\nHumanáh · Seu alimento espiritual diário\n${shareUrl}`;
         await navigator.clipboard.writeText(text);
         setCopied(true);
         setTimeout(() => setCopied(false), 2200);

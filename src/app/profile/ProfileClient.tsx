@@ -87,6 +87,9 @@ export default function ProfileClient({ profile, userEmail }: Props) {
     const unlockedCount = achievements.filter((a) => a.unlocked).length;
 
     const [billingLoading, setBillingLoading] = useState(false);
+    const [showDelete, setShowDelete] = useState(false);
+    const [deleteText, setDeleteText] = useState("");
+    const [deleting, setDeleting] = useState(false);
 
     async function handleManageBilling() {
         setBillingLoading(true);
@@ -109,6 +112,25 @@ export default function ProfileClient({ profile, userEmail }: Props) {
         const supabase = createClient();
         await supabase.auth.signOut();
         router.push("/login");
+    }
+
+    async function handleDeleteAccount() {
+        setDeleting(true);
+        try {
+            const res = await fetch("/api/account/delete", { method: "POST" });
+            if (!res.ok) {
+                const data = await res.json().catch(() => ({}));
+                toast({ type: "error", title: "Não foi possível excluir a conta", description: data.error ?? "Tente novamente." });
+                setDeleting(false);
+                return;
+            }
+            const supabase = createClient();
+            await supabase.auth.signOut();
+            router.push("/");
+        } catch {
+            toast({ type: "error", title: "Erro de conexão", description: "Tente novamente em instantes." });
+            setDeleting(false);
+        }
     }
 
     const stats: { label: string; value: number; unit: string; icon: IconName }[] = [
@@ -365,8 +387,59 @@ export default function ProfileClient({ profile, userEmail }: Props) {
                     >
                         <Icon name="logout" size={16} /> Sair da conta
                     </button>
+                    <button
+                        onClick={() => setShowDelete(true)}
+                        className="w-full text-center text-xs mt-4 py-2 hover:opacity-80 transition-opacity"
+                        style={{ color: "var(--text-muted)" }}
+                    >
+                        Excluir minha conta
+                    </button>
                 </motion.div>
             </div>
+
+            {/* Modal de exclusão de conta (LGPD — direito de eliminação) */}
+            {showDelete && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-5" style={{ background: "rgba(0,0,0,0.65)", backdropFilter: "blur(4px)" }}>
+                    <motion.div
+                        initial={{ opacity: 0, y: 24, scale: 0.97 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        className="w-full max-w-sm rounded-3xl p-6"
+                        style={{ background: "#0E0D14", border: "1px solid rgba(224,90,90,0.3)", boxShadow: "0 30px 80px rgba(0,0,0,0.6)" }}
+                    >
+                        <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4" style={{ background: "rgba(224,90,90,0.12)", border: "1px solid rgba(224,90,90,0.25)" }}>
+                            <Icon name="close" size={22} style={{ color: "#e05a5a" }} />
+                        </div>
+                        <h3 className="font-display text-lg mb-2" style={{ color: "var(--cream)" }}>Excluir sua conta?</h3>
+                        <p className="text-sm leading-relaxed mb-4" style={{ color: "var(--text-secondary)" }}>
+                            Esta ação é <strong style={{ color: "var(--cream)" }}>permanente</strong>. Todos os seus devocionais, diário, jornadas e progresso serão apagados — não há como desfazer.{isPaying ? " Sua assinatura também será cancelada." : ""}
+                        </p>
+                        <label htmlFor="del-confirm" className="block text-xs mb-2" style={{ color: "var(--text-muted)" }}>
+                            Para confirmar, digite <strong style={{ color: "var(--cream)" }}>EXCLUIR</strong>:
+                        </label>
+                        <input
+                            id="del-confirm"
+                            value={deleteText}
+                            onChange={(e) => setDeleteText(e.target.value)}
+                            placeholder="EXCLUIR"
+                            autoComplete="off"
+                            className="input-base mb-5"
+                        />
+                        <div className="flex gap-3">
+                            <button onClick={() => { setShowDelete(false); setDeleteText(""); }} disabled={deleting} className="btn-ghost flex-1">
+                                Cancelar
+                            </button>
+                            <button
+                                onClick={handleDeleteAccount}
+                                disabled={deleteText.trim().toUpperCase() !== "EXCLUIR" || deleting}
+                                className="flex-1 rounded-full py-3 text-sm font-semibold transition-all disabled:opacity-40"
+                                style={{ background: "#c0392b", color: "#fff" }}
+                            >
+                                {deleting ? "Excluindo..." : "Excluir conta"}
+                            </button>
+                        </div>
+                    </motion.div>
+                </div>
+            )}
 
             <BottomNav />
         </main>

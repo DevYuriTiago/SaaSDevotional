@@ -17,8 +17,8 @@ export default function Wordmark({
 }) {
     return (
         <Image
-            src="/wordmark.png"
-            alt="O que você está sentindo hoje?"
+            src="/new-wordmark.png"
+            alt="Humanáh"
             width={1536}
             height={1024}
             priority={priority}
