@@ -2,11 +2,12 @@ import { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "O Que Você Está Sentindo Hoje?",
-    short_name: "Sentindo Hoje",
+    name: "Humanáh — Seu alimento espiritual diário",
+    short_name: "Humanáh",
     description:
-      "Devocional personalizado por IA baseado no que você está sentindo agora.",
+      "Diga o que está sentindo e receba o seu alimento espiritual diário: um devocional feito para o seu momento, fundamentado na Palavra.",
     start_url: "/",
+    id: "/",
     display: "standalone",
     background_color: "#0B0B12",
     theme_color: "#0B0B12",
@@ -26,7 +27,7 @@ export default function manifest(): MetadataRoute.Manifest {
         purpose: "any",
       },
       {
-        src: "/icon-512.png",
+        src: "/icon-maskable.png",
         sizes: "512x512",
         type: "image/png",
         purpose: "maskable",

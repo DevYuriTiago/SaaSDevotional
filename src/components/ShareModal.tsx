@@ -132,7 +132,7 @@ async function drawCard(canvas: HTMLCanvasElement, data: ShareData, variant: Sha
     try {
         [bg, logo, wm] = await Promise.all([
             loadImage("/fundo-comp.png"),
-            loadImage("/icon-512.png"),
+            loadImage("/new-icon.png"),
             loadImage("/wordmark.png"),
         ]);
     } catch { /* segue sem assets */ }

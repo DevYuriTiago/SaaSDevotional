@@ -353,8 +353,8 @@ export function Icon({ name, size = 22, strokeWidth = 1.6, className, style }: I
 export function BrandMark({ size = 40, className, style }: { size?: number; className?: string; style?: CSSProperties }) {
     return (
         <Image
-            src="/icon-512.png"
-            alt="O Que Você Está Sentindo Hoje"
+            src="/new-icon.png"
+            alt="Humanáh"
             width={size}
             height={size}
             className={className}
