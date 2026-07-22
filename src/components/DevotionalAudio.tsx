@@ -10,12 +10,33 @@ interface Props {
     isPremium: boolean;
 }
 
+// Escolhe a MELHOR voz pt disponível no dispositivo (natural/online/Google/Siri),
+// em vez da primeira da lista (que costuma ser a mais robótica).
+function pickBestPtVoice(voices: SpeechSynthesisVoice[]): SpeechSynthesisVoice | undefined {
+    const pt = voices.filter((v) => /^pt/i.test(v.lang));
+    if (pt.length === 0) return undefined;
+    const ptBR = pt.filter((v) => /pt[-_]?br/i.test(v.lang));
+    const pool = ptBR.length ? ptBR : pt;
+    const score = (v: SpeechSynthesisVoice) => {
+        const n = v.name.toLowerCase();
+        let s = 0;
+        if (/natural|neural|online/.test(n)) s += 5; // Microsoft (Edge) — as melhores
+        if (n.includes("google")) s += 3;            // Chrome / Android
+        if (n.includes("luciana")) s += 2;           // iOS / Safari
+        if (/premium|enhanced/.test(n)) s += 2;
+        if (!v.localService) s += 1;                 // vozes de rede tendem a soar melhor
+        return s;
+    };
+    return [...pool].sort((a, b) => score(b) - score(a))[0];
+}
+
 export default function DevotionalAudio({ devotional, isPremium }: Props) {
     const [speaking, setSpeaking] = useState(false);
     const [ambient, setAmbient] = useState(false);
     const audioCtxRef = useRef<AudioContext | null>(null);
     const masterGainRef = useRef<GainNode | null>(null);
     const oscRefs = useRef<OscillatorNode[]>([]);
+    const voicesRef = useRef<SpeechSynthesisVoice[]>([]);
 
     useEffect(() => {
         return () => {
@@ -25,6 +46,16 @@ export default function DevotionalAudio({ devotional, isPremium }: Props) {
                 audioCtxRef.current.close();
             }
         };
+    }, []);
+
+    // Carrega/atualiza as vozes (alguns navegadores só populam após 'voiceschanged').
+    useEffect(() => {
+        const synth = typeof window !== "undefined" ? window.speechSynthesis : null;
+        if (!synth) return;
+        const load = () => { voicesRef.current = synth.getVoices(); };
+        load();
+        synth.addEventListener?.("voiceschanged", load);
+        return () => synth.removeEventListener?.("voiceschanged", load);
     }, []);
 
     function handleTTS() {
@@ -47,13 +78,13 @@ export default function DevotionalAudio({ devotional, isPremium }: Props) {
 
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = "pt-BR";
-        utterance.rate = 0.82;
-        utterance.pitch = 0.95;
+        utterance.rate = 0.9;
+        utterance.pitch = 1.0;
 
-        // Prefer a Portuguese voice when available
-        const voices = window.speechSynthesis.getVoices();
-        const ptVoice = voices.find(v => v.lang.startsWith("pt"));
-        if (ptVoice) utterance.voice = ptVoice;
+        // Prefere a MELHOR voz pt disponível (natural/online), não a primeira.
+        const voices = voicesRef.current.length ? voicesRef.current : window.speechSynthesis.getVoices();
+        const best = pickBestPtVoice(voices);
+        if (best) utterance.voice = best;
 
         utterance.onend = () => setSpeaking(false);
         utterance.onerror = () => setSpeaking(false);
