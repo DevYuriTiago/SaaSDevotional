@@ -64,7 +64,7 @@ export default function SignupPage() {
     }
 
     return (
-        <main className="auth-glow relative min-h-dvh flex items-center justify-center px-6 py-12">
+        <main className="auth-glow relative min-h-[100svh] flex items-center justify-center px-6 py-6">
             {emailSent ? (
                 <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
@@ -96,19 +96,17 @@ export default function SignupPage() {
                     className="relative z-10 w-full max-w-md"
                 >
                     {/* Marca */}
-                    <div className="text-center mb-9">
-                        <Link href="/" className="inline-flex flex-col items-center gap-0 mb-5">
-                            <BrandMark size={140} className="brand-emblem" />
+                    <div className="text-center mb-4">
+                        <Link href="/" className="inline-flex flex-col items-center gap-0 mb-2">
+                            <BrandMark size={98} className="brand-emblem" />
                             <Wordmark className="brand-wordmark" priority />
                         </Link>
-                        <p className="text-sm leading-relaxed px-4" style={{ color: "var(--text-secondary)" }}>
-                            Comece sua jornada e receba direcionamentos<br className="hidden sm:block" /> personalizados para o momento que você vive.
-                        </p>
+                        <p className="text-sm" style={{ color: "var(--text-secondary)" }}>Crie sua conta gratuita.</p>
                     </div>
 
                     {/* Card */}
                     <div
-                        className="glass-strong rounded-3xl p-7"
+                        className="glass-strong rounded-3xl p-6"
                         style={{ border: "1px solid rgba(247,201,122,0.22)", boxShadow: "0 0 50px rgba(247,201,122,0.07), var(--shadow-card)" }}
                     >
                         <GoogleButton
@@ -124,16 +122,16 @@ export default function SignupPage() {
                             }}
                         />
 
-                        <div className="flex items-center gap-3 my-5">
+                        <div className="flex items-center gap-3 my-4">
                             <div className="flex-1 h-px" style={{ background: "var(--glass-border)" }} />
                             <span className="text-xs" style={{ color: "var(--text-muted)" }}>ou</span>
                             <div className="flex-1 h-px" style={{ background: "var(--glass-border)" }} />
                         </div>
 
-                        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+                        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                             {/* Nome */}
                             <div>
-                                <label className="block text-sm font-medium mb-2" style={{ color: "var(--text-secondary)" }}>Nome completo</label>
+                                <label className="block text-sm font-medium mb-1.5" style={{ color: "var(--text-secondary)" }}>Nome completo</label>
                                 <div className="relative">
                                     <span className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
                                         <Icon name="user" size={18} style={{ color: "var(--text-muted)" }} />
@@ -152,7 +150,7 @@ export default function SignupPage() {
 
                             {/* E-mail */}
                             <div>
-                                <label className="block text-sm font-medium mb-2" style={{ color: "var(--text-secondary)" }}>E-mail</label>
+                                <label className="block text-sm font-medium mb-1.5" style={{ color: "var(--text-secondary)" }}>E-mail</label>
                                 <div className="relative">
                                     <span className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
                                         <Icon name="mail" size={18} style={{ color: "var(--text-muted)" }} />
@@ -171,7 +169,7 @@ export default function SignupPage() {
 
                             {/* Senha */}
                             <div>
-                                <label className="block text-sm font-medium mb-2" style={{ color: "var(--text-secondary)" }}>Senha</label>
+                                <label className="block text-sm font-medium mb-1.5" style={{ color: "var(--text-secondary)" }}>Senha</label>
                                 <div className="relative">
                                     <span className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
                                         <Icon name="lock" size={18} style={{ color: "var(--text-muted)" }} />
@@ -227,7 +225,7 @@ export default function SignupPage() {
                                 )}
                             </div>
 
-                            <button type="submit" disabled={isSubmitting} className="btn-primary w-full justify-center py-4">
+                            <button type="submit" disabled={isSubmitting} className="btn-primary w-full justify-center py-3.5">
                                 {isSubmitting ? (
                                     <span className="flex items-center gap-2">
                                         <span className="w-4 h-4 border-2 border-black/20 border-t-black/70 rounded-full animate-spin" />
@@ -242,17 +240,10 @@ export default function SignupPage() {
                             </button>
                         </form>
 
-                        {/* Confiança (dentro do card) */}
-                        <div className="flex items-center justify-center gap-2 mt-5 text-center">
-                            <Icon name="shield" size={15} style={{ color: "var(--text-muted)", flexShrink: 0 }} />
-                            <p className="text-xs" style={{ color: "var(--text-muted)" }}>
-                                Seus dados são protegidos e tratados conforme a nossa Política de Privacidade.
-                            </p>
-                        </div>
                     </div>
 
                     {/* Já tem conta */}
-                    <p className="text-center text-sm mt-6" style={{ color: "var(--text-muted)" }}>
+                    <p className="text-center text-sm mt-4" style={{ color: "var(--text-muted)" }}>
                         Já tem uma conta?{" "}
                         <Link href="/login" className="font-semibold inline-flex items-center gap-1" style={{ color: "var(--gold)" }}>
                             Fazer login <Icon name="arrow-right" size={14} />

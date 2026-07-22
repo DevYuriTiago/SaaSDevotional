@@ -450,7 +450,7 @@ export default function LandingPage() {
                     {/* Prints */}
                     <motion.div variants={rise} custom={0} initial="hidden" whileInView="visible" viewport={{ once: true }}
                         className="relative flex items-end justify-center gap-4 mb-12 lg:mb-0 order-2 lg:order-1">
-                        <PhoneMock src="/mockup-share.png" style={{ width: "clamp(150px, 34vw, 200px)", aspectRatio: "9 / 19", transform: "translateY(12px) rotate(-4deg)", opacity: 0.9 }} />
+                        <PhoneMock src="/mockup-midia.jpeg" style={{ width: "clamp(150px, 34vw, 200px)", aspectRatio: "9 / 19", transform: "translateY(12px) rotate(-4deg)", opacity: 0.9 }} />
                         <PhoneMock src="/mockup-app.png" style={{ width: "clamp(180px, 40vw, 240px)", aspectRatio: "9 / 19" }} />
                     </motion.div>
 
