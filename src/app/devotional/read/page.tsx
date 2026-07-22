@@ -205,7 +205,7 @@ export default function ReadDevotionalPage() {
                     <p className="eyebrow mb-4"><span className="gold-rule" /> Reflexão</p>
                     <div className="space-y-4">
                         {(expanded ? reflectionParas : reflectionParas.slice(0, 1)).map((p, i) => (
-                            <p key={i} className="font-serif-devotional" style={{ color: "var(--text-secondary)", fontSize: "1.12rem", lineHeight: 1.75 }}>{p}</p>
+                            <p key={i} className="font-serif-devotional" style={{ color: "var(--reading)", fontSize: "1.2rem", lineHeight: 1.78 }}>{p}</p>
                         ))}
                     </div>
                     {reflectionParas.length > 1 && (
@@ -221,8 +221,8 @@ export default function ReadDevotionalPage() {
                     className="card-base p-5 mb-8 relative overflow-hidden" style={{ borderColor: "rgba(247,201,122,0.22)" }}>
                     <div className="absolute left-0 top-0 bottom-0 w-1 rounded-l-full" style={{ background: "var(--gradient-gold)" }} />
                     <p className="eyebrow mb-3" style={{ color: "var(--text-muted)" }}>Versículo-chave</p>
-                    <blockquote className="font-serif-devotional italic leading-relaxed" style={{ color: "var(--cream)", fontSize: "1.35rem", lineHeight: 1.55 }}>
-                        <span className="font-display not-italic float-left mr-2" style={{ color: "var(--gold)", fontSize: "3.2rem", lineHeight: 0.85, marginTop: 4, textShadow: "0 0 24px rgba(247,201,122,0.3)" }}>{verseFirst}</span>
+                    <blockquote className="font-serif-devotional italic leading-relaxed" style={{ color: "var(--cream)", fontSize: "1.46rem", lineHeight: 1.55 }}>
+                        <span className="font-display not-italic float-left mr-2" style={{ color: "var(--gold)", fontSize: "3.5rem", lineHeight: 0.85, marginTop: 4, textShadow: "0 0 24px rgba(247,201,122,0.3)" }}>{verseFirst}</span>
                         {verseRest}
                     </blockquote>
                     <cite className="not-italic eyebrow block mt-3" style={{ color: "var(--gold)", fontSize: 11 }}>{d.verse_reference}</cite>
@@ -236,7 +236,7 @@ export default function ReadDevotionalPage() {
                             <div key={i} className="flex gap-3.5">
                                 <div className="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center font-display text-sm"
                                     style={{ border: "1px solid var(--glass-border)", color: "var(--gold)" }}>{i + 1}</div>
-                                <p className="text-[15px] flex-1" style={{ color: "var(--text-secondary)", lineHeight: 1.7 }}>{p}</p>
+                                <p className="text-[16px] flex-1" style={{ color: "var(--reading)", lineHeight: 1.72 }}>{p}</p>
                             </div>
                         ))}
                     </div>
@@ -247,7 +247,7 @@ export default function ReadDevotionalPage() {
                     className="rounded-2xl p-6 mb-8" style={{ background: "rgba(247,201,122,0.05)", border: "1px solid rgba(247,201,122,0.16)" }}>
                     <p className="eyebrow mb-3 inline-flex items-center gap-1.5"><Icon name="hands" size={14} style={{ color: "var(--text-secondary)" }} /> Oração</p>
                     {d.prayer.split("\n\n").map((p, i) => (
-                        <p key={i} className="font-serif-devotional italic mb-2" style={{ color: "var(--text-secondary)", fontSize: "1.12rem", lineHeight: 1.7 }}>{p}</p>
+                        <p key={i} className="font-serif-devotional italic mb-2" style={{ color: "var(--reading)", fontSize: "1.2rem", lineHeight: 1.72 }}>{p}</p>
                     ))}
                 </motion.div>
 
@@ -257,14 +257,14 @@ export default function ReadDevotionalPage() {
                     <Icon name="heart" size={22} style={{ color: "var(--text-secondary)", flexShrink: 0, marginTop: 4 }} />
                     <div>
                         <p className="eyebrow mb-2">Declaração de fé</p>
-                        <p className="font-serif-devotional gradient-text" style={{ fontSize: "1.3rem", fontWeight: 500 }}>{d.declaration}</p>
+                        <p className="font-serif-devotional gradient-text" style={{ fontSize: "1.42rem", fontWeight: 500 }}>{d.declaration}</p>
                     </div>
                 </motion.div>
 
                 {/* ── Pergunta reflexiva ── */}
                 <motion.div custom={5} variants={sectionVariants} initial="hidden" animate="visible" className="card-base p-6 mb-9">
                     <p className="eyebrow mb-3"><span className="gold-rule" /> Pergunta reflexiva</p>
-                    <p className="font-serif-devotional" style={{ color: "var(--cream)", fontSize: "1.2rem", lineHeight: 1.6 }}>{d.reflective_question}</p>
+                    <p className="font-serif-devotional" style={{ color: "var(--cream)", fontSize: "1.3rem", lineHeight: 1.62 }}>{d.reflective_question}</p>
                 </motion.div>
 
                 {/* ── Ações finais ── */}

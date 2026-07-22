@@ -41,6 +41,7 @@
   --text-secondary: #D9D2C2; /* creme suave, legível */
   --text-muted: #9E97AC;     /* cinza-violeta empoeirado (legível AA) */
   --text-highlight: #FBE3B0;
+  --reading: #EFE9D8;        /* corpo de leitura (tema tradicional) — creme claro brunido */
 
   /* ── Compat: aliases antigos → novo mundo ─────────
      Telas ainda não migradas herdam o visual automaticamente.
@@ -672,6 +673,7 @@ select:focus-visible {
   --text-secondary: #B6AE9E;
   --text-muted: #6E677C;
   --text-highlight: #F3D29A;
+  --reading: #B6AE9E;        /* leitura (madrugada) — creme suave, contemplativo */
 
   --glass: rgba(233, 190, 124, 0.025);
   --glass-hover: rgba(233, 190, 124, 0.045);
