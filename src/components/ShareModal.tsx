@@ -291,18 +291,36 @@ export default function ShareModal({ open, onClose, data }: Props) {
     }, [open, data, variant]);
 
     async function handleShare() {
-        if (!canvasRef.current || !drawn) return;
+        if (!canvasRef.current || !drawn || !data) return;
         canvasRef.current.toBlob(async (blob) => {
             if (!blob) return;
             const file = new File([blob], "devocional.png", { type: "image/png" });
+
+            // Texto de promoção que acompanha a imagem (WhatsApp/Instagram usam como legenda).
+            const shareUrl = `https://humanah.app/?utm_source=share&utm_medium=story&utm_campaign=${data.type}`;
+            const body =
+                variant === "verse" ? `"${data.verse}"\n— ${data.verseRef}`
+                    : variant === "question" ? (data.reflectiveQuestion || excerpt(data.reflection || data.declaration, 260))
+                        : `${data.declaration}\n— ${data.verseRef}`;
+            const shareText = `${body}\n\n✨ Receba o seu devocional de hoje na Humanáh, feito para o seu momento:\n${shareUrl}`;
+
             if (typeof navigator !== "undefined" && navigator.share) {
+                const withText = { files: [file], text: shareText, title: "Humanáh" };
+                const filesOnly = { files: [file], title: "Humanáh" };
                 try {
-                    if (navigator.canShare?.({ files: [file] })) {
-                        await navigator.share({ files: [file], title: data?.title ?? "Devocional" });
+                    // Tenta imagem + texto; se a combinação não for suportada, cai para só imagem.
+                    if (navigator.canShare?.(withText)) {
+                        await navigator.share(withText);
+                        return;
+                    }
+                    if (navigator.canShare?.(filesOnly)) {
+                        await navigator.share(filesOnly);
                         return;
                     }
                 } catch { /* fallback */ }
             }
+            // Fallback (desktop/sem Web Share): baixa a imagem e copia o texto de promoção.
+            try { await navigator.clipboard?.writeText(shareText); } catch { /* sem clipboard */ }
             const url = URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = url; a.download = "devocional.png"; a.click();
