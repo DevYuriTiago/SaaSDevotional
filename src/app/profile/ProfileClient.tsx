@@ -8,7 +8,6 @@ import { useEffect, useState } from "react";
 import BottomNav from "@/components/BottomNav";
 import { useUIStore, toast } from "@/store";
 import { isPremium, isPaidSubscriber } from "@/lib/premium";
-import InviteCard from "@/components/InviteCard";
 import { Icon, type IconName } from "@/components/icons";
 
 interface Props {
@@ -296,7 +295,7 @@ export default function ProfileClient({ profile, userEmail }: Props) {
                     transition={{ delay: 0.2 }}
                     className="space-y-2 mb-6"
                 >
-                    <InviteCard />
+                    {/* Card de indicação removido — volta na v2 (lógica de referral mantida no backend) */}
                     {!isPaying && (
                         <Link href="/subscription" className="card-base p-4 flex items-center gap-3 block"
                             style={{ borderColor: "rgba(247,201,122,0.25)" }}
