@@ -101,26 +101,43 @@ export async function POST(request: NextRequest) {
     }
 
     try {
+        // Step 0: histórico de versículos já usados pelo usuário (anti-repetição).
+        // Sem isso a IA cai sempre nos mesmos clichês (ex.: ansiedade → Filipenses 4:6-7).
+        const { data: usedRows } = await supabase
+            .from("devotionals")
+            .select("verse_reference")
+            .eq("user_id", user.id)
+            .order("created_at", { ascending: false })
+            .limit(60);
+        const normalizeRef = (r: string) => r.toLowerCase().replace(/\s+/g, " ").trim();
+        const forbiddenRefs = [...new Set((usedRows ?? []).map((r) => r.verse_reference as string).filter(Boolean))];
+        const forbiddenSet = new Set(forbiddenRefs.map(normalizeRef));
+
         // Step 1: Analyze emotion
         const emotionAnalysis = await analyzeEmotion(emotion_raw.trim());
 
-        // Step 2: Generate devotional — verifica a referência bíblica e regenera
-        // uma vez se a IA citar um livro/capítulo inexistente (anti-alucinação).
+        // Step 2: Generate devotional — valida a referência (anti-alucinação) E
+        // rejeita versículo já usado pelo usuário (anti-repetição); regenera se preciso.
         let content: DevotionalContent | null = null;
-        for (let attempt = 0; attempt < 2; attempt++) {
+        for (let attempt = 0; attempt < 3; attempt++) {
             const rawContent = await generateDevotional(
                 emotion_raw.trim(),
                 emotionAnalysis,
-                profile.name
+                profile.name,
+                forbiddenRefs
             );
             const parsed = JSON.parse(rawContent) as DevotionalContent;
             content = parsed; // mantém a última tentativa como fallback
 
             const check = validateReference(parsed.verse_reference);
-            if (check.valid) break;
-            console.warn(
-                `[devotional/generate] referência inválida (tentativa ${attempt + 1}): "${parsed.verse_reference}" — ${check.reason}`
-            );
+            const repeated = forbiddenSet.has(normalizeRef(parsed.verse_reference));
+            if (check.valid && !repeated) break;
+
+            if (repeated) {
+                console.warn(`[devotional/generate] versículo repetido (tentativa ${attempt + 1}): "${parsed.verse_reference}"`);
+            } else {
+                console.warn(`[devotional/generate] referência inválida (tentativa ${attempt + 1}): "${parsed.verse_reference}" — ${check.reason}`);
+            }
         }
         if (!content) throw new Error("Falha ao gerar devocional");
 

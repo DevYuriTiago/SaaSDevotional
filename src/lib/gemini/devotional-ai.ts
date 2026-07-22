@@ -36,7 +36,8 @@ Retorne SOMENTE um JSON válido com esta estrutura:
 export async function generateDevotional(
     emotionRaw: string,
     analysis: EmotionAnalysis,
-    userName?: string | null
+    userName?: string | null,
+    forbiddenReferences: string[] = []
 ): Promise<string> {
     const name = userName ? `, ${userName}` : "";
     const themesText = analysis.biblical_themes.join(", ");
@@ -48,6 +49,8 @@ REGRAS ABSOLUTAS:
 - NUNCA seja genérico ou superficial
 - NUNCA soe como coach motivacional ou frases de autoajuda
 - NUNCA repita estruturas previsíveis ou linguagem vazia
+- NUNCA repita um versículo que o usuário já recebeu (a mensagem trará a lista de proibidos)
+- NUNCA recorra sempre ao mesmo versículo "clichê" de cada emoção — as Escrituras são vastas; escolha passagens variadas e menos óbvias sobre o tema
 - SEMPRE adapte o tom ao estado emocional específico
 - SEMPRE use base bíblica consistente e precisa
 - SEMPRE crie sensação de conversa pessoal e pastoral
@@ -70,11 +73,15 @@ Retorne um JSON com esta estrutura exata:
   "reflective_question": "pergunta reflexiva que provoque introspecção genuína"
 }`;
 
+    const forbiddenBlock = forbiddenReferences.length > 0
+        ? `\n\nVERSÍCULOS JÁ USADOS POR ESTE USUÁRIO (PROIBIDOS — não repita NENHUM; escolha uma passagem diferente e menos óbvia sobre o tema):\n${forbiddenReferences.map((r) => `- ${r}`).join("\n")}`
+        : "";
+
     const userMessage = `${userName ? `Usuário: ${userName}` : ""}
 Estado emocional: "${emotionRaw}"
 Emoção principal: ${analysis.primary_emotion}
 
-Crie um devocional profundamente personalizado e único para este momento.`;
+Crie um devocional profundamente personalizado e único para este momento.${forbiddenBlock}`;
 
     const model = genai.getGenerativeModel({
         model: "gemini-2.5-flash",
