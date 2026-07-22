@@ -57,9 +57,9 @@ export const metadata: Metadata = {
     siteName: "Humanáh",
     images: [
       {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
+        url: "/Og-midia.png",
+        width: 1536,
+        height: 1024,
         alt: "Humanáh — Seu alimento espiritual diário",
       },
     ],
@@ -68,7 +68,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Humanáh — Seu alimento espiritual diário",
     description: "A Palavra encontra você no momento que está vivendo. Seu devocional feito para hoje.",
-    images: ["/og-image.png"],
+    images: ["/Og-midia.png"],
   },
   appleWebApp: {
     capable: true,

@@ -465,16 +465,16 @@ body {
    Fonte única de verdade do tamanho responsivo. Mude aqui e vale em
    todas as telas (login, cadastro, recuperar senha, etc.). */
 .brand-emblem {
-  width: clamp(92px, 26vw, 140px);
+  width: clamp(68px, 18vw, 98px);
   height: auto;
 }
 
 .brand-wordmark {
-  width: clamp(300px, 88vw, 480px);
+  width: clamp(190px, 54vw, 258px);
   max-width: 100%;
   height: auto;
   /* cola na base do emblema, comendo a margem transparente do topo do PNG */
-  margin-top: -2rem;
+  margin-top: -1.15rem;
 }
 
 /* ─── Telas de autenticação: fios de luz dourados (asset real) ───

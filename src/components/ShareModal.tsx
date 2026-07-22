@@ -89,6 +89,7 @@ function drawDivider(ctx: CanvasRenderingContext2D, W: number, y: number, half: 
     drawSparkle(ctx, cx, y, 12);
 }
 
+
 function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
     ctx.beginPath();
     ctx.moveTo(x + r, y);
@@ -99,24 +100,14 @@ function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: numbe
     ctx.closePath();
 }
 
-// Selo da emoção (pílula com a palavra da emoção).
-function drawEmotionBadge(ctx: CanvasRenderingContext2D, cx: number, cy: number, emotion: string) {
-    const text = emotion.toUpperCase();
-    ctx.font = "600 26px system-ui, sans-serif";
-    setLetterSpacing(ctx, "3px");
-    const tw = ctx.measureText(text).width;
-    const h = 54, w = tw + 64;
-    roundRect(ctx, cx - w / 2, cy - h / 2, w, h, h / 2);
-    ctx.fillStyle = "rgba(247,201,122,0.12)";
-    ctx.fill();
-    ctx.strokeStyle = "rgba(247,201,122,0.4)";
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
-    ctx.fillStyle = "rgba(247,201,122,0.95)";
-    ctx.textBaseline = "middle";
-    ctx.fillText(text, cx, cy + 2);
-    ctx.textBaseline = "alphabetic";
-    setLetterSpacing(ctx, "0px");
+// Globo simples (ícone de link) em traço dourado.
+function drawGlobe(ctx: CanvasRenderingContext2D, cx: number, cy: number, r: number, color: string) {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2.4;
+    ctx.lineCap = "round";
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.ellipse(cx, cy, r * 0.46, r, 0, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx - r, cy); ctx.lineTo(cx + r, cy); ctx.stroke();
 }
 
 // Card no formato Story do Instagram (1080×1920).
@@ -147,38 +138,47 @@ async function drawCard(canvas: HTMLCanvasElement, data: ShareData, variant: Sha
 
     ctx.textAlign = "center";
 
-    // Logo (emblema)
+    // Emblema
     if (logo) {
-        const ls = 104;
-        ctx.drawImage(logo, W / 2 - ls / 2, 64, ls, ls);
+        const ls = 178;
+        ctx.drawImage(logo, W / 2 - ls / 2, 85, ls, ls);
     }
 
     // Wordmark (imagem)
     if (wm) {
-        const ww = 470;
+        const ww = 555;
         const wh = (ww * wm.height) / wm.width;
-        ctx.drawImage(wm, W / 2 - ww / 2, 176, ww, wh);
+        ctx.drawImage(wm, W / 2 - ww / 2, 250, ww, wh);
     }
 
-    // Selo da emoção
-    if (data.emotion) drawEmotionBadge(ctx, W / 2, 560, data.emotion);
-
-    // Rótulo da variação
-    const LABELS: Record<ShareVariant, string> = { verse: "VERSÍCULO", declaration: "DECLARAÇÃO DE FÉ", question: "PARA REFLETIR" };
-    ctx.fillStyle = "rgba(247,201,122,0.9)";
-    ctx.font = "600 30px system-ui, sans-serif";
-    setLetterSpacing(ctx, "6px");
-    ctx.fillText(LABELS[variant], W / 2, 640);
+    // Tagline
+    ctx.fillStyle = "rgba(247,201,122,0.72)";
+    ctx.font = "600 25px system-ui, sans-serif";
+    setLetterSpacing(ctx, "5px");
+    ctx.fillText("SEU ALIMENTO ESPIRITUAL DIÁRIO", W / 2, 608);
     setLetterSpacing(ctx, "0px");
 
-    // Conteúdo principal (varia conforme a seleção)
+    drawDivider(ctx, W, 690, 150);
+
+    // Rótulo (o card NÃO expõe o sentimento escolhido pelo usuário)
+    const LABELS: Record<ShareVariant, string> = {
+        verse: "UMA PALAVRA PARA LEMBRAR HOJE",
+        declaration: "DECLARAÇÃO DE FÉ",
+        question: "PARA REFLETIR",
+    };
+    ctx.fillStyle = "rgba(247,201,122,0.9)";
+    ctx.font = "600 29px system-ui, sans-serif";
+    setLetterSpacing(ctx, "6px");
+    ctx.fillText(LABELS[variant], W / 2, 762);
+    setLetterSpacing(ctx, "0px");
+
+    // Conteúdo principal (versículo completo — auto-ajuste sem truncar)
     const content =
         variant === "verse" ? `“${data.verse}”`
             : variant === "question" ? (data.reflectiveQuestion || excerpt(data.reflection || data.declaration, 220))
                 : data.declaration;
 
-    // Auto-ajuste: encolhe a fonte até o texto INTEIRO caber (sem truncar).
-    const REGION_TOP = 700, REGION_BOTTOM = 1340;
+    const REGION_TOP = 835, REGION_BOTTOM = 1320;
     const regionH = REGION_BOTTOM - REGION_TOP;
     const maxW = W - 150;
     let fontSize = 78, lineH = 102;
@@ -186,7 +186,7 @@ async function drawCard(canvas: HTMLCanvasElement, data: ShareData, variant: Sha
     for (fontSize = 78; fontSize >= 30; fontSize -= 2) {
         lineH = Math.round(fontSize * 1.34);
         ctx.font = `700 ${fontSize}px Georgia, 'Times New Roman', serif`;
-        lines = wrapText(ctx, content, maxW, 40); // maxLines alto = não trunca
+        lines = wrapText(ctx, content, maxW, 40);
         if (lines.length * lineH <= regionH) break;
     }
     const blockH = lines.length * lineH;
@@ -194,11 +194,11 @@ async function drawCard(canvas: HTMLCanvasElement, data: ShareData, variant: Sha
     ctx.fillStyle = "rgba(251,247,230,0.96)";
     lines.forEach((l, i) => ctx.fillText(l, W / 2, firstBaseline + i * lineH));
 
-    drawDivider(ctx, W, 1400, 90);
+    drawDivider(ctx, W, 1370, 90);
 
     // Livro + referência
     ctx.save();
-    ctx.translate(W / 2 - 30, 1446);
+    ctx.translate(W / 2 - 30, 1397);
     ctx.scale(60 / 24, 60 / 24);
     ctx.strokeStyle = "rgba(247,201,122,0.9)";
     ctx.lineWidth = 1.4;
@@ -210,19 +210,52 @@ async function drawCard(canvas: HTMLCanvasElement, data: ShareData, variant: Sha
     ctx.fillStyle = "rgba(247,201,122,0.9)";
     ctx.font = "600 42px system-ui, sans-serif";
     setLetterSpacing(ctx, "4px");
-    ctx.fillText(data.verseRef.toUpperCase(), W / 2, 1570);
+    ctx.fillText(data.verseRef.toUpperCase(), W / 2, 1510);
     setLetterSpacing(ctx, "0px");
 
-    // Rodapé
-    drawDivider(ctx, W, 1700, 80);
-    ctx.fillStyle = "rgba(247,201,122,0.55)";
-    ctx.font = "600 27px system-ui, sans-serif";
-    setLetterSpacing(ctx, "3px");
-    ctx.fillText("DEUS É MAIOR. VOCÊ NÃO ESTÁ SOZINHO.", W / 2, 1786);
-    setLetterSpacing(ctx, "0px");
-    ctx.fillStyle = "rgba(247,201,122,0.85)";
-    ctx.font = "400 34px system-ui, sans-serif";
-    ctx.fillText("oquevoceestasentindohoje.app", W / 2, 1842);
+    // ── CTA (motor viral): convite + link em pílula ──
+    // Container bleeds off the bottom edge (não é um retângulo fechado — encaixa no final).
+    roundRect(ctx, 88, 1600, 904, 420, 40);
+    ctx.fillStyle = "rgba(247,201,122,0.04)";
+    ctx.fill();
+    ctx.strokeStyle = "rgba(247,201,122,0.28)";
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // Linha-convite com sparkle à esquerda (grupo centralizado)
+    const ctaText = "Descubra seu devocional de hoje";
+    ctx.font = "600 41px system-ui, sans-serif";
+    const ctaW = ctx.measureText(ctaText).width;
+    const spR = 14;
+    const groupLeft = W / 2 - (spR * 2 + 22 + ctaW) / 2;
+    drawSparkle(ctx, groupLeft + spR, 1692, spR);
+    ctx.fillStyle = "rgba(251,247,230,0.95)";
+    ctx.textAlign = "left";
+    ctx.textBaseline = "middle";
+    ctx.fillText(ctaText, groupLeft + spR * 2 + 22, 1696);
+
+    // Pílula do link (globo + domínio)
+    const pillW = 400, pillH = 84, pillX = W / 2 - pillW / 2, pillY = 1786;
+    ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+    roundRect(ctx, pillX, pillY, pillW, pillH, pillH / 2);
+    ctx.fillStyle = "rgba(247,201,122,0.07)";
+    ctx.fill();
+    ctx.strokeStyle = "rgba(247,201,122,0.5)";
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    const domain = "humanah.app";
+    ctx.font = "500 40px system-ui, sans-serif";
+    const dW = ctx.measureText(domain).width;
+    const globeR = 17;
+    const gx = W / 2 - (globeR * 2 + 18 + dW) / 2 + globeR;
+    drawGlobe(ctx, gx, pillY + pillH / 2, globeR, "rgba(247,201,122,0.95)");
+    ctx.fillStyle = "rgba(247,201,122,0.95)";
+    ctx.textAlign = "left";
+    ctx.textBaseline = "middle";
+    ctx.fillText(domain, gx + globeR + 18, pillY + pillH / 2 + 2);
+    ctx.textAlign = "center";
+    ctx.textBaseline = "alphabetic";
 }
 
 interface Props {
@@ -279,12 +312,12 @@ export default function ShareModal({ open, onClose, data }: Props) {
 
     async function handleCopy() {
         if (!data) return;
-        const shareUrl = `https://oquevoceestasentindohoje.app/?utm_source=share&utm_medium=social&utm_campaign=${data.type}`;
+        const shareUrl = `https://humanah.app/?utm_source=share&utm_medium=social&utm_campaign=${data.type}`;
         const body =
             variant === "verse" ? `"${data.verse}"\n— ${data.verseRef}`
                 : variant === "question" ? (data.reflectiveQuestion || excerpt(data.reflection || data.declaration, 260))
                     : `${data.declaration}\n— ${data.verseRef}`;
-        const text = `${body}\n\nHumanáh · Seu alimento espiritual diário\n${shareUrl}`;
+        const text = `${body}\n\nDescubra o seu devocional de hoje 🙏\n${shareUrl}`;
         await navigator.clipboard.writeText(text);
         setCopied(true);
         setTimeout(() => setCopied(false), 2200);
