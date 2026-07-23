@@ -2,12 +2,14 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import BottomNav from "@/components/BottomNav";
 import { useUIStore, toast } from "@/store";
 import { isPremium, isPaidSubscriber } from "@/lib/premium";
+import { compressAvatar } from "@/lib/image";
 import { Icon, type IconName } from "@/components/icons";
 
 interface Props {
@@ -37,6 +39,7 @@ export default function ProfileClient({ profile, userEmail }: Props) {
     const router = useRouter();
     const { nightMode, toggleNightMode } = useUIStore();
     const name = (profile?.name as string) ?? "Amigo";
+    const avatarUrl = (profile?.avatar_url as string) ?? null;
     const streak = (profile?.streak_days as number) ?? 0;
     const totalDevotionals = (profile?.total_devotionals as number) ?? 0;
     const premiumProfile = profile as { subscription_tier?: string | null; premium_until?: string | null } | null;
@@ -90,6 +93,14 @@ export default function ProfileClient({ profile, userEmail }: Props) {
     const [deleteText, setDeleteText] = useState("");
     const [deleting, setDeleting] = useState(false);
 
+    // Edição de perfil (nome + foto)
+    const [showEdit, setShowEdit] = useState(false);
+    const [editName, setEditName] = useState("");
+    const [editPhoto, setEditPhoto] = useState<File | null>(null);
+    const [editPreview, setEditPreview] = useState<string | null>(null);
+    const [savingProfile, setSavingProfile] = useState(false);
+    const editFileRef = useRef<HTMLInputElement>(null);
+
     async function handleManageBilling() {
         setBillingLoading(true);
         try {
@@ -132,6 +143,77 @@ export default function ProfileClient({ profile, userEmail }: Props) {
         }
     }
 
+    function openEdit() {
+        setEditName(name);
+        setEditPreview(avatarUrl);
+        setEditPhoto(null);
+        setShowEdit(true);
+    }
+
+    function pickEditPhoto(e: React.ChangeEvent<HTMLInputElement>) {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        if (!file.type.startsWith("image/")) {
+            toast({ type: "error", title: "Formato não suportado", description: "Escolha uma imagem (JPG, PNG…)." });
+            return;
+        }
+        if (file.size > 25 * 1024 * 1024) {
+            toast({ type: "error", title: "Imagem muito grande", description: "O limite é 25 MB." });
+            return;
+        }
+        setEditPhoto(file);
+        setEditPreview(URL.createObjectURL(file));
+    }
+
+    async function handleSaveProfile() {
+        setSavingProfile(true);
+        try {
+            const supabase = createClient();
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) { router.push("/login"); return; }
+
+            let newAvatar: string | null = null;
+            if (editPhoto) {
+                // Recorta + comprime no navegador: qualquer foto de celular vira ~80 KB.
+                let upload: Blob = editPhoto;
+                try { upload = await compressAvatar(editPhoto); } catch { /* sobe o original */ }
+                const path = `${user.id}/avatar.jpg`;
+                const { error: upErr } = await supabase.storage
+                    .from("avatars")
+                    .upload(path, upload, { upsert: true, cacheControl: "3600", contentType: "image/jpeg" });
+                if (upErr) {
+                    toast({ type: "error", title: "Não consegui salvar a foto", description: "Tente novamente em instantes." });
+                } else {
+                    const { data: pub } = supabase.storage.from("avatars").getPublicUrl(path);
+                    newAvatar = `${pub.publicUrl}?v=${Date.now()}`; // cache-buster
+                }
+            }
+
+            const cleanName = editName.trim();
+            const { error } = await supabase
+                .from("profiles")
+                .update({
+                    ...(cleanName ? { name: cleanName } : {}),
+                    ...(newAvatar ? { avatar_url: newAvatar } : {}),
+                })
+                .eq("id", user.id);
+
+            if (error) {
+                toast({ type: "error", title: "Não foi possível salvar", description: "Tente novamente." });
+                setSavingProfile(false);
+                return;
+            }
+
+            toast({ type: "success", title: "Perfil atualizado" });
+            setShowEdit(false);
+            setSavingProfile(false);
+            router.refresh();
+        } catch {
+            toast({ type: "error", title: "Erro de conexão", description: "Tente novamente em instantes." });
+            setSavingProfile(false);
+        }
+    }
+
     const stats: { label: string; value: number; unit: string; icon: IconName }[] = [
         { label: "Streak", value: streak, unit: "dias", icon: "flame" },
         { label: "Devocionais", value: totalDevotionals, unit: "total", icon: "book" },
@@ -146,17 +228,28 @@ export default function ProfileClient({ profile, userEmail }: Props) {
                     animate={{ opacity: 1, y: 0 }}
                     className="flex flex-col items-center mb-8"
                 >
-                    <div
-                        className="font-display w-20 h-20 rounded-full flex items-center justify-center text-3xl mb-4"
-                        style={{
-                            background: "var(--gradient-gold)",
-                            color: "var(--night)",
-                            fontWeight: 500,
-                            boxShadow: "0 0 40px rgba(247,201,122,0.3)",
-                        }}
-                    >
-                        {name[0]}
-                    </div>
+                    <button type="button" onClick={openEdit} aria-label="Editar perfil" className="relative mb-4">
+                        <span
+                            className="font-display w-20 h-20 rounded-full flex items-center justify-center text-3xl overflow-hidden"
+                            style={{
+                                background: avatarUrl ? "var(--glass)" : "var(--gradient-gold)",
+                                border: avatarUrl ? "1.5px solid rgba(247,201,122,0.4)" : "none",
+                                color: "var(--night)",
+                                fontWeight: 500,
+                                boxShadow: "0 0 40px rgba(247,201,122,0.3)",
+                            }}
+                        >
+                            {avatarUrl
+                                ? <Image src={avatarUrl} alt="" width={80} height={80} className="w-20 h-20 object-cover" unoptimized />
+                                : name[0]}
+                        </span>
+                        <span
+                            className="absolute bottom-0 right-0 w-7 h-7 rounded-full flex items-center justify-center"
+                            style={{ background: "var(--gradient-gold)", color: "#2A1E08", boxShadow: "var(--shadow-button)" }}
+                        >
+                            <Icon name="pen" size={13} strokeWidth={2.2} />
+                        </span>
+                    </button>
                     <h1 className="font-display text-xl mb-1" style={{ color: "var(--cream)", fontWeight: 500 }}>{name}</h1>
                     <p className="text-sm" style={{ color: "var(--text-muted)" }}>{userEmail}</p>
                     {isPremiumUser && (
@@ -395,6 +488,75 @@ export default function ProfileClient({ profile, userEmail }: Props) {
                     </button>
                 </motion.div>
             </div>
+
+            {/* Modal de edição de perfil (nome + foto) */}
+            {showEdit && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-5" style={{ background: "rgba(0,0,0,0.65)", backdropFilter: "blur(4px)" }}>
+                    <motion.div
+                        initial={{ opacity: 0, y: 24, scale: 0.97 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        className="w-full max-w-sm rounded-3xl p-6 text-center"
+                        style={{ background: "#0E0D14", border: "1px solid rgba(247,201,122,0.28)", boxShadow: "0 30px 80px rgba(0,0,0,0.6)" }}
+                    >
+                        <h3 className="font-display text-lg mb-1" style={{ color: "var(--cream)" }}>Editar perfil</h3>
+                        <p className="text-xs mb-6" style={{ color: "var(--text-muted)" }}>
+                            É assim que vamos te chamar nos seus devocionais.
+                        </p>
+
+                        {/* Foto */}
+                        <button type="button" onClick={() => editFileRef.current?.click()} className="relative mx-auto mb-3 block" aria-label="Trocar foto">
+                            <span
+                                className="w-24 h-24 rounded-full flex items-center justify-center overflow-hidden font-display text-3xl"
+                                style={{
+                                    background: editPreview ? "var(--glass)" : "rgba(247,201,122,0.10)",
+                                    border: "1.5px solid rgba(247,201,122,0.35)",
+                                    color: "var(--gold)",
+                                }}
+                            >
+                                {editPreview
+                                    ? <Image src={editPreview} alt="" width={96} height={96} className="w-24 h-24 object-cover" unoptimized />
+                                    : <Icon name="user" size={30} style={{ color: "var(--gold)" }} />}
+                            </span>
+                            <span
+                                className="absolute bottom-0 right-0 w-8 h-8 rounded-full flex items-center justify-center"
+                                style={{ background: "var(--gradient-gold)", color: "#2A1E08", boxShadow: "var(--shadow-button)" }}
+                            >
+                                <Icon name="plus" size={16} strokeWidth={2.2} />
+                            </span>
+                        </button>
+                        <p className="text-[11px] mb-5" style={{ color: "var(--text-muted)" }}>
+                            {editPreview ? "Toque para trocar a foto" : "Adicione uma foto (opcional)"}
+                        </p>
+                        <input ref={editFileRef} type="file" accept="image/*" onChange={pickEditPhoto} className="hidden" />
+
+                        {/* Nome */}
+                        <input
+                            value={editName}
+                            onChange={(e) => setEditName(e.target.value)}
+                            placeholder="Seu nome ou apelido"
+                            maxLength={40}
+                            className="input-base text-center mb-5"
+                        />
+
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => { setShowEdit(false); setEditPhoto(null); }}
+                                disabled={savingProfile}
+                                className="btn-ghost flex-1"
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                onClick={handleSaveProfile}
+                                disabled={savingProfile || editName.trim().length < 2}
+                                className="btn-primary flex-1 disabled:opacity-40"
+                            >
+                                {savingProfile ? "Salvando..." : "Salvar"}
+                            </button>
+                        </div>
+                    </motion.div>
+                </div>
+            )}
 
             {/* Modal de exclusão de conta (LGPD — direito de eliminação) */}
             {showDelete && (

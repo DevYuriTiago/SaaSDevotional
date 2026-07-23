@@ -30,6 +30,7 @@ const QUICK_EMOTIONS = ["ansioso", "cansado", "triste", "grato"];
 export default function DashboardClient({ profile, devotionals, journalEntries, activeDates = [], activeJourney = null }: Props) {
     const name = (profile?.name as string) ?? "Amigo";
     const firstName = name.split(" ")[0];
+    const avatarUrl = (profile?.avatar_url as string) ?? null;
     const streak = (profile?.streak_days as number) ?? 0;
     const totalDevotionals = (profile?.total_devotionals as number) ?? 0;
     const distinctDays = new Set(activeDates.map((d) => d.slice(0, 10))).size;
@@ -72,10 +73,17 @@ export default function DashboardClient({ profile, devotionals, journalEntries, 
                     <div className="flex flex-col items-center gap-3 flex-shrink-0 ml-3">
                         <Link
                             href="/profile"
-                            className="w-12 h-12 rounded-full flex items-center justify-center text-base font-bold"
-                            style={{ background: "var(--gradient-gold)", color: "#2A1E08", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.4)" }}
+                            className="w-12 h-12 rounded-full flex items-center justify-center text-base font-bold overflow-hidden"
+                            style={{
+                                background: avatarUrl ? "var(--glass)" : "var(--gradient-gold)",
+                                border: avatarUrl ? "1.5px solid rgba(247,201,122,0.4)" : "none",
+                                color: "#2A1E08",
+                                boxShadow: avatarUrl ? "none" : "inset 0 1px 0 rgba(255,255,255,0.4)",
+                            }}
                         >
-                            {firstName[0]?.toUpperCase()}
+                            {avatarUrl
+                                ? <Image src={avatarUrl} alt="" width={48} height={48} className="w-12 h-12 object-cover" unoptimized />
+                                : firstName[0]?.toUpperCase()}
                         </Link>
                         <button
                             onClick={() => toast({ type: "info", title: "Notificações em breve" })}

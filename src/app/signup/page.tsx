@@ -47,7 +47,7 @@ export default function SignupPage() {
             password: data.password,
             options: {
                 data: { name: data.name },
-                emailRedirectTo: `${window.location.origin}/auth/callback?next=/emotion`,
+                emailRedirectTo: `${window.location.origin}/auth/callback?next=/onboarding`,
             },
         });
         if (error) {
@@ -56,7 +56,7 @@ export default function SignupPage() {
         }
         if (signUpData.session) {
             await track(EVENTS.SIGNUP, { method: "email", ...getStoredUtm() });
-            router.push("/emotion");
+            router.push("/onboarding");
             router.refresh();
             return;
         }
@@ -110,7 +110,7 @@ export default function SignupPage() {
                         style={{ border: "1px solid rgba(247,201,122,0.22)", boxShadow: "0 0 50px rgba(247,201,122,0.07), var(--shadow-card)" }}
                     >
                         <GoogleButton
-                            next="/emotion"
+                            next="/onboarding"
                             label="Cadastrar com Google"
                             beforeClick={() => {
                                 if (!consent) {

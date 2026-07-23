@@ -48,11 +48,20 @@ export async function updateSession(request: NextRequest) {
         return NextResponse.redirect(url);
     }
 
-    // Value-first: o novo usuário gera e lê seu 1º devocional ANTES do onboarding.
-    // Liberamos /emotion e /devotional; o onboarding é cobrado ao entrar no app
-    // (dashboard, jornadas, perfil, etc.).
-    const valueFirstExempt = ["/onboarding", "/emotion", "/devotional"];
-    if (user && isProtected && !valueFirstExempt.some((r) => pathname.startsWith(r))) {
+    // Quem já logou não volta para a landing de aquisição (ex.: reabrir o PWA,
+    // que inicia em "/"). Vai direto para o app. Páginas públicas de conteúdo
+    // (/versiculos, /privacidade, /termos) continuam acessíveis normalmente.
+    if (user && pathname === "/") {
+        const url = request.nextUrl.clone();
+        url.pathname = "/dashboard";
+        return NextResponse.redirect(url);
+    }
+
+    // O onboarding acontece logo após o cadastro e UMA única vez: enquanto
+    // `onboarding_completed` for false, qualquer rota do app leva até ele.
+    // Só a própria tela fica de fora (senão, loop de redirect). Depois de
+    // concluído, o usuário navega livre e nunca mais volta para cá.
+    if (user && isProtected && !pathname.startsWith("/onboarding")) {
         const { data: profile } = await supabase
             .from("profiles")
             .select("onboarding_completed")
