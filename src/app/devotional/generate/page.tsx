@@ -24,6 +24,7 @@ export default function GenerateDevotionalPage() {
     const [phraseIndex, setPhraseIndex] = useState(0);
     const [error, setError] = useState<string | null>(null);
     const [limitReached, setLimitReached] = useState(false);
+    const [softReject, setSoftReject] = useState(false);
     const [generating, setGenerating] = useState(true);
     // Garante UMA única geração (evita a dupla chamada do StrictMode em dev
     // e qualquer duplo-disparo por remount → impede devocional duplicado)
@@ -51,6 +52,7 @@ export default function GenerateDevotionalPage() {
     async function generate() {
         setGenerating(true);
         setError(null);
+        setSoftReject(false);
         try {
             const res = await fetch("/api/devotional/generate", {
                 method: "POST",
@@ -62,6 +64,7 @@ export default function GenerateDevotionalPage() {
             // Paywall tem UI própria; qualquer outro erro mostra a mensagem
             // amigável que o servidor já centraliza (lib/ai/errors).
             if (res.status === 402) { setLimitReached(true); setGenerating(false); track(EVENTS.PAYWALL_VIEWED, { source: "generate_limit" }); return; }
+            if (res.status === 422) { setGenerating(false); setSoftReject(true); setError(data.error ?? "Conte como você está se sentindo hoje 💛"); return; }
             if (!res.ok) { setGenerating(false); setError(data.error ?? "Algo não saiu como esperado. Tente novamente."); return; }
 
             setDevotional(data.devotional as Devotional);
@@ -104,13 +107,20 @@ export default function GenerateDevotionalPage() {
             <main className="aurora-bg relative min-h-dvh flex items-center justify-center px-6 overflow-hidden">
                 <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} className="relative z-10 text-center max-w-sm">
                     <div className="inline-flex items-center justify-center w-12 h-12 rounded-full mb-5"
-                        style={{ background: "rgba(224,151,90,0.12)", border: "1px solid rgba(224,151,90,0.3)" }}>
-                        <Icon name="bell" size={22} style={{ color: "var(--amber)" }} />
+                        style={{
+                            background: softReject ? "rgba(247,201,122,0.12)" : "rgba(224,151,90,0.12)",
+                            border: `1px solid ${softReject ? "rgba(247,201,122,0.3)" : "rgba(224,151,90,0.3)"}`,
+                        }}>
+                        <Icon name={softReject ? "heart" : "bell"} size={22} style={{ color: softReject ? "var(--gold)" : "var(--amber)" }} />
                     </div>
-                    <h2 className="font-display text-xl mb-3" style={{ color: "var(--cream)" }}>Algo deu errado</h2>
+                    <h2 className="font-display text-xl mb-3" style={{ color: "var(--cream)" }}>
+                        {softReject ? "Me conta um pouco mais" : "Algo deu errado"}
+                    </h2>
                     <p className="text-sm mb-7" style={{ color: "var(--text-secondary)" }}>{error}</p>
-                    <button onClick={() => generate()} className="btn-primary mb-3">Tentar novamente</button>
-                    <button onClick={() => router.replace("/emotion")} className="btn-ghost">Escolher outra emoção</button>
+                    {!softReject && <button onClick={() => generate()} className="btn-primary mb-3">Tentar novamente</button>}
+                    <button onClick={() => router.replace("/emotion")} className={softReject ? "btn-primary" : "btn-ghost"}>
+                        {softReject ? "Reescrever" : "Escolher outra emoção"}
+                    </button>
                 </motion.div>
             </main>
         );

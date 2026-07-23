@@ -102,6 +102,8 @@ export interface SubscriptionPlan {
 // -----------------------------------------------
 
 export interface EmotionAnalysis {
+    /** false quando o texto não expressa um sentimento/estado genuíno (evita alucinação). */
+    detected?: boolean;
     primary_emotion: string;
     intensity: "low" | "medium" | "high";
     spiritual_context: string;

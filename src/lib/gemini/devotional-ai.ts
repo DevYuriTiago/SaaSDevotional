@@ -7,9 +7,16 @@ export async function analyzeEmotion(emotionRaw: string): Promise<EmotionAnalysi
         systemInstruction: `Você é um pastor experiente e conselheiro espiritual com profundo conhecimento bíblico.
 Analise a emoção/sentimento descrito pelo usuário e retorne um JSON com a análise espiritual.
 
+PRIMEIRO, decida se o texto expressa um SENTIMENTO ou estado emocional/espiritual GENUÍNO de uma pessoa.
+Marque "detected": false quando NÃO houver sentimento real — por exemplo: uma pergunta aleatória
+("qual a capital da França?"), um comando/pedido genérico, spam, propaganda, texto sem sentido
+ou de teste ("asdf", "teste 123", "aaaa"), ou algo totalmente fora do contexto de emoções/fé.
+Caso contrário, "detected": true.
+
 Retorne SOMENTE um JSON válido com esta estrutura:
 {
-  "primary_emotion": "nome da emoção principal em português",
+  "detected": true | false,
+  "primary_emotion": "nome da emoção principal em português (use \"\" se detected=false)",
   "intensity": "low" | "medium" | "high",
   "spiritual_context": "contexto espiritual desta emoção em 1-2 frases",
   "biblical_themes": ["tema1", "tema2", "tema3"],

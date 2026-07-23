@@ -96,8 +96,14 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { emotion_raw } = body as { emotion_raw: string };
 
-    if (!emotion_raw || emotion_raw.trim().length < 2) {
-        return NextResponse.json({ error: "Emoção inválida" }, { status: 400 });
+    const cleaned = (emotion_raw ?? "").trim();
+    // Pré-filtro barato: lixo óbvio (vazio, curto demais, só símbolos/números) nem chega à IA.
+    const letterCount = (cleaned.match(/\p{L}/gu) || []).length;
+    if (cleaned.length < 3 || letterCount < 2) {
+        return NextResponse.json(
+            { error: "Conte, com as suas palavras, como você está se sentindo hoje 💛" },
+            { status: 422 }
+        );
     }
 
     try {
@@ -113,8 +119,17 @@ export async function POST(request: NextRequest) {
         const forbiddenRefs = [...new Set((usedRows ?? []).map((r) => r.verse_reference as string).filter(Boolean))];
         const forbiddenSet = new Set(forbiddenRefs.map(normalizeRef));
 
-        // Step 1: Analyze emotion
-        const emotionAnalysis = await analyzeEmotion(emotion_raw.trim());
+        // Step 1: Analisa a emoção — e detecta se há um sentimento real.
+        const emotionAnalysis = await analyzeEmotion(cleaned);
+
+        // Guarda de sentimento: sem um sentimento genuíno (pergunta aleatória, comando,
+        // spam, texto sem sentido), NÃO segue para a IA de geração — evita alucinação.
+        if (emotionAnalysis.detected === false) {
+            return NextResponse.json(
+                { error: "Não consegui identificar um sentimento no que você escreveu. Conte, com as suas palavras, como você está se sentindo hoje — por exemplo: ansioso, grato, cansado, com medo, esperançoso…" },
+                { status: 422 }
+            );
+        }
 
         // Step 2: Generate devotional — valida a referência (anti-alucinação) E
         // rejeita versículo já usado pelo usuário (anti-repetição); regenera se preciso.
