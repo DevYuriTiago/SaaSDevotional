@@ -111,13 +111,15 @@ export async function POST(request: NextRequest) {
         // Sem isso a IA cai sempre nos mesmos clichês (ex.: ansiedade → Filipenses 4:6-7).
         const { data: usedRows } = await supabase
             .from("devotionals")
-            .select("verse_reference")
+            .select("verse_reference, title")
             .eq("user_id", user.id)
             .order("created_at", { ascending: false })
             .limit(60);
         const normalizeRef = (r: string) => r.toLowerCase().replace(/\s+/g, " ").trim();
         const forbiddenRefs = [...new Set((usedRows ?? []).map((r) => r.verse_reference as string).filter(Boolean))];
         const forbiddenSet = new Set(forbiddenRefs.map(normalizeRef));
+        // Títulos recentes: sem isso a IA repete sempre o mesmo molde poético.
+        const recentTitles = [...new Set((usedRows ?? []).map((r) => r.title as string).filter(Boolean))].slice(0, 15);
 
         // Step 1: Analisa a emoção — e detecta se há um sentimento real.
         const emotionAnalysis = await analyzeEmotion(cleaned);
@@ -139,7 +141,8 @@ export async function POST(request: NextRequest) {
                 emotion_raw.trim(),
                 emotionAnalysis,
                 profile.name,
-                forbiddenRefs
+                forbiddenRefs,
+                recentTitles
             );
             const parsed = JSON.parse(rawContent) as DevotionalContent;
             content = parsed; // mantém a última tentativa como fallback

@@ -44,7 +44,8 @@ export async function generateDevotional(
     emotionRaw: string,
     analysis: EmotionAnalysis,
     userName?: string | null,
-    forbiddenReferences: string[] = []
+    forbiddenReferences: string[] = [],
+    recentTitles: string[] = []
 ): Promise<string> {
     const name = userName ? `, ${userName}` : "";
     const themesText = analysis.biblical_themes.join(", ");
@@ -63,6 +64,17 @@ REGRAS ABSOLUTAS:
 - SEMPRE crie sensação de conversa pessoal e pastoral
 - SEMPRE seja profundo, acolhedor e humano
 
+REGRAS DE TÍTULO (é o campo que mais cai em repetição — cuide dele):
+- 3 a 6 palavras. Linguagem humana, concreta e direta; nada de rebuscado.
+- É PROIBIDO começar com "Quando", "No silêncio", "O peso", "Entre", "A alma" ou "O clamor".
+- Evite o vocabulário poético batido: "alma que clama", "abismo", "véu", "norte perdido",
+  "travessia", "eco", "labirinto".
+- VARIE A FORMA de um devocional para o outro — não use sempre o mesmo molde:
+  • uma verdade curta — "Você não caminha sozinho"
+  • uma promessa — "Ele vai à sua frente"
+  • um convite — "Descanse por hoje"
+  • algo concreto do dia — "Uma oração para a manhã difícil"
+
 Tom recomendado: ${analysis.recommended_tone}
 Intensidade emocional: ${analysis.intensity}
 Contexto espiritual: ${analysis.spiritual_context}
@@ -70,7 +82,7 @@ Temas bíblicos: ${themesText}
 
 Retorne um JSON com esta estrutura exata:
 {
-  "title": "título emocional forte e único (não clichê)",
+  "title": "3 a 6 palavras, seguindo as REGRAS DE TÍTULO acima",
   "verse": "texto completo do versículo em português",
   "verse_reference": "Livro Capítulo:Versículo",
   "reflection": "reflexão espiritual profunda e personalizada (3-4 parágrafos ricos, pastorais, que toquem o coração)",
@@ -84,11 +96,15 @@ Retorne um JSON com esta estrutura exata:
         ? `\n\nVERSÍCULOS JÁ USADOS POR ESTE USUÁRIO (PROIBIDOS — não repita NENHUM; escolha uma passagem diferente e menos óbvia sobre o tema):\n${forbiddenReferences.map((r) => `- ${r}`).join("\n")}`
         : "";
 
+    const titlesBlock = recentTitles.length > 0
+        ? `\n\nTÍTULOS RECENTES DESTE USUÁRIO — não repita nenhum e, principalmente, NÃO use a mesma estrutura/molde deles. Se todos seguem um padrão parecido, use uma forma claramente diferente:\n${recentTitles.map((t) => `- ${t}`).join("\n")}`
+        : "";
+
     const userMessage = `${userName ? `Usuário: ${userName}` : ""}
 Estado emocional: "${emotionRaw}"
 Emoção principal: ${analysis.primary_emotion}
 
-Crie um devocional profundamente personalizado e único para este momento.${forbiddenBlock}`;
+Crie um devocional profundamente personalizado e único para este momento.${forbiddenBlock}${titlesBlock}`;
 
     const model = genai.getGenerativeModel({
         model: "gemini-2.5-flash",
