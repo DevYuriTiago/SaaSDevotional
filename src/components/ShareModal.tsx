@@ -297,7 +297,7 @@ export default function ShareModal({ open, onClose, data }: Props) {
             const file = new File([blob], "devocional.png", { type: "image/png" });
 
             // Texto de promoção que acompanha a imagem (WhatsApp/Instagram usam como legenda).
-            const shareUrl = `https://humanah.app/?utm_source=share&utm_medium=story&utm_campaign=${data.type}`;
+            const shareUrl = "https://humanah.app";
             const body =
                 variant === "verse" ? `"${data.verse}"\n— ${data.verseRef}`
                     : variant === "question" ? (data.reflectiveQuestion || excerpt(data.reflection || data.declaration, 260))
@@ -330,7 +330,7 @@ export default function ShareModal({ open, onClose, data }: Props) {
 
     async function handleCopy() {
         if (!data) return;
-        const shareUrl = `https://humanah.app/?utm_source=share&utm_medium=social&utm_campaign=${data.type}`;
+        const shareUrl = "https://humanah.app";
         const body =
             variant === "verse" ? `"${data.verse}"\n— ${data.verseRef}`
                 : variant === "question" ? (data.reflectiveQuestion || excerpt(data.reflection || data.declaration, 260))
