@@ -59,7 +59,7 @@ export default function EmotionPage() {
         router.push("/devotional/generate");
     }
 
-    const today = new Date().toLocaleDateString("pt-BR", { day: "numeric", month: "long" }).toUpperCase();
+    const today = new Date().toLocaleDateString("pt-BR", { day: "numeric", month: "long", timeZone: "America/Sao_Paulo" }).toUpperCase();
 
     return (
         <main className="aurora-bg relative min-h-dvh overflow-x-hidden pb-28">

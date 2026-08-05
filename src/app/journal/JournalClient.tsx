@@ -28,7 +28,7 @@ export default function JournalClient({ entries }: { entries: any[] }) {
                         <div className="space-y-6">
                             {entries.map((entry, i) => {
                                 const date = new Date(entry.created_at);
-                                const time = date.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+                                const time = date.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: "America/Sao_Paulo" });
                                 return (
                                     <motion.div key={entry.id} initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.07 }} className="flex gap-4">
                                         <div className="flex flex-col items-end pt-3 flex-shrink-0" style={{ width: 52 }}>

@@ -7,6 +7,7 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDevotionalStore } from "@/store";
 import { createClient } from "@/lib/supabase/client";
+import { brazilNow } from "@/lib/utils";
 import BottomNav from "@/components/BottomNav";
 import ShareModal from "@/components/ShareModal";
 import DevotionalAudio from "@/components/DevotionalAudio";
@@ -63,7 +64,7 @@ export default function ReadDevotionalPage() {
         emotion: d.emotion,
         reflection: d.reflection,
         reflectiveQuestion: d.reflective_question,
-        date: new Date().toLocaleDateString("pt-BR", { day: "numeric", month: "long" }),
+        date: new Date().toLocaleDateString("pt-BR", { day: "numeric", month: "long", timeZone: "America/Sao_Paulo" }),
     };
 
     async function handleSave() {
@@ -85,7 +86,7 @@ export default function ReadDevotionalPage() {
     }
 
     // Semana atual (começando na segunda) para a tira de datas.
-    const now = new Date();
+    const now = brazilNow();
     const dow = (now.getDay() + 6) % 7;
     const monday = new Date(now);
     monday.setDate(now.getDate() - dow);
