@@ -49,7 +49,7 @@ export async function GET() {
         .eq("referrer_id", user.id)
         .eq("status", "rewarded");
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://oquevoceestasentindohoje.app";
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://humanah.app";
     const url = code ? `${appUrl}/?ref=${code}` : null;
 
     return NextResponse.json({
