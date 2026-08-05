@@ -44,6 +44,12 @@ export default function OnboardingPage() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
+    // Captura de embaixador (first-touch): o servidor lê o cookie httpOnly hmn_ref.
+    // Fire-and-forget e idempotente — roda 1x quando o usuário novo chega no onboarding.
+    useEffect(() => {
+        fetch("/api/ambassador/attach", { method: "POST" }).catch(() => {});
+    }, []);
+
     function pickPhoto(e: React.ChangeEvent<HTMLInputElement>) {
         const file = e.target.files?.[0];
         if (!file) return;
