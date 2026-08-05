@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { formatShortDate, brazilNow } from "@/lib/utils";
+import { formatShortDate } from "@/lib/utils";
 import { JOURNEY_THEMES, EMOTION_CATEGORIES } from "@/lib/constants";
 import type { Devotional, JournalEntry } from "@/types";
 import BottomNav from "@/components/BottomNav";
@@ -35,7 +35,9 @@ export default function DashboardClient({ profile, devotionals, journalEntries, 
     const totalDevotionals = (profile?.total_devotionals as number) ?? 0;
     const distinctDays = new Set(activeDates.map((d) => d.slice(0, 10))).size;
 
-    const hour = brazilNow().getHours();
+    // Horário LOCAL do usuário (a saudação precisa ser pessoal); o
+    // suppressHydrationWarning no <p> aceita a diferença servidor↔cliente.
+    const hour = new Date().getHours();
     const greeting = hour < 12 ? "Bom dia" : hour < 18 ? "Boa tarde" : "Boa noite";
 
     const quickChips = QUICK_EMOTIONS
