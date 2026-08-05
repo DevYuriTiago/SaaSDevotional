@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe/client";
 import { createClient } from "@supabase/supabase-js";
 import { logEvent, EVENTS } from "@/lib/analytics/events";
+import { creditAmbassador } from "@/lib/ambassadors/credit";
 import Stripe from "stripe";
 
 const admin = createClient(
@@ -70,6 +71,13 @@ export async function POST(request: NextRequest) {
                 amount_total: session.amount_total,
                 currency: session.currency,
             });
+            await creditAmbassador(admin, {
+                userId: uid,
+                invoiceId: typeof session.invoice === "string" ? session.invoice : null,
+                grossCents: session.amount_total ?? null,
+                currency: session.currency ?? "brl",
+                eventType: event.type,
+            });
             break;
         }
         case "invoice.payment_succeeded": {
@@ -79,12 +87,23 @@ export async function POST(request: NextRequest) {
             if (!subId) break; // initial checkout invoice — already handled by checkout.session.completed
             const sub = await stripe.subscriptions.retrieve(subId);
             const uid = getUserId(sub);
-            if (uid) await upgradeUser(uid, {
-                stripe_customer_id: typeof sub.customer === "string" ? sub.customer : null,
-                stripe_subscription_id: sub.id,
-                subscription_status: sub.status,
-                subscription_current_period_end: periodEndISO(sub),
-            });
+            if (uid) {
+                await upgradeUser(uid, {
+                    stripe_customer_id: typeof sub.customer === "string" ? sub.customer : null,
+                    stripe_subscription_id: sub.id,
+                    subscription_status: sub.status,
+                    subscription_current_period_end: periodEndISO(sub),
+                });
+                // Renovação (a 1ª fatura é creditada em checkout.session.completed e
+                // não cai aqui por causa do `if (!subId) break` acima).
+                await creditAmbassador(admin, {
+                    userId: uid,
+                    invoiceId: invoice.id ?? null,
+                    grossCents: (invoice as unknown as { amount_paid?: number }).amount_paid ?? null,
+                    currency: invoice.currency ?? "brl",
+                    eventType: event.type,
+                });
+            }
             break;
         }
         case "customer.subscription.updated": {

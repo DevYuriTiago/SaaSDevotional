@@ -26,6 +26,9 @@ vi.mock("@/lib/stripe/client", () => ({
   },
 }));
 
+const { mockCredit } = vi.hoisted(() => ({ mockCredit: vi.fn().mockResolvedValue({ credited: true }) }));
+vi.mock("@/lib/ambassadors/credit", () => ({ creditAmbassador: mockCredit }));
+
 import { POST } from "@/app/api/webhook/stripe/route";
 
 // ---------------------------------------------------------------------------
@@ -70,6 +73,7 @@ describe("POST /api/webhook/stripe", () => {
 
     vi.clearAllMocks();
     mockEq.mockReturnValue({ error: null });
+    mockCredit.mockResolvedValue({ credited: true });
   });
 
   it("retorna 400 quando o header stripe-signature está ausente", async () => {
@@ -129,6 +133,30 @@ describe("POST /api/webhook/stripe", () => {
     expect(await res.json()).toEqual({ received: true });
 
     expect(mockEq).toHaveBeenCalledWith("id", "user-def");
+  });
+
+  it("credita o embaixador em checkout.session.completed (com invoice e valor)", async () => {
+    const event = makeStripeEvent("checkout.session.completed", {
+      object: "checkout.session",
+      metadata: { supabase_user_id: "user-abc" },
+      invoice: "in_777",
+      amount_total: 1990,
+      currency: "brl",
+    });
+    mockConstructEvent.mockReturnValue(event);
+
+    const res = await POST(makeWebhookReq("payload", "sig_valid"));
+    expect(res.status).toBe(200);
+    expect(mockCredit).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        userId: "user-abc",
+        invoiceId: "in_777",
+        grossCents: 1990,
+        currency: "brl",
+        eventType: "checkout.session.completed",
+      })
+    );
   });
 
   it("retorna 200 sem side effects para eventos desconhecidos", async () => {
