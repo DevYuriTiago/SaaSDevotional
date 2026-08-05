@@ -6,14 +6,17 @@ import type { NextConfig } from "next";
 //   fica para uma fase posterior). 'unsafe-eval' evita quebras de libs em prod.
 // - As demais diretivas fecham vetores: frame-ancestors (anti-clickjacking),
 //   object-src, base-uri, e limitam de onde imagens/conexões podem vir.
+// vercel.live = barra de preview/feedback da Vercel (só carrega em deploys da
+// Vercel; nunca no domínio de produção). Liberada para o console do preview
+// ficar limpo, sem enfraquecer a produção.
 const csp = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://vercel.live",
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https://*.supabase.co https://lh3.googleusercontent.com",
-  "font-src 'self' data:",
-  "connect-src 'self' https://*.supabase.co wss://*.supabase.co",
-  "frame-src 'self' https://*.stripe.com",
+  "img-src 'self' data: blob: https://*.supabase.co https://lh3.googleusercontent.com https://vercel.live https://vercel.com https://assets.vercel.com",
+  "font-src 'self' data: https://assets.vercel.com",
+  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://vercel.live wss://ws-us3.pusher.com",
+  "frame-src 'self' https://*.stripe.com https://vercel.live",
   "frame-ancestors 'none'",
   "object-src 'none'",
   "base-uri 'self'",
@@ -32,7 +35,7 @@ const securityHeaders = [
   // Não vaza a URL completa como referer para outros sites.
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   // Desliga APIs sensíveis do navegador que o app não usa.
-  { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), interest-cohort=()" },
+  { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
   { key: "Content-Security-Policy", value: csp },
 ];
 

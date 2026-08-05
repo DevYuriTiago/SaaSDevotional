@@ -64,7 +64,7 @@ export default function DashboardClient({ profile, devotionals, journalEntries, 
                 {/* ── Header ── */}
                 <motion.div custom={0} variants={fade} initial="hidden" animate="visible" className="flex items-start justify-between mb-7">
                     <div className="min-w-0">
-                        <p className="eyebrow mb-1.5" style={{ color: "var(--text-muted)" }}>{greeting}</p>
+                        <p suppressHydrationWarning className="eyebrow mb-1.5" style={{ color: "var(--text-muted)" }}>{greeting}</p>
                         <h1 className="font-display text-2xl mb-1.5" style={{ color: "var(--cream)" }}>{firstName}</h1>
                         <p className="text-sm leading-snug" style={{ color: "var(--text-secondary)" }}>
                             Deus tem uma palavra para<br />o momento que você está vivendo.
