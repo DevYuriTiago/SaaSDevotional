@@ -27,6 +27,10 @@ function makeAdmin(sel: Record<string, unknown>, ins: Record<string, { error: un
   return { admin, inserts };
 }
 
+// Conta recém-criada (agora) vs. conta preexistente (40 dias atrás).
+const RECENT = new Date().toISOString();
+const OLD = new Date(Date.now() - 40 * 24 * 60 * 60 * 1000).toISOString();
+
 describe("captureAttribution", () => {
   it("sem cookie hmn_ref → ok:false", async () => {
     const { admin } = makeAdmin({});
@@ -40,8 +44,26 @@ describe("captureAttribution", () => {
     expect(inserts.attributions).toBeUndefined();
   });
 
+  it("conta preexistente (criada há semanas) → NÃO atribui, mesmo com link válido", async () => {
+    const { admin, inserts } = makeAdmin({
+      attributions: null,
+      profiles: { created_at: OLD },
+      ambassador_links: { id: "link-1", ambassador_id: "amb-1", active: true },
+      ambassadors: { user_id: "outro-user", status: "active" },
+    });
+    const r = await captureAttribution(admin, "user-1", "link-1");
+    expect(r).toEqual({ ok: false, reason: "conta preexistente" });
+    expect(inserts.attributions).toBeUndefined();
+  });
+
+  it("sem perfil → não atribui", async () => {
+    const { admin } = makeAdmin({ attributions: null, profiles: null });
+    const r = await captureAttribution(admin, "user-1", "link-1");
+    expect(r.ok).toBe(false);
+  });
+
   it("link inexistente/inativo → ok:false", async () => {
-    const { admin } = makeAdmin({ attributions: null, ambassador_links: null });
+    const { admin } = makeAdmin({ attributions: null, profiles: { created_at: RECENT }, ambassador_links: null });
     const r = await captureAttribution(admin, "user-1", "link-x");
     expect(r.ok).toBe(false);
   });
@@ -49,6 +71,7 @@ describe("captureAttribution", () => {
   it("auto-promoção (embaixador é o próprio usuário) → ignora", async () => {
     const { admin, inserts } = makeAdmin({
       attributions: null,
+      profiles: { created_at: RECENT },
       ambassador_links: { id: "link-1", ambassador_id: "amb-1", active: true },
       ambassadors: { user_id: "user-1", status: "active" },
     });
@@ -57,9 +80,10 @@ describe("captureAttribution", () => {
     expect(inserts.attributions).toBeUndefined();
   });
 
-  it("caminho feliz → insere attributions e retorna ok:true", async () => {
+  it("conta nova + link válido → insere attributions e retorna ok:true", async () => {
     const { admin, inserts } = makeAdmin({
       attributions: null,
+      profiles: { created_at: RECENT },
       ambassador_links: { id: "link-1", ambassador_id: "amb-1", active: true },
       ambassadors: { user_id: "outro-user", status: "active" },
     });
@@ -74,6 +98,7 @@ describe("captureAttribution", () => {
     const { admin } = makeAdmin(
       {
         attributions: null,
+        profiles: { created_at: RECENT },
         ambassador_links: { id: "link-1", ambassador_id: "amb-1", active: true },
         ambassadors: { user_id: "outro-user", status: "active" },
       },

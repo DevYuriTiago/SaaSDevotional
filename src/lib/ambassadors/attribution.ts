@@ -2,9 +2,17 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 export type AttachResult = { ok: boolean; already?: boolean; reason?: string };
 
+// First-touch de verdade: só uma conta CRIADA a partir do clique pode ser
+// atribuída. Uma conta preexistente que clica no link depois NÃO pode ser
+// creditada a um embaixador (senão o embaixador "rouba" usuários que já eram
+// seus). O cadastro → onboarding (onde o attach dispara) é imediato, então esta
+// janela é folgada de sobra para o fluxo legítimo e exclui contas estabelecidas.
+const NEW_ACCOUNT_WINDOW_MS = 24 * 60 * 60 * 1000;
+
 /**
  * Grava a atribuição first-touch do usuário ao embaixador dono do link (hmnRef = link_id).
- * Idempotente: se já houver atribuição (ou corrida de UNIQUE), retorna already:true.
+ * Só atribui CONTAS NOVAS (criadas dentro da janela). Idempotente: se já houver
+ * atribuição (ou corrida de UNIQUE), retorna already:true.
  * Guarda anti auto-promoção: embaixador não credita a si mesmo.
  */
 export async function captureAttribution(
@@ -21,6 +29,17 @@ export async function captureAttribution(
         .eq("user_id", userId)
         .maybeSingle();
     if (existing) return { ok: true, already: true };
+
+    // Guard de conta nova: só o cadastro recém-criado pode ser atribuído.
+    const { data: profile } = await admin
+        .from("profiles")
+        .select("created_at")
+        .eq("id", userId)
+        .maybeSingle();
+    if (!profile?.created_at) return { ok: false, reason: "sem perfil" };
+    if (Date.now() - new Date(profile.created_at).getTime() > NEW_ACCOUNT_WINDOW_MS) {
+        return { ok: false, reason: "conta preexistente" };
+    }
 
     // Resolve o link ativo.
     const { data: link } = await admin
