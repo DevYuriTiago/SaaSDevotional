@@ -38,6 +38,11 @@ kit de divulgação, exportação (PDF), antifraude avançado.
   *"quem ganhou crédito, em qual pagamento, de quanto foi o bruto"*.
 - **First-touch.** Quem trouxe o usuário **primeiro** leva o crédito. Garantido por
   `UNIQUE(user_id)` em `attributions` — nunca sobrescreve.
+- **Só CONTA NOVA é atribuível** (anti-fraude). A atribuição só vale para uma conta
+  criada a partir do clique (janela de 24h sobre `profiles.created_at`). Uma conta
+  preexistente que clica num link depois **nunca** é creditada a um embaixador —
+  senão o embaixador "rouba" usuários que já eram seus. `captureAttribution` valida
+  a idade da conta antes de gravar.
 - **RLS negado por padrão.** As 5 tabelas são de negócio → só o `service_role`
   (servidor) lê/escreve. Nada exposto a `anon`/`authenticated`. O acesso do
   embaixador aos *próprios* dados chega na fatia do portal.
