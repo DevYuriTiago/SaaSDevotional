@@ -11,6 +11,7 @@ function isWebRoute(pathname: string): boolean {
     return (
         pathname === "/" ||
         pathname.startsWith("/versiculos") ||
+        pathname.startsWith("/embaixadores") ||
         pathname === "/privacidade" ||
         pathname === "/termos"
     );
