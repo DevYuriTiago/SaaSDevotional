@@ -8,6 +8,14 @@ import { LEVELS } from "@/lib/ambassadors/levels";
 import { Medallion, type TierSlug } from "./medallions";
 import Calculadora from "./Calculadora";
 import ApplyForm from "./ApplyForm";
+import { Constellation, DawnGlow, WoodGrain, CornerOrnaments, GoldThread } from "./atmospheres";
+
+/**
+ * A página encena a identidade da marca: A VIGÍLIA → A ALVORADA.
+ * Ela "amanhece" conforme se desce — noite profunda no hero, constelação
+ * no ministério, cedro e ouro na jornada, e o horizonte da alvorada
+ * nascendo na calculadora até o fecho. O formulário é o altar.
+ */
 
 const rise = {
     hidden: { opacity: 0, y: 22 },
@@ -81,8 +89,12 @@ export default function EmbaixadoresClient() {
                 </div>
             </nav>
 
-            {/* ───────── 1 · Hero ───────── */}
+            {/* ═════════ ATO I — A VIGÍLIA (hero, noite profunda) ═════════ */}
             <section className="relative px-5 sm:px-8 pt-32 sm:pt-40 pb-16 sm:pb-24 overflow-hidden">
+                {/* primeiras estrelas, quase imperceptíveis — a noite ainda é funda */}
+                <div className="absolute inset-x-0 top-0 pointer-events-none" style={{ height: "55%" }}>
+                    <Constellation opacity={0.22} />
+                </div>
                 <div className="absolute left-1/2 top-0 -translate-x-1/2 pointer-events-none"
                     style={{ width: 720, height: 560, maxWidth: "100vw", background: "radial-gradient(ellipse at 50% 20%, rgba(247,201,122,0.10), transparent 60%)" }} />
                 <div className="relative max-w-6xl mx-auto lg:grid lg:grid-cols-[1.25fr_1fr] lg:items-center lg:gap-10">
@@ -126,73 +138,90 @@ export default function EmbaixadoresClient() {
                     {/* Maná flutuando — o destino da jornada */}
                     <motion.div initial={{ opacity: 0, scale: 0.85 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1.1, delay: 0.35 }}
                         className="hidden lg:flex flex-col items-center gap-4">
-                        <Medallion tier="mana" size={220} />
+                        <div className="animate-float">
+                            <Medallion tier="mana" size={220} />
+                        </div>
                         <p className="text-xs uppercase tracking-[0.22em]" style={{ color: "var(--text-muted)" }}>nível Maná · 30%</p>
                     </motion.div>
                 </div>
             </section>
 
-            {/* ───────── 2 · Reenquadramento ───────── */}
-            <section className="relative px-5 sm:px-8 py-16 sm:py-24 max-w-3xl mx-auto text-center">
-                <motion.p variants={rise} custom={0} initial="hidden" whileInView="visible" viewport={{ once: true }}
-                    className="eyebrow mb-6 justify-center" style={{ color: "var(--gold)" }}>
-                    <span className="gold-rule" /> antes de falar de números
-                </motion.p>
-                <motion.h2 variants={rise} custom={1} initial="hidden" whileInView="visible" viewport={{ once: true }}
-                    className="font-display mb-7" style={{ color: "var(--cream)", fontSize: "clamp(1.7rem, 5.4vw, 2.6rem)", fontWeight: 400 }}>
-                    Ministério que <span style={{ fontStyle: "italic", color: "var(--gold)" }}>sustenta</span> ministério.
-                </motion.h2>
-                <motion.div variants={rise} custom={2} initial="hidden" whileInView="visible" viewport={{ once: true }}
-                    className="space-y-5 max-w-xl mx-auto">
-                    <p className="font-serif-devotional italic text-lg leading-relaxed" style={{ color: "var(--reading, var(--text-secondary))" }}>
-                        A Palavra é gratuita — e sempre será. O Humanáh existe para colocá-la
-                        no dia de cada pessoa, no momento exato que ela está vivendo.
-                    </p>
-                    <p className="text-base leading-relaxed" style={{ color: "var(--text-secondary)" }}>
-                        Quem assina, sustenta a obra. Quem a leva mais longe, participa do fruto.
-                        É o princípio antigo: quem trabalha na semeadura também colhe dela.
-                    </p>
-                </motion.div>
-                <motion.div variants={rise} custom={3} initial="hidden" whileInView="visible" viewport={{ once: true }}
-                    className="card-base p-5 mt-9 max-w-md mx-auto flex items-start gap-3 text-left">
-                    <Icon name="hands" size={20} style={{ color: "var(--gold)", flexShrink: 0, marginTop: 2 }} />
-                    <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
-                        <strong style={{ color: "var(--cream)" }}>Prefere abençoar?</strong> Você pode doar parte
-                        ou 100% da sua comissão para a sua igreja ou ministério.
-                    </p>
-                </motion.div>
-            </section>
-
-            {/* ───────── 3 · Como funciona ───────── */}
-            <section id="como-funciona" className="relative px-5 sm:px-8 py-16 sm:py-24 max-w-6xl mx-auto scroll-mt-24">
-                <motion.p variants={rise} custom={0} initial="hidden" whileInView="visible" viewport={{ once: true }}
-                    className="eyebrow mb-3 justify-center" style={{ color: "var(--gold)" }}>simples de verdade</motion.p>
-                <motion.h2 variants={rise} custom={1} initial="hidden" whileInView="visible" viewport={{ once: true }}
-                    className="font-display text-center mb-12" style={{ color: "var(--cream)", fontSize: "clamp(1.8rem, 5vw, 2.5rem)", fontWeight: 400 }}>
-                    Três passos. <span style={{ fontStyle: "italic", color: "var(--gold)" }}>Nenhuma letra miúda.</span>
-                </motion.h2>
-                <div className="grid md:grid-cols-3 gap-4 sm:gap-5">
-                    {STEPS.map((s, i) => (
-                        <motion.div key={s.n} variants={rise} custom={i} initial="hidden" whileInView="visible" viewport={{ once: true }}
-                            className="card-base p-7 relative overflow-hidden">
-                            <span className="font-display absolute -top-3 right-4 select-none" aria-hidden
-                                style={{ fontSize: "4.6rem", color: "rgba(247,201,122,0.09)", fontWeight: 500 }}>{s.n}</span>
-                            <div className="w-11 h-11 rounded-xl flex items-center justify-center mb-5"
-                                style={{ background: "rgba(247,201,122,0.10)", border: "1px solid rgba(247,201,122,0.25)" }}>
-                                <Icon name={s.icon} size={20} style={{ color: "var(--gold)" }} />
-                            </div>
-                            <h3 className="font-semibold text-base mb-2.5" style={{ color: "var(--cream)" }}>{s.title}</h3>
-                            <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>{s.text}</p>
-                        </motion.div>
-                    ))}
+            {/* ═════════ ATO II — CARTA CELESTE (o ministério sob as estrelas) ═════════ */}
+            <section className="relative px-5 sm:px-8 py-20 sm:py-28 overflow-hidden">
+                <Constellation opacity={0.55} />
+                <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(180deg, transparent, rgba(20,22,51,0.35) 40%, transparent)" }} />
+                <div className="relative max-w-3xl mx-auto text-center">
+                    <motion.p variants={rise} custom={0} initial="hidden" whileInView="visible" viewport={{ once: true }}
+                        className="eyebrow mb-6 justify-center" style={{ color: "var(--gold)" }}>
+                        <span className="gold-rule" /> antes de falar de números
+                    </motion.p>
+                    <motion.h2 variants={rise} custom={1} initial="hidden" whileInView="visible" viewport={{ once: true }}
+                        className="font-display mb-7" style={{ color: "var(--cream)", fontSize: "clamp(1.7rem, 5.4vw, 2.6rem)", fontWeight: 400 }}>
+                        Ministério que <span style={{ fontStyle: "italic", color: "var(--gold)" }}>sustenta</span> ministério.
+                    </motion.h2>
+                    <motion.div variants={rise} custom={2} initial="hidden" whileInView="visible" viewport={{ once: true }}
+                        className="space-y-5 max-w-xl mx-auto">
+                        <p className="font-serif-devotional italic text-lg leading-relaxed" style={{ color: "var(--reading, var(--text-secondary))" }}>
+                            A Palavra é gratuita — e sempre será. O Humanáh existe para colocá-la
+                            no dia de cada pessoa, no momento exato que ela está vivendo.
+                        </p>
+                        <p className="text-base leading-relaxed" style={{ color: "var(--text-secondary)" }}>
+                            Quem assina, sustenta a obra. Quem a leva mais longe, participa do fruto.
+                            É o princípio antigo: quem trabalha na semeadura também colhe dela.
+                        </p>
+                    </motion.div>
+                    <motion.div variants={rise} custom={3} initial="hidden" whileInView="visible" viewport={{ once: true }}
+                        className="glass-strong rounded-2xl p-5 mt-9 max-w-md mx-auto flex items-start gap-3 text-left">
+                        <Icon name="hands" size={20} style={{ color: "var(--gold)", flexShrink: 0, marginTop: 2 }} />
+                        <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
+                            <strong style={{ color: "var(--cream)" }}>Prefere abençoar?</strong> Você pode doar parte
+                            ou 100% da sua comissão para a sua igreja ou ministério.
+                        </p>
+                    </motion.div>
                 </div>
             </section>
 
-            {/* ───────── 4 · A jornada dos níveis ───────── */}
-            <section className="relative px-5 sm:px-8 py-16 sm:py-24 overflow-hidden">
-                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
-                    style={{ width: 900, height: 500, maxWidth: "100vw", background: "radial-gradient(ellipse at center, rgba(247,201,122,0.05), transparent 60%)" }} />
+            {/* ═════════ ATO III — O FIO DE OURO (como funciona) ═════════ */}
+            <section id="como-funciona" className="relative px-5 sm:px-8 py-16 sm:py-24 scroll-mt-24 overflow-hidden">
                 <div className="relative max-w-6xl mx-auto">
+                    <motion.p variants={rise} custom={0} initial="hidden" whileInView="visible" viewport={{ once: true }}
+                        className="eyebrow mb-3 justify-center" style={{ color: "var(--gold)" }}>simples de verdade</motion.p>
+                    <motion.h2 variants={rise} custom={1} initial="hidden" whileInView="visible" viewport={{ once: true }}
+                        className="font-display text-center mb-12" style={{ color: "var(--cream)", fontSize: "clamp(1.8rem, 5vw, 2.5rem)", fontWeight: 400 }}>
+                        Três passos. <span style={{ fontStyle: "italic", color: "var(--gold)" }}>Nenhuma letra miúda.</span>
+                    </motion.h2>
+                    <div className="relative">
+                        <GoldThread />
+                        <div className="relative grid md:grid-cols-3 gap-4 sm:gap-5">
+                            {STEPS.map((s, i) => (
+                                <motion.div key={s.n} variants={rise} custom={i} initial="hidden" whileInView="visible" viewport={{ once: true }}
+                                    className="card-base p-7 relative overflow-hidden"
+                                    style={{ background: "rgba(19,17,29,0.72)", backdropFilter: "blur(6px)" }}>
+                                    <span className="font-display absolute -top-3 right-4 select-none" aria-hidden
+                                        style={{ fontSize: "4.6rem", color: "rgba(247,201,122,0.09)", fontWeight: 500 }}>{s.n}</span>
+                                    <div className="w-11 h-11 rounded-xl flex items-center justify-center mb-5"
+                                        style={{ background: "rgba(247,201,122,0.10)", border: "1px solid rgba(247,201,122,0.25)" }}>
+                                        <Icon name={s.icon} size={20} style={{ color: "var(--gold)" }} />
+                                    </div>
+                                    <h3 className="font-semibold text-base mb-2.5" style={{ color: "var(--cream)" }}>{s.title}</h3>
+                                    <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>{s.text}</p>
+                                </motion.div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* ═════════ ATO IV — TALHA DOURADA (a jornada, faixa de cedro) ═════════ */}
+            <section className="relative py-20 sm:py-28 overflow-hidden" style={{
+                background: "linear-gradient(180deg, rgba(21,15,28,0.0), var(--wood) 14%, var(--wood) 86%, rgba(21,15,28,0.0))",
+            }}>
+                <WoodGrain />
+                {/* fios de ouro que emolduram a talha */}
+                <div className="absolute inset-x-0 pointer-events-none" style={{ top: "7%", height: 1, background: "linear-gradient(90deg, transparent, rgba(247,201,122,0.28), transparent)" }} />
+                <div className="absolute inset-x-0 pointer-events-none" style={{ bottom: "7%", height: 1, background: "linear-gradient(90deg, transparent, rgba(247,201,122,0.28), transparent)" }} />
+
+                <div className="relative max-w-6xl mx-auto px-5 sm:px-8">
                     <motion.p variants={rise} custom={0} initial="hidden" whileInView="visible" viewport={{ once: true }}
                         className="eyebrow mb-3 justify-center" style={{ color: "var(--gold)" }}>a jornada</motion.p>
                     <motion.h2 variants={rise} custom={1} initial="hidden" whileInView="visible" viewport={{ once: true }}
@@ -205,83 +234,96 @@ export default function EmbaixadoresClient() {
                         O nível é vitalício — calculado pelo total que você já conquistou. Nunca rebaixa.
                     </motion.p>
 
-                    <div className="flex md:grid md:grid-cols-5 gap-5 md:gap-4 overflow-x-auto md:overflow-visible pb-4 md:pb-0 -mx-5 px-5 md:mx-0 md:px-0 snap-x">
-                        {LEVELS.map((l, i) => {
-                            const isMana = l.slug === "mana";
-                            return (
-                                <motion.div key={l.slug} variants={rise} custom={i} initial="hidden" whileInView="visible" viewport={{ once: true }}
-                                    className="snap-center flex-shrink-0 w-[210px] md:w-auto text-center rounded-[24px] p-6 relative"
-                                    style={{
-                                        background: isMana ? "linear-gradient(180deg, rgba(247,201,122,0.10), rgba(19,17,29,0.6))" : "var(--glass)",
-                                        border: isMana ? "1px solid rgba(247,201,122,0.4)" : "1px solid var(--glass-border)",
-                                        boxShadow: isMana ? "0 12px 40px rgba(247,201,122,0.12)" : "none",
-                                        transform: isMana ? "translateY(-6px)" : "none",
-                                    }}>
-                                    {isMana && (
-                                        <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 text-[10px] font-bold px-3 py-1 rounded-full whitespace-nowrap"
-                                            style={{ background: "var(--gradient-gold)", color: "#2A1E08" }}>O TOPO</span>
-                                    )}
-                                    <div className="flex justify-center mb-4">
-                                        <Medallion tier={l.slug as TierSlug} size={isMana ? 92 : 76} />
-                                    </div>
-                                    <p className="font-display text-lg mb-0.5" style={{ color: "var(--cream)", fontWeight: 500 }}>{l.name}</p>
-                                    <p className="text-[11px] mb-3" style={{ color: "var(--text-muted)" }}>{RANGE_LABEL[l.slug]}</p>
-                                    <p className="font-display" style={{ color: "var(--gold)", fontSize: isMana ? "2rem" : "1.5rem", fontWeight: 500 }}>
-                                        {Math.round(l.rate * 100)}%
-                                    </p>
-                                    <p className="text-[10px] uppercase tracking-[0.16em]" style={{ color: "var(--text-muted)" }}>recorrente</p>
-                                </motion.div>
-                            );
-                        })}
+                    <div className="relative">
+                        {/* trilho de ouro ligando os medalhões (desktop) */}
+                        <div className="hidden md:block absolute inset-x-8 pointer-events-none" aria-hidden
+                            style={{ top: 92, height: 1.5, background: "linear-gradient(90deg, rgba(160,107,51,0.35), rgba(170,178,192,0.3), rgba(247,201,122,0.45), rgba(185,208,236,0.3), rgba(251,227,176,0.55))" }} />
+                        <div className="flex md:grid md:grid-cols-5 gap-5 md:gap-4 overflow-x-auto md:overflow-visible pb-4 md:pb-0 -mx-5 px-5 md:mx-0 md:px-0 snap-x">
+                            {LEVELS.map((l, i) => {
+                                const isMana = l.slug === "mana";
+                                return (
+                                    <motion.div key={l.slug} variants={rise} custom={i} initial="hidden" whileInView="visible" viewport={{ once: true }}
+                                        className="snap-center flex-shrink-0 w-[210px] md:w-auto text-center rounded-[24px] p-6 relative"
+                                        style={{
+                                            background: isMana ? "linear-gradient(180deg, rgba(247,201,122,0.12), rgba(26,19,32,0.85))" : "rgba(11,11,18,0.45)",
+                                            border: isMana ? "1px solid rgba(247,201,122,0.4)" : "1px solid rgba(247,201,122,0.12)",
+                                            boxShadow: isMana ? "0 12px 40px rgba(247,201,122,0.14)" : "inset 0 1px 0 rgba(247,201,122,0.06)",
+                                            transform: isMana ? "translateY(-6px)" : "none",
+                                        }}>
+                                        {isMana && (
+                                            <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 text-[10px] font-bold px-3 py-1 rounded-full whitespace-nowrap"
+                                                style={{ background: "var(--gradient-gold)", color: "#2A1E08" }}>O TOPO</span>
+                                        )}
+                                        <div className="flex justify-center mb-4">
+                                            <Medallion tier={l.slug as TierSlug} size={isMana ? 92 : 76} />
+                                        </div>
+                                        <p className="font-display text-lg mb-0.5" style={{ color: "var(--cream)", fontWeight: 500 }}>{l.name}</p>
+                                        <p className="text-[11px] mb-3" style={{ color: "var(--text-muted)" }}>{RANGE_LABEL[l.slug]}</p>
+                                        <p className="font-display" style={{ color: "var(--gold)", fontSize: isMana ? "2rem" : "1.5rem", fontWeight: 500 }}>
+                                            {Math.round(l.rate * 100)}%
+                                        </p>
+                                        <p className="text-[10px] uppercase tracking-[0.16em]" style={{ color: "var(--text-muted)" }}>recorrente</p>
+                                    </motion.div>
+                                );
+                            })}
+                        </div>
                     </div>
                 </div>
             </section>
 
-            {/* ───────── 5 · Calculadora ───────── */}
-            <section className="relative px-5 sm:px-8 py-16 sm:py-24 max-w-4xl mx-auto">
-                <motion.p variants={rise} custom={0} initial="hidden" whileInView="visible" viewport={{ once: true }}
-                    className="eyebrow mb-3 justify-center" style={{ color: "var(--gold)" }}>faça as contas</motion.p>
-                <motion.h2 variants={rise} custom={1} initial="hidden" whileInView="visible" viewport={{ once: true }}
-                    className="font-display text-center mb-10" style={{ color: "var(--cream)", fontSize: "clamp(1.8rem, 5vw, 2.5rem)", fontWeight: 400 }}>
-                    Quanto a sua voz <span style={{ fontStyle: "italic", color: "var(--gold)" }}>pode semear</span>?
-                </motion.h2>
-                <motion.div variants={rise} custom={2} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-                    <Calculadora />
-                </motion.div>
-            </section>
-
-            {/* ───────── 6 · Curadoria ───────── */}
-            <section className="relative px-5 sm:px-8 py-16 sm:py-24 max-w-3xl mx-auto text-center">
-                <motion.p variants={rise} custom={0} initial="hidden" whileInView="visible" viewport={{ once: true }}
-                    className="eyebrow mb-6 justify-center" style={{ color: "var(--gold)" }}>
-                    <span className="gold-rule" /> curadoria
-                </motion.p>
-                <motion.h2 variants={rise} custom={1} initial="hidden" whileInView="visible" viewport={{ once: true }}
-                    className="font-display mb-6" style={{ color: "var(--cream)", fontSize: "clamp(1.7rem, 5.4vw, 2.6rem)", fontWeight: 400 }}>
-                    Não é para todos — <span style={{ fontStyle: "italic", color: "var(--gold)" }}>de propósito</span>.
-                </motion.h2>
-                <motion.p variants={rise} custom={2} initial="hidden" whileInView="visible" viewport={{ once: true }}
-                    className="text-base leading-relaxed max-w-xl mx-auto mb-10" style={{ color: "var(--text-secondary)" }}>
-                    O nome Humanáh só vai na voz de quem vive o que anuncia. Por isso não existe
-                    aprovação automática: cada inscrição passa por uma análise humana.
-                </motion.p>
-                <div className="grid sm:grid-cols-3 gap-4 text-left">
-                    {[
-                        { icon: "eye" as const, t: "Lemos uma a uma", d: "Cada inscrição é avaliada por uma pessoa — não por um robô." },
-                        { icon: "heart" as const, t: "Fé e coerência", d: "Olhamos sua caminhada e seu conteúdo, não só o número de seguidores." },
-                        { icon: "mail" as const, t: "Retorno em 7 dias", d: "Aprovado ou não, você recebe uma resposta no seu e-mail." },
-                    ].map((c, i) => (
-                        <motion.div key={c.t} variants={rise} custom={i} initial="hidden" whileInView="visible" viewport={{ once: true }}
-                            className="card-base p-6">
-                            <Icon name={c.icon} size={20} style={{ color: "var(--gold)" }} className="mb-3" />
-                            <h3 className="font-semibold text-sm mb-1.5" style={{ color: "var(--cream)" }}>{c.t}</h3>
-                            <p className="text-xs leading-relaxed" style={{ color: "var(--text-secondary)" }}>{c.d}</p>
-                        </motion.div>
-                    ))}
+            {/* ═════════ ATO V — A ALVORADA COMEÇA (calculadora) ═════════ */}
+            <section className="relative px-5 sm:px-8 py-20 sm:py-28 overflow-hidden">
+                <DawnGlow intensity={0.9} />
+                <div className="relative max-w-4xl mx-auto">
+                    <motion.p variants={rise} custom={0} initial="hidden" whileInView="visible" viewport={{ once: true }}
+                        className="eyebrow mb-3 justify-center" style={{ color: "var(--gold)" }}>faça as contas</motion.p>
+                    <motion.h2 variants={rise} custom={1} initial="hidden" whileInView="visible" viewport={{ once: true }}
+                        className="font-display text-center mb-10" style={{ color: "var(--cream)", fontSize: "clamp(1.8rem, 5vw, 2.5rem)", fontWeight: 400 }}>
+                        Quanto a sua voz <span style={{ fontStyle: "italic", color: "var(--gold)" }}>pode semear</span>?
+                    </motion.h2>
+                    <motion.div variants={rise} custom={2} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+                        <Calculadora />
+                    </motion.div>
                 </div>
             </section>
 
-            {/* ───────── 7 · FAQ ───────── */}
+            {/* ═════════ ATO VI — A QUARTA VIGÍLIA (curadoria, azul profundo) ═════════ */}
+            <section className="relative px-5 sm:px-8 py-20 sm:py-28 overflow-hidden">
+                <div className="absolute inset-0 pointer-events-none" style={{
+                    background: "linear-gradient(180deg, transparent, rgba(20,22,51,0.55) 22%, rgba(43,27,77,0.35) 60%, transparent)",
+                }} />
+                <div className="relative max-w-3xl mx-auto text-center">
+                    <motion.p variants={rise} custom={0} initial="hidden" whileInView="visible" viewport={{ once: true }}
+                        className="eyebrow mb-6 justify-center" style={{ color: "var(--gold)" }}>
+                        <span className="gold-rule" /> curadoria
+                    </motion.p>
+                    <motion.h2 variants={rise} custom={1} initial="hidden" whileInView="visible" viewport={{ once: true }}
+                        className="font-display mb-6" style={{ color: "var(--cream)", fontSize: "clamp(1.7rem, 5.4vw, 2.6rem)", fontWeight: 400 }}>
+                        Não é para todos — <span style={{ fontStyle: "italic", color: "var(--gold)" }}>de propósito</span>.
+                    </motion.h2>
+                    <motion.p variants={rise} custom={2} initial="hidden" whileInView="visible" viewport={{ once: true }}
+                        className="text-base leading-relaxed max-w-xl mx-auto mb-10" style={{ color: "var(--text-secondary)" }}>
+                        O nome Humanáh só vai na voz de quem vive o que anuncia. Por isso não existe
+                        aprovação automática: cada inscrição passa por uma análise humana.
+                    </motion.p>
+                    <div className="grid sm:grid-cols-3 gap-4 text-left">
+                        {[
+                            { icon: "eye" as const, t: "Lemos uma a uma", d: "Cada inscrição é avaliada por uma pessoa — não por um robô." },
+                            { icon: "heart" as const, t: "Fé e coerência", d: "Olhamos sua caminhada e seu conteúdo, não só o número de seguidores." },
+                            { icon: "mail" as const, t: "Retorno em 7 dias", d: "Aprovado ou não, você recebe uma resposta no seu e-mail." },
+                        ].map((c, i) => (
+                            <motion.div key={c.t} variants={rise} custom={i} initial="hidden" whileInView="visible" viewport={{ once: true }}
+                                className="glass-strong rounded-2xl p-6">
+                                <Icon name={c.icon} size={20} style={{ color: "var(--gold)" }} className="mb-3" />
+                                <h3 className="font-semibold text-sm mb-1.5" style={{ color: "var(--cream)" }}>{c.t}</h3>
+                                <p className="text-xs leading-relaxed" style={{ color: "var(--text-secondary)" }}>{c.d}</p>
+                            </motion.div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* ═════════ FAQ — o respiro ═════════ */}
             <section className="relative px-5 sm:px-8 py-16 sm:py-24 max-w-4xl mx-auto">
                 <motion.h2 variants={rise} custom={0} initial="hidden" whileInView="visible" viewport={{ once: true }}
                     className="font-display text-center mb-12" style={{ color: "var(--cream)", fontSize: "clamp(1.8rem, 5vw, 2.5rem)", fontWeight: 400 }}>
@@ -298,32 +340,40 @@ export default function EmbaixadoresClient() {
                 </div>
             </section>
 
-            {/* ───────── 8 · Inscrição ───────── */}
-            <section id="inscricao" className="relative px-5 sm:px-8 py-16 sm:py-24 max-w-3xl mx-auto scroll-mt-24">
-                <motion.p variants={rise} custom={0} initial="hidden" whileInView="visible" viewport={{ once: true }}
-                    className="eyebrow mb-3 justify-center" style={{ color: "var(--gold)" }}>o primeiro passo</motion.p>
-                <motion.h2 variants={rise} custom={1} initial="hidden" whileInView="visible" viewport={{ once: true }}
-                    className="font-display text-center mb-4" style={{ color: "var(--cream)", fontSize: "clamp(1.8rem, 5vw, 2.5rem)", fontWeight: 400 }}>
-                    Apresente-se. <span style={{ fontStyle: "italic", color: "var(--gold)" }}>Nós lemos tudo.</span>
-                </motion.h2>
-                <motion.p variants={rise} custom={2} initial="hidden" whileInView="visible" viewport={{ once: true }}
-                    className="text-sm text-center mb-10 max-w-md mx-auto" style={{ color: "var(--text-secondary)" }}>
-                    Conte quem você é e onde a sua voz alcança. Se fizer sentido caminharmos juntos,
-                    seu link exclusivo chega em até 7 dias.
-                </motion.p>
-                <motion.div variants={rise} custom={3} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-                    <ApplyForm />
-                </motion.div>
+            {/* ═════════ ATO VII — O ALTAR (inscrição, talha cerimonial) ═════════ */}
+            <section id="inscricao" className="relative px-5 sm:px-8 py-16 sm:py-24 scroll-mt-24 overflow-hidden">
+                <DawnGlow intensity={0.5} />
+                <div className="relative max-w-3xl mx-auto">
+                    <motion.p variants={rise} custom={0} initial="hidden" whileInView="visible" viewport={{ once: true }}
+                        className="eyebrow mb-3 justify-center" style={{ color: "var(--gold)" }}>o primeiro passo</motion.p>
+                    <motion.h2 variants={rise} custom={1} initial="hidden" whileInView="visible" viewport={{ once: true }}
+                        className="font-display text-center mb-4" style={{ color: "var(--cream)", fontSize: "clamp(1.8rem, 5vw, 2.5rem)", fontWeight: 400 }}>
+                        Apresente-se. <span style={{ fontStyle: "italic", color: "var(--gold)" }}>Nós lemos tudo.</span>
+                    </motion.h2>
+                    <motion.p variants={rise} custom={2} initial="hidden" whileInView="visible" viewport={{ once: true }}
+                        className="text-sm text-center mb-10 max-w-md mx-auto" style={{ color: "var(--text-secondary)" }}>
+                        Conte quem você é e onde a sua voz alcança. Se fizer sentido caminharmos juntos,
+                        seu link exclusivo chega em até 7 dias.
+                    </motion.p>
+                    <motion.div variants={rise} custom={3} initial="hidden" whileInView="visible" viewport={{ once: true }}
+                        className="relative rounded-[32px] p-2 sm:p-3" style={{ border: "1px solid rgba(247,201,122,0.18)" }}>
+                        <CornerOrnaments />
+                        <ApplyForm />
+                    </motion.div>
+                </div>
             </section>
 
-            {/* ───────── 9 · Fecho + rodapé ───────── */}
-            <section className="relative px-5 sm:px-8 pt-10 pb-16 text-center">
-                <motion.p variants={rise} custom={0} initial="hidden" whileInView="visible" viewport={{ once: true }}
-                    className="font-serif-devotional italic text-lg max-w-md mx-auto leading-relaxed" style={{ color: "var(--reading, var(--text-secondary))" }}>
-                    «Como são formosos os pés dos que anunciam boas-novas.»
-                </motion.p>
-                <motion.p variants={rise} custom={1} initial="hidden" whileInView="visible" viewport={{ once: true }}
-                    className="text-xs mt-2" style={{ color: "var(--text-muted)" }}>Romanos 10:15</motion.p>
+            {/* ═════════ ATO VIII — A ALVORADA (fecho) ═════════ */}
+            <section className="relative px-5 sm:px-8 pt-14 pb-20 text-center overflow-hidden">
+                <DawnGlow intensity={1.5} />
+                <div className="relative">
+                    <motion.p variants={rise} custom={0} initial="hidden" whileInView="visible" viewport={{ once: true }}
+                        className="font-serif-devotional italic text-lg max-w-md mx-auto leading-relaxed" style={{ color: "var(--reading, var(--text-secondary))" }}>
+                        «Como são formosos os pés dos que anunciam boas-novas.»
+                    </motion.p>
+                    <motion.p variants={rise} custom={1} initial="hidden" whileInView="visible" viewport={{ once: true }}
+                        className="text-xs mt-2" style={{ color: "var(--text-muted)" }}>Romanos 10:15</motion.p>
+                </div>
             </section>
 
             <footer className="relative z-10 border-t px-5 sm:px-8 py-8" style={{ borderColor: "var(--glass-border)" }}>
