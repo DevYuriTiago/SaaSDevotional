@@ -62,7 +62,9 @@ describe("validateApplication", () => {
   });
 
   it("campos opcionais podem faltar", () => {
-    const { church: _c, promotion_plan: _p, ...rest } = VALID;
+    const rest: Record<string, unknown> = { ...VALID };
+    delete rest.church;
+    delete rest.promotion_plan;
     expect(validateApplication(rest).ok).toBe(true);
   });
 });
