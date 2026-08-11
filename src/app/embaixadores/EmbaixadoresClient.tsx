@@ -363,32 +363,33 @@ export default function EmbaixadoresClient() {
                 </div>
             </section>
 
-            {/* ═════════ ATO VIII — A ALVORADA (fecho) ═════════ */}
-            <section className="relative px-5 sm:px-8 pt-14 pb-20 text-center overflow-hidden">
-                <DawnGlow intensity={1.5} />
-                <div className="relative">
+            {/* ═════════ ATO VIII — A ALVORADA PLENA (o fechamento: a página termina em ouro) ═════════ */}
+            <div className="relative overflow-hidden" style={{ background: "var(--gradient-dawn)" }}>
+                {/* grão de folha sobre o ouro — a mesma matéria da marca */}
+                <WoodGrain />
+                <section className="relative px-5 sm:px-8 pt-20 sm:pt-24 pb-32 sm:pb-40 text-center">
                     <motion.p variants={rise} custom={0} initial="hidden" whileInView="visible" viewport={{ once: true }}
-                        className="font-serif-devotional italic text-lg max-w-md mx-auto leading-relaxed" style={{ color: "var(--reading, var(--text-secondary))" }}>
+                        className="font-serif-devotional italic text-lg sm:text-xl max-w-md mx-auto leading-relaxed" style={{ color: "var(--cream)" }}>
                         «Como são formosos os pés dos que anunciam boas-novas.»
                     </motion.p>
                     <motion.p variants={rise} custom={1} initial="hidden" whileInView="visible" viewport={{ once: true }}
-                        className="text-xs mt-2" style={{ color: "var(--text-muted)" }}>Romanos 10:15</motion.p>
-                </div>
-            </section>
+                        className="text-xs mt-2" style={{ color: "rgba(251,247,230,0.72)" }}>Romanos 10:15</motion.p>
+                </section>
 
-            <footer className="relative z-10 border-t px-5 sm:px-8 py-8" style={{ borderColor: "var(--glass-border)" }}>
-                <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-                    <Link href="/" className="flex items-center gap-2">
-                        <Image src="/new-icon.png" alt="Humanáh" width={26} height={26} className="rounded-md" />
-                        <span className="text-xs" style={{ color: "var(--text-muted)" }}>© 2026 Humanáh · humanah.app</span>
-                    </Link>
-                    <div className="flex items-center gap-5 text-xs" style={{ color: "var(--text-muted)" }}>
-                        <Link href="/privacidade" className="hover:text-[var(--cream)] transition-colors">Privacidade</Link>
-                        <Link href="/termos" className="hover:text-[var(--cream)] transition-colors">Termos</Link>
-                        <a href="mailto:contato@humanah.app" className="hover:text-[var(--cream)] transition-colors">Contato</a>
+                <footer className="relative z-10 px-5 sm:px-8 py-8" style={{ borderTop: "1px solid rgba(42,30,8,0.22)" }}>
+                    <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+                        <Link href="/" className="flex items-center gap-2">
+                            <Image src="/new-icon.png" alt="Humanáh" width={26} height={26} className="rounded-md" />
+                            <span className="text-xs font-medium" style={{ color: "#3A2A10" }}>© 2026 Humanáh · humanah.app</span>
+                        </Link>
+                        <div className="flex items-center gap-5 text-xs font-medium">
+                            <Link href="/privacidade" className="transition-opacity hover:opacity-70" style={{ color: "#3A2A10" }}>Privacidade</Link>
+                            <Link href="/termos" className="transition-opacity hover:opacity-70" style={{ color: "#3A2A10" }}>Termos</Link>
+                            <a href="mailto:contato@humanah.app" className="transition-opacity hover:opacity-70" style={{ color: "#3A2A10" }}>Contato</a>
+                        </div>
                     </div>
-                </div>
-            </footer>
+                </footer>
+            </div>
         </main>
     );
 }
