@@ -36,22 +36,22 @@ const RANGE_LABEL: Record<string, string> = {
 const STEPS = [
     {
         n: "I", icon: "compass" as const, title: "Receba seu link exclusivo",
-        text: "Aprovado na curadoria, você ganha um link só seu — humanah.app/e/seunome — para compartilhar onde a sua voz alcança.",
+        text: "Aprovado na curadoria, você ganha um link só seu (humanah.app/e/seunome) para compartilhar onde a sua voz alcança.",
     },
     {
         n: "II", icon: "heart" as const, title: "Sua comunidade assina",
-        text: "Cada pessoa que chega pelo seu link e assina o Humanáh fica ligada a você — de forma automática e definitiva.",
+        text: "Cada pessoa que chega pelo seu link e assina o Humanáh fica ligada a você, de forma automática e definitiva.",
     },
     {
         n: "III", icon: "sunrise" as const, title: "Você recebe todo mês",
-        text: "A comissão é recorrente: cai de novo a cada renovação, enquanto cada assinatura permanecer ativa. Não é venda única — é fruto que permanece.",
+        text: "A comissão é recorrente: cai de novo a cada renovação, enquanto cada assinatura permanecer ativa. Não é venda única. É fruto que permanece.",
     },
 ];
 
 const FAQS = [
     {
         q: "Custa algo para participar?",
-        a: "Nada — nem para se inscrever, nem para permanecer. O programa existe para reconhecer quem já leva a Palavra adiante.",
+        a: "Nada. Nem para se inscrever, nem para permanecer. O programa existe para reconhecer quem já leva a Palavra adiante.",
     },
     {
         q: "Quando e como recebo?",
@@ -59,7 +59,7 @@ const FAQS = [
     },
     {
         q: "Preciso de quantos seguidores?",
-        a: "Não existe número mágico. Avaliamos alcance real e coerência de vida e conteúdo — uma comunidade fiel vale mais do que um número grande.",
+        a: "Não existe número mágico. Avaliamos alcance real e coerência de vida e conteúdo. Uma comunidade fiel vale mais do que um número grande.",
     },
     {
         q: "Posso doar a minha comissão?",
@@ -109,7 +109,7 @@ export default function EmbaixadoresClient() {
                         </motion.h1>
                         <motion.p variants={rise} custom={2} className="text-base sm:text-lg leading-relaxed mb-8 max-w-md" style={{ color: "var(--text-secondary)" }}>
                             Indique o Humanáh para quem confia em você e receba uma comissão
-                            <strong style={{ color: "var(--cream)" }}> recorrente</strong> — todo mês, enquanto cada pessoa permanecer.
+                            <strong style={{ color: "var(--cream)" }}> recorrente</strong>, todo mês, enquanto cada pessoa permanecer.
                             Sem custo. Com curadoria.
                         </motion.p>
                         <motion.div variants={rise} custom={3} className="flex flex-col sm:flex-row sm:items-center gap-3 mb-9">
@@ -162,7 +162,7 @@ export default function EmbaixadoresClient() {
                     <motion.div variants={rise} custom={2} initial="hidden" whileInView="visible" viewport={{ once: true }}
                         className="space-y-5 max-w-xl mx-auto">
                         <p className="font-serif-devotional italic text-lg leading-relaxed" style={{ color: "var(--reading, var(--text-secondary))" }}>
-                            A Palavra é gratuita — e sempre será. O Humanáh existe para colocá-la
+                            A Palavra é gratuita, e sempre será. O Humanáh existe para colocá-la
                             no dia de cada pessoa, no momento exato que ela está vivendo.
                         </p>
                         <p className="text-base leading-relaxed" style={{ color: "var(--text-secondary)" }}>
@@ -231,7 +231,7 @@ export default function EmbaixadoresClient() {
                     <motion.p variants={rise} custom={2} initial="hidden" whileInView="visible" viewport={{ once: true }}
                         className="text-sm text-center mb-14 max-w-md mx-auto" style={{ color: "var(--text-secondary)" }}>
                         Quanto mais vidas você alcança, maior a sua parte no fruto.
-                        O nível é vitalício — calculado pelo total que você já conquistou. Nunca rebaixa.
+                        O nível é vitalício, calculado pelo total que você já conquistou. Nunca rebaixa.
                     </motion.p>
 
                     <div className="relative">
@@ -299,7 +299,7 @@ export default function EmbaixadoresClient() {
                     </motion.p>
                     <motion.h2 variants={rise} custom={1} initial="hidden" whileInView="visible" viewport={{ once: true }}
                         className="font-display mb-6" style={{ color: "var(--cream)", fontSize: "clamp(1.7rem, 5.4vw, 2.6rem)", fontWeight: 400 }}>
-                        Não é para todos — <span style={{ fontStyle: "italic", color: "var(--gold)" }}>de propósito</span>.
+                        Não é para todos. <span style={{ fontStyle: "italic", color: "var(--gold)" }}>De propósito</span>.
                     </motion.h2>
                     <motion.p variants={rise} custom={2} initial="hidden" whileInView="visible" viewport={{ once: true }}
                         className="text-base leading-relaxed max-w-xl mx-auto mb-10" style={{ color: "var(--text-secondary)" }}>
@@ -308,7 +308,7 @@ export default function EmbaixadoresClient() {
                     </motion.p>
                     <div className="grid sm:grid-cols-3 gap-4 text-left">
                         {[
-                            { icon: "eye" as const, t: "Lemos uma a uma", d: "Cada inscrição é avaliada por uma pessoa — não por um robô." },
+                            { icon: "eye" as const, t: "Lemos uma a uma", d: "Cada inscrição é avaliada por uma pessoa, não por um robô." },
                             { icon: "heart" as const, t: "Fé e coerência", d: "Olhamos sua caminhada e seu conteúdo, não só o número de seguidores." },
                             { icon: "mail" as const, t: "Retorno em 7 dias", d: "Aprovado ou não, você recebe uma resposta no seu e-mail." },
                         ].map((c, i) => (

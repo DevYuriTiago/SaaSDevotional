@@ -125,7 +125,7 @@ export default function ApplyForm() {
                 <div className="sm:col-span-2">
                     <label className="block text-xs uppercase tracking-[0.14em] mb-2" style={{ color: "var(--text-muted)" }}>Sua caminhada com Cristo *</label>
                     <textarea name="testimony" rows={4} className="input-base resize-none" style={{ height: "auto" }}
-                        placeholder="Conte um pouco da sua história de fé — é a parte que lemos com mais carinho." maxLength={2000} required />
+                        placeholder="Conte um pouco da sua história de fé. É a parte que lemos com mais carinho." maxLength={2000} required />
                     {err("testimony")}
                 </div>
                 <div className="sm:col-span-2">
