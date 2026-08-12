@@ -15,6 +15,7 @@ export default function robots(): MetadataRoute.Robots {
             disallow: [
                 "/api/",
                 "/e/",
+                "/admin",
                 "/dashboard",
                 "/devotional",
                 "/emotion",
