@@ -103,7 +103,7 @@ export default function ApplyForm() {
                 </div>
                 <div>
                     <label className="block text-xs uppercase tracking-[0.14em] mb-2" style={{ color: "var(--text-muted)" }}>Plataforma principal *</label>
-                    <select name="social_platform" className="input-base" defaultValue="instagram" required>
+                    <select name="social_platform" className="input-base amb-select" defaultValue="instagram" required>
                         {PLATFORMS.map((p) => <option key={p.value} value={p.value}>{p.label}</option>)}
                     </select>
                     {err("social_platform")}
@@ -156,6 +156,26 @@ export default function ApplyForm() {
             <p className="text-[11px] text-center mt-3" style={{ color: "var(--text-muted)" }}>
                 Curadoria manual · retorno em até 7 dias · seus dados ficam protegidos (LGPD)
             </p>
+
+            {/* O dropdown nativo abre com o fundo do sistema (branco), o que apagava as
+                opções sobre o tema escuro. color-scheme resolve na raiz; as cores
+                explícitas em option cobrem navegadores que ignoram a propriedade. */}
+            <style>{`
+                .amb-select {
+                    color-scheme: dark;
+                    appearance: none;
+                    -webkit-appearance: none;
+                    padding-right: 44px;
+                    cursor: pointer;
+                    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9' fill='none'%3E%3Cpath d='M1 1L7 7L13 1' stroke='%23F7C97A' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+                    background-repeat: no-repeat;
+                    background-position: right 18px center;
+                }
+                .amb-select option {
+                    background-color: #1A1622;
+                    color: #FBF7E6;
+                }
+            `}</style>
         </form>
     );
 }
