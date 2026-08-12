@@ -9,6 +9,7 @@ import { Medallion, type TierSlug } from "./medallions";
 import Calculadora from "./Calculadora";
 import ApplyForm from "./ApplyForm";
 import { Constellation, DawnGlow, WoodGrain, CornerOrnaments, GoldThread } from "./atmospheres";
+import { FAQS } from "./content";
 
 /**
  * A página encena a identidade da marca: A VIGÍLIA → A ALVORADA.
@@ -48,28 +49,7 @@ const STEPS = [
     },
 ];
 
-const FAQS = [
-    {
-        q: "Custa algo para participar?",
-        a: "Nada. Nem para se inscrever, nem para permanecer. O programa existe para reconhecer quem já leva a Palavra adiante.",
-    },
-    {
-        q: "Quando e como recebo?",
-        a: "Via Pix, mensalmente. A comissão de cada pagamento é confirmada após a garantia de 7 dias e continua caindo enquanto a assinatura do seu indicado estiver ativa.",
-    },
-    {
-        q: "Preciso de quantos seguidores?",
-        a: "Não existe número mágico. Avaliamos alcance real e coerência de vida e conteúdo. Uma comunidade fiel vale mais do que um número grande.",
-    },
-    {
-        q: "Posso doar a minha comissão?",
-        a: "Sim. Se preferir, você pode destinar parte ou 100% do que receber para abençoar sua igreja ou ministério. Muitos embaixadores escolhem esse caminho.",
-    },
-    {
-        q: "Como acompanho meus resultados?",
-        a: "Sendo aprovado, você terá acesso ao portal do embaixador: cliques, assinaturas e ganhos, tudo ao vivo, com seu link e materiais prontos para divulgar.",
-    },
-];
+// FAQS vive em ./content porque o JSON-LD (server) usa exatamente o mesmo texto.
 
 export default function EmbaixadoresClient() {
     return (
@@ -79,8 +59,9 @@ export default function EmbaixadoresClient() {
             <nav className="fixed inset-x-0 top-0 z-40" style={{ background: "linear-gradient(to bottom, rgba(7,7,13,0.92), rgba(7,7,13,0.55) 70%, transparent)" }}>
                 <div className="max-w-6xl mx-auto px-5 sm:px-8 py-4 flex items-center justify-between">
                     <Link href="/" className="flex items-center gap-2.5">
-                        <Image src="/new-icon.png" alt="Humanáh" width={40} height={40} className="rounded-xl w-10 h-10" priority />
-                        <Image src="/new-wordmark.png" alt="Humanáh" width={1536} height={1024} priority className="h-auto w-[110px]" style={{ marginTop: -12, marginBottom: -9 }} />
+                        {/* o ícone é decorativo ao lado da wordmark: alt vazio evita leitura duplicada */}
+                        <Image src="/new-icon.png" alt="" width={40} height={40} className="rounded-xl w-10 h-10" priority />
+                        <Image src="/new-wordmark.png" alt="Humanáh, início" width={1536} height={1024} priority className="h-auto w-[110px]" style={{ marginTop: -12, marginBottom: -9 }} />
                     </Link>
                     <a href="#inscricao" className="inline-flex items-center gap-2 text-sm font-semibold px-5 py-2.5 rounded-full whitespace-nowrap transition-colors hover:bg-[rgba(247,201,122,0.08)]"
                         style={{ color: "var(--gold)", border: "1px solid rgba(247,201,122,0.35)" }}>
@@ -379,7 +360,7 @@ export default function EmbaixadoresClient() {
                 <footer className="relative z-10 px-5 sm:px-8 py-8" style={{ borderTop: "1px solid rgba(42,30,8,0.22)" }}>
                     <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
                         <Link href="/" className="flex items-center gap-2">
-                            <Image src="/new-icon.png" alt="Humanáh" width={26} height={26} className="rounded-md" />
+                            <Image src="/new-icon.png" alt="" width={26} height={26} className="rounded-md" />
                             <span className="text-xs font-medium" style={{ color: "#3A2A10" }}>© 2026 Humanáh · humanah.app</span>
                         </Link>
                         <div className="flex items-center gap-5 text-xs font-medium">
