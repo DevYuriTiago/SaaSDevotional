@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Icon } from "@/components/icons";
 import { slugify } from "@/lib/ambassadors/slug";
 import { formatShortDate } from "@/lib/utils";
+import AdminNav from "../AdminNav";
 
 export type Application = {
     id: string;
@@ -82,41 +83,26 @@ export default function FilaClient({ pending, recent }: { pending: Application[]
         }
     }
 
-    async function logout() {
-        await fetch("/api/admin/session", { method: "DELETE" });
-        window.location.reload();
-    }
 
     return (
         <main className="aurora-bg relative min-h-dvh px-5 sm:px-8 py-10">
             <div className="max-w-4xl mx-auto">
 
-                <header className="flex items-start justify-between gap-4 mb-9">
-                    <div>
-                        <p className="eyebrow mb-1.5" style={{ color: "var(--gold)" }}>
-                            <span className="gold-rule" /> curadoria
-                        </p>
-                        <h1 className="font-display text-3xl" style={{ color: "var(--cream)", fontWeight: 500 }}>
-                            Embaixadores
-                        </h1>
-                        <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>
-                            {pending.length === 0
-                                ? "Nenhuma inscrição aguardando."
-                                : `${pending.length} ${pending.length === 1 ? "inscrição aguardando" : "inscrições aguardando"} sua análise.`}
-                        </p>
-                    </div>
-                    <div className="flex items-center gap-3">
-                        <a href="/api/admin/export" className="btn-ghost text-xs" style={{ width: "auto", height: 40, paddingInline: 16 }}>
-                            <Icon name="scroll" size={15} /> CSV
-                        </a>
-                        <Link href="/admin/saques" className="btn-ghost text-xs" style={{ width: "auto", height: 40, paddingInline: 16 }}>
-                            Saques
-                        </Link>
-                        <button onClick={logout} className="btn-ghost text-xs" style={{ width: "auto", height: 40, paddingInline: 16 }}>
-                            <Icon name="logout" size={15} /> Sair
-                        </button>
-                    </div>
+                <header className="mb-6">
+                    <p className="eyebrow mb-1.5" style={{ color: "var(--gold)" }}>
+                        <span className="gold-rule" /> curadoria
+                    </p>
+                    <h1 className="font-display text-3xl" style={{ color: "var(--cream)", fontWeight: 500 }}>
+                        Embaixadores
+                    </h1>
+                    <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>
+                        {pending.length === 0
+                            ? "Nenhuma inscrição aguardando."
+                            : `${pending.length} ${pending.length === 1 ? "inscrição aguardando" : "inscrições aguardando"} sua análise.`}
+                    </p>
                 </header>
+
+                <AdminNav pendentes={pending.length} />
 
                 {/* Resultado da última decisão */}
                 {result && (

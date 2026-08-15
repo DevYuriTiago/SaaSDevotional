@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Icon } from "@/components/icons";
 import { formatShortDate } from "@/lib/utils";
+import AdminNav from "../AdminNav";
 
 export type Devido = {
     ambassadorId: string;
@@ -88,12 +88,9 @@ export default function SaquesClient({ devidos, feitos }: { devidos: Devido[]; f
                             ? "Nenhuma comissão liberada no momento."
                             : `${brl(total)} a pagar para ${devidos.length} ${devidos.length === 1 ? "embaixador" : "embaixadores"}.`}
                     </p>
-                    <nav className="flex gap-4 mt-4 text-xs">
-                        <Link href="/admin/embaixadores" className="hover:underline" style={{ color: "var(--gold)" }}>
-                            Curadoria
-                        </Link>
-                    </nav>
                 </header>
+
+                <AdminNav />
 
                 {aviso && (
                     <div className="rounded-2xl p-4 mb-6 text-sm"
