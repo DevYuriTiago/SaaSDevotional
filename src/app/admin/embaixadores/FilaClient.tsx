@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Icon } from "@/components/icons";
 import { slugify } from "@/lib/ambassadors/slug";
@@ -104,9 +105,14 @@ export default function FilaClient({ pending, recent }: { pending: Application[]
                                 : `${pending.length} ${pending.length === 1 ? "inscrição aguardando" : "inscrições aguardando"} sua análise.`}
                         </p>
                     </div>
-                    <button onClick={logout} className="btn-ghost text-xs" style={{ width: "auto", height: 40, paddingInline: 16 }}>
-                        <Icon name="logout" size={15} /> Sair
-                    </button>
+                    <div className="flex items-center gap-3">
+                        <Link href="/admin/saques" className="btn-ghost text-xs" style={{ width: "auto", height: 40, paddingInline: 16 }}>
+                            Saques
+                        </Link>
+                        <button onClick={logout} className="btn-ghost text-xs" style={{ width: "auto", height: 40, paddingInline: 16 }}>
+                            <Icon name="logout" size={15} /> Sair
+                        </button>
+                    </div>
                 </header>
 
                 {/* Resultado da última decisão */}

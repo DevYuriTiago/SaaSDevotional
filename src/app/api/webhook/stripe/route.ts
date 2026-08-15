@@ -126,7 +126,10 @@ export async function POST(request: NextRequest) {
             // Dinheiro devolvido não gera comissão. O estorno chega como evento,
             // então a conversão é marcada na hora em vez de descoberta depois.
             const charge = event.data.object as Stripe.Charge;
-            const invoiceId = typeof charge.invoice === "string" ? charge.invoice : null;
+            // O SDK v22 tirou `invoice` do tipo Charge, mas o campo continua
+            // vindo no payload. Mesmo tratamento dado a `subscription` acima.
+            const chargeInvoice = (charge as unknown as { invoice?: string | null }).invoice;
+            const invoiceId = typeof chargeInvoice === "string" ? chargeInvoice : null;
             if (!invoiceId) break;
             await admin
                 .from("conversions")
