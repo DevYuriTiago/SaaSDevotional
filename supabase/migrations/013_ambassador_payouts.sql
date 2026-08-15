@@ -40,8 +40,15 @@ create index if not exists conversions_payout_idx on public.conversions (ambassa
 --   disponível = passou dos 7 dias e ainda não foi paga
 --   pago       = já saiu num saque
 -- Estornos não contam em lugar nenhum, nem para o nível.
+--
+-- Precisa de DROP antes: "create or replace view" só permite acrescentar
+-- colunas no fim, e aqui a coluna gross_confirmed_cents (migration 012) muda
+-- de nome para gross_available_cents. Nada depende desta view, então derrubar
+-- e recriar é seguro.
 -- =============================================
-create or replace view public.ambassador_stats
+drop view if exists public.ambassador_stats;
+
+create view public.ambassador_stats
 with (security_invoker = true) as
 select
   a.id as ambassador_id,
