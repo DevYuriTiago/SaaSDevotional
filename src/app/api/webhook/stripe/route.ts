@@ -122,6 +122,18 @@ export async function POST(request: NextRequest) {
             else await downgradeUser(uid, billing);
             break;
         }
+        case "charge.refunded": {
+            // Dinheiro devolvido não gera comissão. O estorno chega como evento,
+            // então a conversão é marcada na hora em vez de descoberta depois.
+            const charge = event.data.object as Stripe.Charge;
+            const invoiceId = typeof charge.invoice === "string" ? charge.invoice : null;
+            if (!invoiceId) break;
+            await admin
+                .from("conversions")
+                .update({ status: "refunded" })
+                .eq("stripe_invoice_id", invoiceId);
+            break;
+        }
         case "customer.subscription.deleted":
         case "invoice.payment_failed": {
             const obj = event.data.object as Stripe.Subscription | Stripe.Invoice;

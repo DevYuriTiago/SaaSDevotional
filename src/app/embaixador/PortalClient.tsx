@@ -86,6 +86,12 @@ export default function PortalClient({
                     </div>
                 </section>
 
+                {earnings.paidCents > 0 && (
+                    <p className="text-xs text-center mb-6" style={{ color: "var(--text-muted)" }}>
+                        Você já recebeu <strong style={{ color: "var(--text-secondary)" }}>{brl(earnings.paidCents)}</strong> em saques anteriores.
+                    </p>
+                )}
+
                 {/* Link e QR */}
                 <section className="surface-wood rounded-[24px] p-6 mb-6">
                     <p className="text-[10px] uppercase tracking-[0.16em] mb-3" style={{ color: "var(--text-muted)" }}>

@@ -159,6 +159,36 @@ describe("POST /api/webhook/stripe", () => {
     );
   });
 
+  it("estorno (charge.refunded): marca a conversão daquela fatura como refunded", async () => {
+    const event = makeStripeEvent("charge.refunded", {
+      object: "charge",
+      id: "ch_1",
+      invoice: "in_777",
+      refunded: true,
+    });
+    mockConstructEvent.mockReturnValue(event);
+
+    const res = await POST(makeWebhookReq("payload", "sig_valid"));
+    expect(res.status).toBe(200);
+
+    // Atualiza a tabela de conversões pela fatura estornada.
+    expect(mockFrom).toHaveBeenCalledWith("conversions");
+    expect(mockEq).toHaveBeenCalledWith("stripe_invoice_id", "in_777");
+  });
+
+  it("estorno sem fatura associada: não altera nada", async () => {
+    const event = makeStripeEvent("charge.refunded", {
+      object: "charge",
+      id: "ch_2",
+      invoice: null,
+    });
+    mockConstructEvent.mockReturnValue(event);
+
+    const res = await POST(makeWebhookReq("payload", "sig_valid"));
+    expect(res.status).toBe(200);
+    expect(mockFrom).not.toHaveBeenCalled();
+  });
+
   it("retorna 200 sem side effects para eventos desconhecidos", async () => {
     const event = makeStripeEvent("payment_intent.created", {
       object: "payment_intent",

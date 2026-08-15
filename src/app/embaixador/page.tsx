@@ -38,7 +38,7 @@ export default async function PortalPage() {
 
     const { data: row } = await admin
         .from("ambassador_stats")
-        .select("clicks, signups, paying_count, gross_pending_cents, gross_confirmed_cents")
+        .select("clicks, signups, paying_count, gross_pending_cents, gross_available_cents, gross_paid_cents")
         .eq("ambassador_id", ambassador.id)
         .maybeSingle();
 
@@ -47,7 +47,8 @@ export default async function PortalPage() {
         signups: row?.signups ?? 0,
         payingCount: row?.paying_count ?? 0,
         grossPendingCents: row?.gross_pending_cents ?? 0,
-        grossConfirmedCents: row?.gross_confirmed_cents ?? 0,
+        grossAvailableCents: row?.gross_available_cents ?? 0,
+        grossPaidCents: row?.gross_paid_cents ?? 0,
     };
 
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://humanah.app";

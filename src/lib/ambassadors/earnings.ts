@@ -1,12 +1,19 @@
 import { getLevel, LEVELS, type AmbassadorLevel } from "./levels";
 
-/** Números crus vindos da view ambassador_stats. */
+/**
+ * Números crus vindos da view ambassador_stats. O bruto vem separado em três
+ * faixas: dentro da garantia, liberado mas ainda não pago, e já pago.
+ */
 export type AmbassadorStats = {
     clicks: number;
     signups: number;
     payingCount: number;
+    /** Dentro da janela de 7 dias: ainda pode ser estornado. */
     grossPendingCents: number;
-    grossConfirmedCents: number;
+    /** Passou dos 7 dias e ainda não entrou num saque. */
+    grossAvailableCents: number;
+    /** Já pago em algum saque. */
+    grossPaidCents: number;
 };
 
 export type Earnings = {
@@ -17,10 +24,12 @@ export type Earnings = {
     /** Avanço dentro do nível atual, de 0 a 100. */
     progressPct: number;
     rate: number;
-    /** Comissão sobre conversões confirmadas (passou a garantia de 7 dias). */
+    /** Comissão liberada para saque (passou a garantia e não foi paga). */
     availableCents: number;
-    /** Comissão sobre conversões ainda pendentes. */
+    /** Comissão ainda dentro da garantia de 7 dias. */
     pendingCents: number;
+    /** Comissão já recebida em saques anteriores. */
+    paidCents: number;
 };
 
 /**
@@ -50,7 +59,8 @@ export function computeEarnings(stats: AmbassadorStats): Earnings {
         payingToNextLevel,
         progressPct,
         rate,
-        availableCents: Math.round(stats.grossConfirmedCents * rate),
+        availableCents: Math.round(stats.grossAvailableCents * rate),
         pendingCents: Math.round(stats.grossPendingCents * rate),
+        paidCents: Math.round(stats.grossPaidCents * rate),
     };
 }

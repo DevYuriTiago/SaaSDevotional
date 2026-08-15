@@ -7,7 +7,8 @@ const base: AmbassadorStats = {
   signups: 0,
   payingCount: 0,
   grossPendingCents: 0,
-  grossConfirmedCents: 0,
+  grossAvailableCents: 0,
+  grossPaidCents: 0,
 };
 
 describe("computeEarnings", () => {
@@ -26,7 +27,7 @@ describe("computeEarnings", () => {
     const e = computeEarnings({
       ...base,
       payingCount: 50,
-      grossConfirmedCents: 100_000, // R$ 1.000,00
+      grossAvailableCents: 100_000, // R$ 1.000,00
       grossPendingCents: 20_000,
     });
     expect(e.level?.slug).toBe("bronze");
@@ -37,7 +38,7 @@ describe("computeEarnings", () => {
 
   it("usa a taxa do nível alcançado, não a do anterior", () => {
     // 250 pagantes = Ouro (15%)
-    const e = computeEarnings({ ...base, payingCount: 250, grossConfirmedCents: 100_000 });
+    const e = computeEarnings({ ...base, payingCount: 250, grossAvailableCents: 100_000 });
     expect(e.level?.slug).toBe("ouro");
     expect(e.availableCents).toBe(15_000);
   });
@@ -70,8 +71,21 @@ describe("computeEarnings", () => {
     }
   });
 
+  it("separa as três faixas de dinheiro com a mesma taxa", () => {
+    const e = computeEarnings({
+      ...base,
+      payingCount: 50, // Bronze, 5%
+      grossPendingCents: 10_000,
+      grossAvailableCents: 40_000,
+      grossPaidCents: 200_000,
+    });
+    expect(e.pendingCents).toBe(500);
+    expect(e.availableCents).toBe(2_000);
+    expect(e.paidCents).toBe(10_000);
+  });
+
   it("arredonda para centavos inteiros (nunca fração de centavo)", () => {
-    const e = computeEarnings({ ...base, payingCount: 10, grossConfirmedCents: 999 });
+    const e = computeEarnings({ ...base, payingCount: 10, grossAvailableCents: 999 });
     expect(Number.isInteger(e.availableCents)).toBe(true);
   });
 });
