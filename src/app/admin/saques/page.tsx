@@ -23,11 +23,11 @@ export default async function SaquesPage() {
     // A chave Pix é PII: buscada só aqui, no admin, e só de quem tem saldo.
     const ids = linhas.map((l) => l.ambassador_id);
     const { data: pixRows } = ids.length
-        ? await admin.from("ambassadors").select("id, pix_key, email").in("id", ids)
+        ? await admin.from("ambassadors").select("id, pix_key, email, donation_percent, donation_target").in("id", ids)
         : { data: [] };
 
     const pixPorId = new Map(
-        ((pixRows ?? []) as { id: string; pix_key: string | null; email: string | null }[])
+        ((pixRows ?? []) as { id: string; pix_key: string | null; email: string | null; donation_percent: number | null; donation_target: string | null }[])
             .map((r) => [r.id, r])
     );
 
@@ -44,6 +44,8 @@ export default async function SaquesPage() {
                 pendingCents: Math.round(l.gross_pending_cents * rate),
                 pixKey: contato?.pix_key ?? null,
                 email: contato?.email ?? null,
+                donationPercent: contato?.donation_percent ?? 0,
+                donationTarget: contato?.donation_target ?? null,
             };
         })
         .filter((d) => d.amountCents > 0)

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Icon } from "@/components/icons";
 import { formatShortDate } from "@/lib/utils";
+import { splitDonation } from "@/lib/ambassadors/payment";
 import AdminNav from "../AdminNav";
 
 export type Devido = {
@@ -15,6 +16,8 @@ export type Devido = {
     pendingCents: number;
     pixKey: string | null;
     email: string | null;
+    donationPercent: number;
+    donationTarget: string | null;
 };
 
 export type SaqueFeito = {
@@ -128,6 +131,26 @@ export default function SaquesClient({ devidos, feitos }: { devidos: Devido[]; f
                                         )}
                                     </div>
                                 </div>
+
+                                {/* Doação escolhida pelo embaixador: o admin precisa saber
+                                    como dividir antes de fazer a transferência. */}
+                                {d.donationPercent > 0 && (() => {
+                                    const { donationCents, ambassadorCents } = splitDonation(d.amountCents, d.donationPercent);
+                                    return (
+                                        <div className="rounded-xl p-4 mb-4" style={{ background: "rgba(247,201,122,0.06)", border: "1px solid rgba(247,201,122,0.25)" }}>
+                                            <p className="text-[10px] uppercase tracking-[0.16em] mb-2" style={{ color: "var(--gold)" }}>
+                                                doação escolhida por ele
+                                            </p>
+                                            <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
+                                                {d.donationPercent}% vai para <strong style={{ color: "var(--cream)" }}>{d.donationTarget ?? "a igreja indicada"}</strong>.
+                                            </p>
+                                            <p className="text-sm mt-2" style={{ color: "var(--text-secondary)" }}>
+                                                Para ele: <strong style={{ color: "var(--gold)" }}>{brl(ambassadorCents)}</strong>
+                                                {" · "}doação: <strong style={{ color: "var(--gold)" }}>{brl(donationCents)}</strong>
+                                            </p>
+                                        </div>
+                                    );
+                                })()}
 
                                 <div className="rounded-xl p-4 mb-4" style={{ background: "rgba(11,11,18,0.4)", border: "1px solid var(--glass-border)" }}>
                                     <p className="text-[10px] uppercase tracking-[0.16em] mb-1.5" style={{ color: "var(--text-muted)" }}>chave pix</p>

@@ -7,6 +7,7 @@ import { Icon } from "@/components/icons";
 import { Medallion, type TierSlug } from "@/app/embaixadores/medallions";
 import type { AmbassadorStats, Earnings } from "@/lib/ambassadors/earnings";
 import KitClient from "./KitClient";
+import PagamentoClient from "./PagamentoClient";
 
 const brl = (cents: number) =>
     (cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -18,13 +19,16 @@ function taxa(de: number, para: number): string | null {
 }
 
 export default function PortalClient({
-    name, link, qrSvg, stats, earnings,
+    name, link, qrSvg, stats, earnings, pixKey, donationPercent, donationTarget,
 }: {
     name: string;
     link: string | null;
     qrSvg: string | null;
     stats: AmbassadorStats;
     earnings: Earnings;
+    pixKey: string | null;
+    donationPercent: number;
+    donationTarget: string | null;
 }) {
     const [copied, setCopied] = useState(false);
     const [showQr, setShowQr] = useState(false);
@@ -176,6 +180,8 @@ export default function PortalClient({
                         </div>
                     </section>
                 )}
+
+                <PagamentoClient pixKey={pixKey} donationPercent={donationPercent} donationTarget={donationTarget} />
 
                 {link && <KitClient link={link} qrSvg={qrSvg} />}
 

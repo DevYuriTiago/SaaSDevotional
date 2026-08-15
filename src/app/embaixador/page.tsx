@@ -70,6 +70,9 @@ export default async function PortalPage() {
             qrSvg={qrSvg}
             stats={stats}
             earnings={computeEarnings(stats)}
+            pixKey={ambassador.pixKey}
+            donationPercent={ambassador.donationPercent}
+            donationTarget={ambassador.donationTarget}
         />
     );
 }

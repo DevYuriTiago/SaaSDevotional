@@ -9,6 +9,7 @@ function row(over: Partial<StatRow> = {}): StatRow {
         status: "active",
         slug: "pastorjoao",
         clicks: 0,
+        blockedClicks: 0,
         signups: 0,
         payingCount: 0,
         grossPendingCents: 0,

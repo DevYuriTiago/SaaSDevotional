@@ -1,6 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Icon } from "@/components/icons";
 import type { Overview } from "@/lib/ambassadors/overview";
 import AdminNav from "./AdminNav";
@@ -12,9 +14,32 @@ const num = (n: number) => n.toLocaleString("pt-BR");
 const pct = (n: number) => `${n.toFixed(1).replace(".", ",")}%`;
 
 export default function PainelClient({ overview }: { overview: Overview }) {
+    const router = useRouter();
+    const [ocupado, setOcupado] = useState<string | null>(null);
+
     const { counts, totals, ambassadors } = overview;
     const ativos = ambassadors.filter((a) => a.status === "active");
+    const suspensos = ambassadors.filter((a) => a.status === "suspended");
     const semNenhumClique = ativos.filter((a) => a.clicks === 0).length;
+
+    async function mudarStatus(id: string, nome: string, status: "suspended" | "active") {
+        const pergunta = status === "suspended"
+            ? `Suspender ${nome}?\n\nO link continua no ar, mas novas assinaturas deixam de gerar comissão. O que ele já ganhou continua devido.`
+            : `Reativar ${nome}? Ele volta a receber comissão pelas novas assinaturas.`;
+        if (!confirm(pergunta)) return;
+
+        setOcupado(id);
+        try {
+            await fetch("/api/admin/ambassadors/status", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id, status }),
+            });
+            router.refresh();
+        } finally {
+            setOcupado(null);
+        }
+    }
 
     return (
         <main className="aurora-bg relative min-h-dvh px-5 sm:px-8 py-10">
@@ -93,6 +118,29 @@ export default function PainelClient({ overview }: { overview: Overview }) {
                     )}
                 </section>
 
+                {/* Antifraude: cliques barrados por carregamento invisível ou repetição.
+                    Só aparece quando existe algo a mostrar, para não virar ruído. */}
+                {totals.blockedClicks > 0 && (
+                    <section className="card-base p-5 mb-8 flex items-start gap-3">
+                        <Icon name="shield" size={19} style={{ color: "var(--amber)", flexShrink: 0, marginTop: 2 }} />
+                        <div>
+                            <p className="text-sm" style={{ color: "var(--cream)" }}>
+                                {num(totals.blockedClicks)} {totals.blockedClicks === 1 ? "acesso barrado" : "acessos barrados"} pela proteção antifraude.
+                            </p>
+                            <p className="text-xs mt-1 leading-relaxed" style={{ color: "var(--text-secondary)" }}>
+                                São carregamentos invisíveis do link (tentativa de plantar cookie) ou cliques repetidos do mesmo IP.
+                                Eles não contam nas métricas nem geram atribuição.
+                                {(() => {
+                                    const suspeitos = ambassadors.filter((a) => a.blockedClicks > 0);
+                                    return suspeitos.length > 0
+                                        ? ` Concentrados em: ${suspeitos.slice(0, 3).map((a) => `${a.name} (${a.blockedClicks})`).join(", ")}.`
+                                        : "";
+                                })()}
+                            </p>
+                        </div>
+                    </section>
+                )}
+
                 {/* Desempenho individual */}
                 <section>
                     <p className="text-[10px] uppercase tracking-[0.18em] mb-3" style={{ color: "var(--text-muted)" }}>
@@ -138,10 +186,18 @@ export default function PainelClient({ overview }: { overview: Overview }) {
                                             </Td>
                                             <Td>{brl(a.grossTotalCents)}</Td>
                                             <Td destaque>{brl(a.commissionTotalCents)}</Td>
-                                            <td className="px-4 py-3.5 text-right">
+                                            <td className="px-4 py-3.5 text-right whitespace-nowrap">
                                                 <Link href={`/admin/relatorio/${a.ambassadorId}`} className="text-xs hover:underline" style={{ color: "var(--gold)" }}>
                                                     relatório
                                                 </Link>
+                                                <button
+                                                    onClick={() => mudarStatus(a.ambassadorId, a.name, "suspended")}
+                                                    disabled={ocupado === a.ambassadorId}
+                                                    className="text-xs ml-3 hover:underline"
+                                                    style={{ color: "var(--text-muted)" }}
+                                                >
+                                                    suspender
+                                                </button>
                                             </td>
                                         </tr>
                                     ))}
@@ -150,6 +206,35 @@ export default function PainelClient({ overview }: { overview: Overview }) {
                         </div>
                     )}
                 </section>
+
+                {suspensos.length > 0 && (
+                    <section className="mt-10">
+                        <p className="text-[10px] uppercase tracking-[0.18em] mb-3" style={{ color: "var(--text-muted)" }}>
+                            suspensos
+                        </p>
+                        <ul className="space-y-1.5">
+                            {suspensos.map((s) => (
+                                <li key={s.ambassadorId} className="flex items-center justify-between gap-3 text-sm py-2.5 px-4 rounded-xl"
+                                    style={{ background: "var(--glass)", border: "1px solid var(--glass-border)" }}>
+                                    <span style={{ color: "var(--text-secondary)" }}>
+                                        {s.name}
+                                        <span className="text-xs ml-2" style={{ color: "var(--text-muted)" }}>
+                                            {num(s.payingCount)} assinantes trazidos
+                                        </span>
+                                    </span>
+                                    <button
+                                        onClick={() => mudarStatus(s.ambassadorId, s.name, "active")}
+                                        disabled={ocupado === s.ambassadorId}
+                                        className="text-xs hover:underline"
+                                        style={{ color: "var(--gold)" }}
+                                    >
+                                        reativar
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    </section>
+                )}
             </div>
         </main>
     );

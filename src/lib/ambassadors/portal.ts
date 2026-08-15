@@ -7,19 +7,36 @@ export type PortalUser = {
     email_confirmed_at: string | null | undefined;
 };
 
-export type PortalAmbassador = { id: string; name: string; slug: string | null };
+export type PortalAmbassador = {
+    id: string;
+    name: string;
+    slug: string | null;
+    pixKey: string | null;
+    donationPercent: number;
+    donationTarget: string | null;
+};
 
-const SELECT = "id, name, user_id, ambassador_links(slug)";
+const SELECT = "id, name, user_id, pix_key, donation_percent, donation_target, ambassador_links(slug)";
 
 type Row = {
     id: string;
     name: string;
     user_id: string | null;
+    pix_key?: string | null;
+    donation_percent?: number | null;
+    donation_target?: string | null;
     ambassador_links?: { slug: string }[] | null;
 };
 
 function toPortal(row: Row): PortalAmbassador {
-    return { id: row.id, name: row.name, slug: row.ambassador_links?.[0]?.slug ?? null };
+    return {
+        id: row.id,
+        name: row.name,
+        slug: row.ambassador_links?.[0]?.slug ?? null,
+        pixKey: row.pix_key ?? null,
+        donationPercent: row.donation_percent ?? 0,
+        donationTarget: row.donation_target ?? null,
+    };
 }
 
 /**

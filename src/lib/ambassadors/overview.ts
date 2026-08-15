@@ -7,6 +7,7 @@ export type StatRow = {
     status: string;
     slug: string | null;
     clicks: number;
+    blockedClicks: number;
     signups: number;
     payingCount: number;
     grossPendingCents: number;
@@ -28,6 +29,7 @@ export type Overview = {
     counts: { active: number; pending: number; rejected: number; suspended: number; total: number };
     totals: {
         clicks: number;
+        blockedClicks: number;
         signups: number;
         paying: number;
         grossCents: number;
@@ -79,6 +81,7 @@ export function buildOverview(rows: StatRow[]): Overview {
         counts,
         totals: {
             clicks: soma((a) => a.clicks),
+            blockedClicks: soma((a) => a.blockedClicks),
             signups: soma((a) => a.signups),
             paying: soma((a) => a.payingCount),
             grossCents: soma((a) => a.grossTotalCents),

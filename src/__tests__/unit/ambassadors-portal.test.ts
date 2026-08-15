@@ -47,7 +47,7 @@ describe("resolveAmbassador", () => {
   it("usuário já vinculado: devolve direto, sem novo vínculo", async () => {
     const { admin, updates } = makeAdmin({ byUser: { ...AMB, user_id: "user-1" } });
     const r = await resolveAmbassador(admin, CONFIRMED);
-    expect(r).toEqual({ id: "amb-1", name: "Pastor João", slug: "pastorjoao" });
+    expect(r).toEqual({ id: "amb-1", name: "Pastor João", slug: "pastorjoao", pixKey: null, donationPercent: 0, donationTarget: null });
     expect(updates).toHaveLength(0);
   });
 
@@ -85,6 +85,6 @@ describe("resolveAmbassador", () => {
   it("embaixador aprovado que ainda não tem link gerado: devolve sem slug", async () => {
     const { admin } = makeAdmin({ byUser: { ...AMB, user_id: "user-1", ambassador_links: [] } });
     const r = await resolveAmbassador(admin, CONFIRMED);
-    expect(r).toEqual({ id: "amb-1", name: "Pastor João", slug: null });
+    expect(r).toEqual({ id: "amb-1", name: "Pastor João", slug: null, pixKey: null, donationPercent: 0, donationTarget: null });
   });
 });

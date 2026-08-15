@@ -12,7 +12,7 @@ export default async function PainelPage() {
 
     const { data: stats } = await admin
         .from("ambassador_stats")
-        .select("ambassador_id, name, status, clicks, signups, paying_count, gross_pending_cents, gross_available_cents, gross_paid_cents");
+        .select("ambassador_id, name, status, clicks, blocked_clicks, signups, paying_count, gross_pending_cents, gross_available_cents, gross_paid_cents");
 
     const { data: links } = await admin.from("ambassador_links").select("ambassador_id, slug");
     const slugPorId = new Map(
@@ -21,7 +21,7 @@ export default async function PainelPage() {
 
     const rows: StatRow[] = ((stats ?? []) as {
         ambassador_id: string; name: string; status: string;
-        clicks: number; signups: number; paying_count: number;
+        clicks: number; blocked_clicks: number; signups: number; paying_count: number;
         gross_pending_cents: number; gross_available_cents: number; gross_paid_cents: number;
     }[]).map((r) => ({
         ambassadorId: r.ambassador_id,
@@ -29,6 +29,7 @@ export default async function PainelPage() {
         status: r.status,
         slug: slugPorId.get(r.ambassador_id) ?? null,
         clicks: r.clicks,
+        blockedClicks: r.blocked_clicks ?? 0,
         signups: r.signups,
         payingCount: r.paying_count,
         grossPendingCents: r.gross_pending_cents,
