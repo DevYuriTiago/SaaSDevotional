@@ -106,6 +106,9 @@ export default function FilaClient({ pending, recent }: { pending: Application[]
                         </p>
                     </div>
                     <div className="flex items-center gap-3">
+                        <a href="/api/admin/export" className="btn-ghost text-xs" style={{ width: "auto", height: 40, paddingInline: 16 }}>
+                            <Icon name="scroll" size={15} /> CSV
+                        </a>
                         <Link href="/admin/saques" className="btn-ghost text-xs" style={{ width: "auto", height: 40, paddingInline: 16 }}>
                             Saques
                         </Link>
@@ -259,12 +262,17 @@ export default function FilaClient({ pending, recent }: { pending: Application[]
                         <p className="text-[10px] uppercase tracking-[0.18em] mb-3" style={{ color: "var(--text-muted)" }}>decisões recentes</p>
                         <ul className="space-y-1.5">
                             {recent.map((r) => (
-                                <li key={r.id} className="flex items-center justify-between text-sm py-2 px-4 rounded-xl"
+                                <li key={r.id} className="flex items-center justify-between gap-3 text-sm py-2 px-4 rounded-xl"
                                     style={{ background: "var(--glass)", border: "1px solid var(--glass-border)" }}>
                                     <span style={{ color: "var(--text-secondary)" }}>{r.name}</span>
-                                    <span className="text-xs" style={{ color: r.status === "active" ? "var(--gold)" : "var(--text-muted)" }}>
+                                    <span className="flex items-center gap-3 text-xs" style={{ color: r.status === "active" ? "var(--gold)" : "var(--text-muted)" }}>
                                         {r.status === "active" ? "aprovado" : "recusado"}
                                         {r.reviewed_at ? ` · ${formatShortDate(r.reviewed_at)}` : ""}
+                                        {r.status === "active" && (
+                                            <Link href={`/admin/relatorio/${r.id}`} className="hover:underline" style={{ color: "var(--gold)" }}>
+                                                relatório
+                                            </Link>
+                                        )}
                                     </span>
                                 </li>
                             ))}

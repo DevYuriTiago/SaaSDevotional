@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { Icon } from "@/components/icons";
 import { Medallion, type TierSlug } from "@/app/embaixadores/medallions";
 import type { AmbassadorStats, Earnings } from "@/lib/ambassadors/earnings";
+import KitClient from "./KitClient";
 
 const brl = (cents: number) =>
     (cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -175,6 +176,8 @@ export default function PortalClient({
                         </div>
                     </section>
                 )}
+
+                {link && <KitClient link={link} qrSvg={qrSvg} />}
 
                 <Link href="/dashboard" className="block text-center text-xs mt-9" style={{ color: "var(--text-muted)" }}>
                     Voltar ao meu devocional
