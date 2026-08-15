@@ -29,12 +29,15 @@ export async function updateSession(request: NextRequest) {
         data: { user },
     } = await supabase.auth.getUser();
 
-    const protectedRoutes = ["/dashboard", "/devotional", "/journal", "/journey", "/profile", "/onboarding", "/emotion", "/subscription"];
+    const protectedRoutes = ["/dashboard", "/devotional", "/journal", "/journey", "/profile", "/onboarding", "/emotion", "/subscription", "/embaixador"];
     const authRoutes = ["/login", "/signup"];
     const pathname = request.nextUrl.pathname;
 
-    const isProtected = protectedRoutes.some((r) => pathname.startsWith(r));
-    const isAuthRoute = authRoutes.some((r) => pathname.startsWith(r));
+    // Compara por segmento, não por prefixo cru: "/embaixadores" (landing pública)
+    // não pode ser confundida com "/embaixador" (portal, que exige login).
+    const matches = (r: string) => pathname === r || pathname.startsWith(`${r}/`);
+    const isProtected = protectedRoutes.some(matches);
+    const isAuthRoute = authRoutes.some(matches);
 
     if (!user && isProtected) {
         const url = request.nextUrl.clone();

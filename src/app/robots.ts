@@ -16,6 +16,9 @@ export default function robots(): MetadataRoute.Robots {
                 "/api/",
                 "/e/",
                 "/admin",
+                // O "$" ancora o fim da URL: bloqueia só o portal e preserva a
+                // landing pública /embaixadores, que precisa ser indexada.
+                "/embaixador$",
                 "/dashboard",
                 "/devotional",
                 "/emotion",

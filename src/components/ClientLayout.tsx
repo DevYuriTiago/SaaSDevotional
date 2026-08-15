@@ -11,7 +11,9 @@ function isWebRoute(pathname: string): boolean {
     return (
         pathname === "/" ||
         pathname.startsWith("/versiculos") ||
-        pathname.startsWith("/embaixadores") ||
+        // cobre a landing (/embaixadores) e o portal (/embaixador): os dois são
+        // páginas de largura total, não a experiência mobile do devocional
+        pathname.startsWith("/embaixador") ||
         pathname.startsWith("/admin") ||
         pathname === "/privacidade" ||
         pathname === "/termos"
