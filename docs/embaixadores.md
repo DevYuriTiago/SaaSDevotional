@@ -112,12 +112,17 @@ geral do negócio (MRR, funil, receita por embaixador).
 4. ✅ Portal do embaixador (login + link + métricas + níveis).
 5. ✅ Comissão gamificada (cálculo de nível + ganhos) + saque (Pix).
 6. ✅ Kit de divulgação + exportação (PDF).
-7. **Painel de observabilidade** (a seção 7 deste doc): visão geral do negócio e
-   métricas por embaixador. *Estava descrito como funcionalidade mas faltava na
+7. ✅ **Painel de observabilidade** (a seção 7 deste doc): visão geral do negócio
+   e métricas por embaixador. *Estava descrito como funcionalidade mas faltava na
    lista de fases, e por isso escorregou duas vezes.*
-8. Antifraude + polimento. *Auto-indicação, comissão só em pagante e após
-   reembolso, e first-touch já foram implementados nas fases 1, 3 e 5; resta o
-   dedupe de cookie stuffing por IP e device.*
+8. ✅ Antifraude. *Auto-indicação, comissão só em pagante e após reembolso, e
+   first-touch vieram nas fases 1, 3 e 5. O cookie stuffing é barrado pelo
+   cabeçalho `Sec-Fetch-Dest` (carregamento invisível não grava cookie), e
+   cliques repetidos do mesmo IP em 30 minutos não inflam a métrica.*
+
+**Todas as fases planejadas estão entregues.** O que falta para operar de verdade
+é ambiental, não de código: configurar o SMTP (o Zoho virou pago) e validar o
+fluxo de saque com o primeiro pagante real.
 
 ## 12. ⏱️ Tempo e custo (vibe coding)
 Estimativa em **esforço** (sessões focadas com IA) — vibe coding é bem mais rápido
