@@ -58,12 +58,13 @@ export default function EmbaixadoresClient() {
             {/* ───────── Nav mínima ───────── */}
             <nav className="fixed inset-x-0 top-0 z-40" style={{ background: "linear-gradient(to bottom, rgba(7,7,13,0.92), rgba(7,7,13,0.55) 70%, transparent)" }}>
                 <div className="max-w-6xl mx-auto px-5 sm:px-8 py-4 flex items-center justify-between">
-                    <Link href="/" className="flex items-center gap-2.5">
+                    <Link href="/" className="flex items-center gap-2.5 shrink-0">
                         {/* o ícone é decorativo ao lado da wordmark: alt vazio evita leitura duplicada */}
-                        <Image src="/new-icon.png" alt="" width={40} height={40} className="rounded-xl w-10 h-10" priority />
-                        <Image src="/new-wordmark.png" alt="Humanáh, início" width={1536} height={1024} priority className="h-auto w-[110px]" style={{ marginTop: -12, marginBottom: -9 }} />
+                        <Image src="/new-icon.png" alt="Humanáh, início" width={40} height={40} className="rounded-xl w-10 h-10" priority />
+                        {/* a wordmark some no celular: emblema e botão não cabem juntos com ela */}
+                        <Image src="/new-wordmark.png" alt="" width={1536} height={1024} priority className="hidden sm:block h-auto w-[110px]" style={{ marginTop: -12, marginBottom: -9 }} />
                     </Link>
-                    <a href="#inscricao" className="inline-flex items-center gap-2 text-sm font-semibold px-5 py-2.5 rounded-full whitespace-nowrap transition-colors hover:bg-[rgba(247,201,122,0.08)]"
+                    <a href="#inscricao" className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold px-4 sm:px-5 py-2.5 rounded-full whitespace-nowrap transition-colors hover:bg-[rgba(247,201,122,0.08)]"
                         style={{ color: "var(--gold)", border: "1px solid rgba(247,201,122,0.35)" }}>
                         Quero ser embaixador
                     </a>

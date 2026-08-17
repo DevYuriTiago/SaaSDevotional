@@ -46,13 +46,19 @@ export default function Calculadora() {
                         aria-label="Quantidade de assinantes ativos"
                         className="amb-range w-full"
                     />
-                    {/* marcos dos níveis */}
-                    <div className="relative h-4 mt-1 text-[10px]" style={{ color: "var(--text-muted)" }}>
-                        {LEVELS.map((l) => (
-                            <span key={l.slug} className="absolute -translate-x-1/2" style={{ left: `${Math.min((l.min / 2000) * 100, 100)}%` }}>
-                                {l.min.toLocaleString("pt-BR")}
-                            </span>
-                        ))}
+                    {/* Legenda dos níveis. Marcadores posicionados sobre a régua se
+                        empilhavam no celular, porque Bronze, Prata e Ouro começam todos
+                        nos primeiros 10% da escala. Em lista que quebra linha nada colide,
+                        e ainda dá para mostrar o nome de cada nível. */}
+                    <div className="flex flex-wrap gap-x-3 gap-y-1 mt-3 text-[10px]">
+                        {LEVELS.map((l) => {
+                            const atual = level?.slug === l.slug;
+                            return (
+                                <span key={l.slug} style={{ color: atual ? "var(--gold)" : "var(--text-muted)" }}>
+                                    {l.name} <span style={{ opacity: 0.7 }}>{l.min.toLocaleString("pt-BR")}+</span>
+                                </span>
+                            );
+                        })}
                     </div>
 
                     <div className="mt-5 pt-5 border-t" style={{ borderColor: "var(--glass-border)" }}>
