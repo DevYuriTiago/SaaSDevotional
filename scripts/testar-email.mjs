@@ -57,11 +57,10 @@ try {
     } else if (/ENOTFOUND|EAI_AGAIN/i.test(m)) {
         console.error(`\nCausa provavel: servidor "${host}" errado. Se voce acessa o Zoho por zoho.eu, use smtp.zoho.eu.`);
     } else if (/certificate|self-signed/i.test(m)) {
-        console.error("
-Causa provavel: antivirus inspecionando TLS (Norton, Kaspersky, ESET).");
+        console.error("\nCausa provavel: antivirus inspecionando TLS (Norton, Kaspersky, ESET).");
         console.error("Use ZOHO_SMTP_PORT=587, que costuma passar sem interceptacao.");
     } else if (/ETIMEDOUT|ECONNREFUSED/i.test(m)) {
-        console.error("\nCausa provavel: porta bloqueada. Tente ZOHO_SMTP_PORT=587.");
+        console.error("\nCausa provavel: porta bloqueada. Tente ZOHO_SMTP_PORT=465.");
     }
     process.exit(1);
 }
