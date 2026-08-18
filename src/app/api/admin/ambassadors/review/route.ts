@@ -4,6 +4,7 @@ import { ADMIN_COOKIE, isAdminAuthed } from "@/lib/admin/auth";
 import { uniqueSlug } from "@/lib/ambassadors/slug";
 import { sendMail } from "@/lib/email/mailer";
 import { approvalEmail, rejectionEmail } from "@/lib/email/templates";
+import { appUrl } from "@/lib/app-url";
 
 const admin = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -47,7 +48,7 @@ export async function POST(request: NextRequest) {
         );
     }
 
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://humanah.app";
+    const baseUrl = appUrl();
 
     if (action === "reject") {
         await admin

@@ -1,7 +1,8 @@
 import type { MetadataRoute } from "next";
 import { VERSE_THEMES } from "@/lib/seo/verse-themes";
+import { appUrl } from "@/lib/app-url";
 
-const BASE = process.env.NEXT_PUBLIC_APP_URL ?? "https://humanah.app";
+const BASE = appUrl();
 
 export default function sitemap(): MetadataRoute.Sitemap {
     const now = new Date();

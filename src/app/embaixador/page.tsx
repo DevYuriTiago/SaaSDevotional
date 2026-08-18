@@ -8,6 +8,7 @@ import { resolveAmbassador } from "@/lib/ambassadors/portal";
 import { computeEarnings, type AmbassadorStats } from "@/lib/ambassadors/earnings";
 import { Icon } from "@/components/icons";
 import PortalClient from "./PortalClient";
+import { appUrl } from "@/lib/app-url";
 
 export const metadata: Metadata = {
     title: "Portal do embaixador",
@@ -51,7 +52,7 @@ export default async function PortalPage() {
         grossPaidCents: row?.gross_paid_cents ?? 0,
     };
 
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://humanah.app";
+    const baseUrl = appUrl();
     const link = ambassador.slug ? `${baseUrl}/e/${ambassador.slug}` : null;
 
     // QR gerado no servidor: sem chamada a serviço externo, sem rastrear ninguém.

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
+import { appUrl } from "@/lib/app-url";
 
 const admin = createAdminClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -49,8 +50,8 @@ export async function GET() {
         .eq("referrer_id", user.id)
         .eq("status", "rewarded");
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://humanah.app";
-    const url = code ? `${appUrl}/?ref=${code}` : null;
+    const baseUrl = appUrl();
+    const url = code ? `${baseUrl}/?ref=${code}` : null;
 
     return NextResponse.json({
         code: code ?? null,

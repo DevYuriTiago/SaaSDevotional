@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import EmbaixadoresClient from "./EmbaixadoresClient";
 import { FAQS } from "./content";
+import { appUrl } from "@/lib/app-url";
 
 const TITLE = "Programa de Embaixadores · Humanáh";
 const DESCRIPTION =
@@ -37,7 +38,7 @@ export const metadata: Metadata = {
     },
 };
 
-const BASE = process.env.NEXT_PUBLIC_APP_URL ?? "https://humanah.app";
+const BASE = appUrl();
 
 // Dados estruturados: ajudam o Google a entender a página como uma oferta de
 // programa da marca e a mapear as perguntas frequentes.

@@ -173,7 +173,9 @@ export default function PainelClient({ overview }: { overview: Overview }) {
                                     {ativos.map((a) => (
                                         <tr key={a.ambassadorId} style={{ borderTop: "1px solid var(--glass-border)" }}>
                                             <td className="px-4 py-3.5">
-                                                <p style={{ color: "var(--cream)" }}>{a.name}</p>
+                                                <Link href={`/admin/embaixadores/${a.ambassadorId}`} className="hover:underline" style={{ color: "var(--cream)" }}>
+                                                    {a.name}
+                                                </Link>
                                                 <p className="text-[11px] mt-0.5" style={{ color: "var(--text-muted)" }}>
                                                     {a.level ? `${a.level.name} · ${a.ratePct}%` : "sem nível"}
                                                     {a.slug ? ` · /e/${a.slug}` : ""}
@@ -217,7 +219,7 @@ export default function PainelClient({ overview }: { overview: Overview }) {
                                 <li key={s.ambassadorId} className="flex items-center justify-between gap-3 text-sm py-2.5 px-4 rounded-xl"
                                     style={{ background: "var(--glass)", border: "1px solid var(--glass-border)" }}>
                                     <span style={{ color: "var(--text-secondary)" }}>
-                                        {s.name}
+                                        <Link href={`/admin/embaixadores/${s.ambassadorId}`} className="hover:underline">{s.name}</Link>
                                         <span className="text-xs ml-2" style={{ color: "var(--text-muted)" }}>
                                             {num(s.payingCount)} assinantes trazidos
                                         </span>

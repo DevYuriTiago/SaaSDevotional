@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Cormorant_Garamond, Sora } from "next/font/google";
 import ClientLayout from "@/components/ClientLayout";
+import { appUrl } from "@/lib/app-url";
 import "./globals.css";
 
 // Voz SAGRADA — serifa de alto contraste para títulos e a pergunta ("Lumina Sacra")
@@ -35,7 +36,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "https://humanah.app"),
+  metadataBase: new URL(appUrl()),
   title: {
     default: "Humanáh — Seu alimento espiritual diário",
     template: "%s · Humanáh",

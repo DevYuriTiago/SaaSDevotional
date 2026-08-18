@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
+import { appUrl } from "@/lib/app-url";
 
-const BASE = process.env.NEXT_PUBLIC_APP_URL ?? "https://humanah.app";
+const BASE = appUrl();
 
 /**
  * Só o conteúdo público é rastreável. Telas do app (exigem login), rotas de

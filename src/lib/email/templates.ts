@@ -1,3 +1,5 @@
+import { appUrl } from "@/lib/app-url";
+
 /**
  * Textos dos e-mails da curadoria de embaixadores.
  * Funções puras (sem I/O) para serem testáveis e para o conteúdo ficar num
@@ -6,7 +8,7 @@
 
 export type EmailContent = { subject: string; text: string; html: string };
 
-const BASE = process.env.NEXT_PUBLIC_APP_URL ?? "https://humanah.app";
+const BASE = appUrl();
 
 function firstName(name: string): string {
     return (name ?? "").trim().split(/\s+/)[0] || "amigo";

@@ -173,7 +173,9 @@ export default function FilaClient({ pending, recent }: { pending: Application[]
                                 <article key={app.id} className="surface-wood rounded-[24px] p-6">
                                     <div className="flex flex-wrap items-start justify-between gap-3 mb-5">
                                         <div>
-                                            <h2 className="font-display text-xl" style={{ color: "var(--cream)", fontWeight: 500 }}>{app.name}</h2>
+                                            <h2 className="font-display text-xl" style={{ color: "var(--cream)", fontWeight: 500 }}>
+                                                <Link href={`/admin/embaixadores/${app.id}`} className="hover:underline">{app.name}</Link>
+                                            </h2>
                                             <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>
                                                 inscrito em {formatShortDate(app.created_at)}
                                             </p>
@@ -250,7 +252,7 @@ export default function FilaClient({ pending, recent }: { pending: Application[]
                             {recent.map((r) => (
                                 <li key={r.id} className="flex items-center justify-between gap-3 text-sm py-2 px-4 rounded-xl"
                                     style={{ background: "var(--glass)", border: "1px solid var(--glass-border)" }}>
-                                    <span style={{ color: "var(--text-secondary)" }}>{r.name}</span>
+                                    <Link href={`/admin/embaixadores/${r.id}`} className="hover:underline" style={{ color: "var(--text-secondary)" }}>{r.name}</Link>
                                     <span className="flex items-center gap-3 text-xs" style={{ color: r.status === "active" ? "var(--gold)" : "var(--text-muted)" }}>
                                         {r.status === "active" ? "aprovado" : "recusado"}
                                         {r.reviewed_at ? ` · ${formatShortDate(r.reviewed_at)}` : ""}

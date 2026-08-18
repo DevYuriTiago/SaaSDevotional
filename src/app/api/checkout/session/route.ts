@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { stripe } from "@/lib/stripe/client";
 import { logEvent, EVENTS } from "@/lib/analytics/events";
+import { appUrl } from "@/lib/app-url";
 
 export async function POST(request: NextRequest) {
     const supabase = await createClient();
@@ -32,7 +33,7 @@ export async function POST(request: NextRequest) {
         );
     }
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+    const baseUrl = appUrl();
 
     // Reusa o customer existente se já houver — evita customers duplicados no Stripe.
     const { data: profile } = await supabase
@@ -49,8 +50,8 @@ export async function POST(request: NextRequest) {
         ...(existingCustomer
             ? { customer: existingCustomer }
             : { customer_email: user.email ?? undefined }),
-        success_url: `${appUrl}/dashboard?upgraded=1`,
-        cancel_url: `${appUrl}/subscription?cancelled=1`,
+        success_url: `${baseUrl}/dashboard?upgraded=1`,
+        cancel_url: `${baseUrl}/subscription?cancelled=1`,
         subscription_data: {
             metadata: { supabase_user_id: user.id },
         },
