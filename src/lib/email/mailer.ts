@@ -17,7 +17,10 @@ function getTransport() {
     const pass = process.env.ZOHO_SMTP_PASSWORD;
     if (!user || !pass) return null;
 
-    const port = Number(process.env.ZOHO_SMTP_PORT ?? 465);
+    // 587 (STARTTLS) e a porta padrao de submissao e a mais compativel: a 465
+    // costuma ser interceptada por antivirus que fazem inspecao de TLS, o que
+    // quebra a validacao do certificado.
+    const port = Number(process.env.ZOHO_SMTP_PORT ?? 587);
     return nodemailer.createTransport({
         host: process.env.ZOHO_SMTP_HOST ?? "smtp.zoho.com",
         port,

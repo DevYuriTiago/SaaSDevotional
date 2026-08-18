@@ -15,7 +15,7 @@ if (!destino) {
 
 const { ZOHO_SMTP_USER: user, ZOHO_SMTP_PASSWORD: pass } = process.env;
 const host = process.env.ZOHO_SMTP_HOST ?? "smtp.zoho.com";
-const port = Number(process.env.ZOHO_SMTP_PORT ?? 465);
+const port = Number(process.env.ZOHO_SMTP_PORT ?? 587);
 
 if (!user || !pass) {
     console.error("\nFaltam ZOHO_SMTP_USER e/ou ZOHO_SMTP_PASSWORD no .env.local\n");
@@ -56,6 +56,10 @@ try {
         console.error("\nCausa provavel: senha de aplicativo incorreta, ou o usuario nao e o e-mail completo.");
     } else if (/ENOTFOUND|EAI_AGAIN/i.test(m)) {
         console.error(`\nCausa provavel: servidor "${host}" errado. Se voce acessa o Zoho por zoho.eu, use smtp.zoho.eu.`);
+    } else if (/certificate|self-signed/i.test(m)) {
+        console.error("
+Causa provavel: antivirus inspecionando TLS (Norton, Kaspersky, ESET).");
+        console.error("Use ZOHO_SMTP_PORT=587, que costuma passar sem interceptacao.");
     } else if (/ETIMEDOUT|ECONNREFUSED/i.test(m)) {
         console.error("\nCausa provavel: porta bloqueada. Tente ZOHO_SMTP_PORT=587.");
     }
