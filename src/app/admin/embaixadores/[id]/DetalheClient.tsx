@@ -96,6 +96,10 @@ export default function DetalheClient({ d, stats, earnings }: {
             <div className="max-w-3xl mx-auto">
 
                 <header className="mb-6">
+                    <Link href="/admin" className="inline-flex items-center gap-1.5 text-xs mb-4 transition-colors hover:text-[var(--cream)]"
+                        style={{ color: "var(--text-muted)" }}>
+                        <Icon name="arrow-left" size={15} /> Voltar ao painel
+                    </Link>
                     <p className="eyebrow mb-1.5" style={{ color: "var(--gold)" }}>
                         <span className="gold-rule" /> ficha do embaixador
                     </p>
